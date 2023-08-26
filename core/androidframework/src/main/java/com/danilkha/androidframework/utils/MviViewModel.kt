@@ -11,7 +11,13 @@ abstract class MviViewModel<State, Event, UserEvent: Event, SideEffect> : ViewMo
 
     private val _state by lazy { MutableStateFlow(startState) }
     val state: StateFlow<State>
-        get() = _state.asStateFlow()
+        get() = _state
+            .asStateFlow()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = startState
+            )
 
     private val _sideEffects = MutableSharedFlow<SideEffect>()
     val sideEffects: SharedFlow<SideEffect>

@@ -54,7 +54,7 @@ android {
 
 dependencies {
     implementation(project(":feature:workout"))
-
+    implementation(project(":core:uikit"))
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)
     implementation(libs.lifecycle.runtime.ktx)

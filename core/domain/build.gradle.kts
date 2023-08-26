@@ -11,4 +11,5 @@ java {
 
 dependencies{
     implementation(libs.coroutines.core)
+    implementation(libs.klock.jvm)
 }

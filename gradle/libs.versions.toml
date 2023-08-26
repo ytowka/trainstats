@@ -17,6 +17,7 @@ coroutines = "1.7.3"
 room = "2.5.2"
 navigation = "2.7.0"
 dagger = '2.45'
+klock = "4.0.2"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -45,6 +46,8 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
+klock-jvm = { group = "com.soywiz.korlibs.klock", name = "klock-jvm", version.ref = "klock"}
+klock-android = { group = "com.soywiz.korlibs.klock", name = "klock-android", version.ref = "klock" }
 
 
 

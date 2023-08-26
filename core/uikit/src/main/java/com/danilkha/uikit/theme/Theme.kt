@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.ui.theme
+package com.danilkha.uikit.theme
 
 import android.app.Activity
 import android.os.Build
