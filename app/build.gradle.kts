@@ -53,20 +53,22 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature:workout"))
     implementation(project(":core:uikit"))
+    implementation(project(":feature:workout"))
+    implementation(project(":feature:home"))
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
+    implementation(libs.navigation.compose)
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
-    implementation(libs.material3)
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

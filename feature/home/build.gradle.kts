@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.danilkha.workout"
+    namespace = "com.danilkha.home"
     compileSdk = 34
 
     defaultConfig {
@@ -26,30 +26,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures{
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        jvmTarget = "1.8"
     }
 }
 
 dependencies {
     implementation(project(":core:uikit"))
-    implementation(project(":core:androidframework"))
-
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
+
     implementation(platform(libs.compose.bom))
     implementation(libs.coroutines.android)
     implementation(libs.lifecycle.viewmodel.compose)
+
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)

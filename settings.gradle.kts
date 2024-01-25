@@ -16,8 +16,9 @@ dependencyResolutionManagement {
 rootProject.name = "Training stats"
 include(":app")
 include(":feature:workout")
-include(":core:domain")
+include(":domain")
 include(":core:framework")
 include(":data:workouts")
 include(":core:uikit")
 include(":core:androidframework")
+include(":feature:home")

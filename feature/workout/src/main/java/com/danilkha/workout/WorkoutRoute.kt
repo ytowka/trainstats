@@ -1,24 +1,23 @@
 package com.danilkha.workout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun WorkoutRoute(
-    viewModel: WorkoutViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: WorkoutViewModel = viewModel()
 ){
+    val state by viewModel.state.collectAsState(viewModel.startState)
 
+    WorkoutScreen(state)
 }
-
-internal val LocalWorkoutComponent = staticCompositionLocalOf<WorkoutComponent> { throw Exception("component not provided") }
 
 fun WorkoutScreen(
     state: WorkoutState,
-){
-
-}
-
-interface WorkoutDependenciesProvider{
+) {
 
 }
 

@@ -9,6 +9,7 @@ espresso-core = "3.5.1"
 lifecycle = "2.6.1"
 activity-compose = "1.7.2"
 compose-bom = "2023.08.00"
+compose-material = "1.5.4"
 appcompat = "1.6.1"
 material = "1.9.0"
 org-jetbrains-kotlin-jvm = "1.8.10"
@@ -18,6 +19,7 @@ room = "2.5.2"
 navigation = "2.7.0"
 dagger = '2.45'
 klock = "4.0.2"
+foundation-android = "1.5.4"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -38,6 +40,7 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose-material" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "android-coroutines"  }
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -48,6 +51,7 @@ dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" 
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 klock-jvm = { group = "com.soywiz.korlibs.klock", name = "klock-jvm", version.ref = "klock"}
 klock-android = { group = "com.soywiz.korlibs.klock", name = "klock-android", version.ref = "klock" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundation-android" }
 
 
 

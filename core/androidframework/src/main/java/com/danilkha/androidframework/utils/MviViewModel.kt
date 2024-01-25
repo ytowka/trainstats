@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<State, Event, UserEvent: Event, SideEffect> : ViewModel(){
+abstract class MviViewModel<State, Event, SideEffect> : ViewModel(){
 
     private val _state by lazy { MutableStateFlow(startState) }
     val state: StateFlow<State>
@@ -63,7 +63,7 @@ abstract class MviViewModel<State, Event, UserEvent: Event, SideEffect> : ViewMo
 }
 
 @Composable
-fun <State, Event, UserEvent: Event, SideEffect> MviViewModel<State, Event, UserEvent, SideEffect>.LaunchCollectEffects(collector: (FlowCollector<SideEffect>)){
+fun <State, Event, UserEvent: Event, SideEffect> MviViewModel<State, Event, SideEffect>.LaunchCollectEffects(collector: (FlowCollector<SideEffect>)){
     LaunchedEffect(Unit){
         sideEffects.collect(collector)
     }

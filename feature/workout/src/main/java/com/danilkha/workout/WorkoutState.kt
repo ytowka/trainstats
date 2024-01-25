@@ -24,3 +24,11 @@ sealed class Item{
 
     class NewSet() : Item()
 }
+
+sealed interface WorkoutEvent{
+
+}
+
+sealed interface WorkoutSideEffect{
+
+}
