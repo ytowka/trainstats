@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="navigation_item_home">Тренировки</string>
+    <string name="navigation_item_exercises">Упражнения</string>
+    <string name="navigation_item_workouts">Шаблоны</string>
+    <string name="navigation_item_stats">Статистика</string>
+    <string name="navigation_item_profile">Профиль</string>
+</resources>

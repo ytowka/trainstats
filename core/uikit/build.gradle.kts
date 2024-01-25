@@ -42,7 +42,7 @@ android {
 dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
-    implementation(libs.androidx.foundation.android)
+    implementation(libs.compose.foundation)
     testImplementation(libs.junit)
     implementation(libs.coroutines.android)
     implementation(platform(libs.compose.bom))
