@@ -62,6 +62,8 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material)
     implementation(libs.navigation.compose)
     implementation(libs.ui)
     implementation(libs.ui.graphics)

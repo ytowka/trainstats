@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.ui.tooling)
+    implementation(libs.compose.material)
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
 

@@ -15,13 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.danilkha.uikit.theme.CustomColors
 import com.danilkha.uikit.theme.TrainingStatsTheme
 import kotlin.random.Random
 
@@ -94,13 +89,11 @@ fun EditingSet(
                 weight = it
             } },
             enabled = enabled,
-            textStyle = MaterialTheme.typography.titleLarge,
-            label = {Text(text = "kg")},
-
+            textStyle = MaterialTheme.typography.h1,
+            label = { Text(text = "kg") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             maxLines = 1,
-            colors = CustomColors.noIndicator
         )
 
         TextField(
@@ -112,14 +105,13 @@ fun EditingSet(
                     reps = it
                 }
             },
-            textStyle = MaterialTheme.typography.titleLarge,
+            textStyle = MaterialTheme.typography.h1,
             label = {
                 Text(text = "reps")
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             maxLines = 1,
-            colors = CustomColors.noIndicator
         )
     }
 }
