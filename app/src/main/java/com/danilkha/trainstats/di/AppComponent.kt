@@ -1,16 +1,16 @@
 package com.danilkha.trainstats.di
 
 import android.content.Context
-import com.danilkha.workout.WorkoutDependencies
+import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
+import com.danilkha.trainstats.features.workout.ui.WorkoutDependencies
 import dagger.BindsInstance
 import dagger.Component
-import dagger.Component.Factory
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@Component
+@Component(modules = [RepositoryModule::class])
 @Singleton
-abstract class AppComponent : WorkoutDependencies{
+abstract class AppComponent : WorkoutDependencies {
 
 
     @Component.Factory
@@ -20,6 +20,8 @@ abstract class AppComponent : WorkoutDependencies{
             @ApplicationContext
                    context: Context): AppComponent
     }
+
+    abstract val exerciseListViewModel: ExerciseListViewModel
 }
 
 @Qualifier
