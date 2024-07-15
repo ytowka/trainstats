@@ -18,7 +18,7 @@ abstract class BaseViewModel<State, SideEffect> : ViewModel(){
                 initialValue = startState
             )
 
-    private val _sideEffects = MutableSharedFlow<SideEffect>()
+    private val _sideEffects = MutableSharedFlow<SideEffect>(extraBufferCapacity = 10)
     val sideEffects: SharedFlow<SideEffect>
         get() = _sideEffects.asSharedFlow()
 

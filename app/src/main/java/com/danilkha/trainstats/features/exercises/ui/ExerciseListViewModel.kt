@@ -5,6 +5,7 @@ import com.danilkha.trainstats.core.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.exercises.domain.usecase.FindExercisesUseCase
 import com.danilkha.trainstats.features.exercises.domain.usecase.GetAllExercisesUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -26,18 +27,28 @@ class ExerciseListViewModel @Inject constructor(
                 .map { it.searchQuery }
                 .distinctUntilChanged()
                 .collectLatest {
-                    if(it.isNotBlank()){
-                        val exercises = getAllExercisesUseCase().getOrNull() ?: return@collectLatest
-                        _state.update {
-                            it.copy(exerciseList = exercises.map(ExerciseData::toModel))
-                        }
-                    }else{
-                        val exercises = findExercisesUseCase(it).getOrNull() ?: return@collectLatest
-                        _state.update {
-                            it.copy(exerciseList = exercises.map(ExerciseData::toModel))
-                        }
-                    }
+                    updateList(it)
                 }
+        }
+    }
+
+    private suspend fun updateList(query: String){
+        if(query.isBlank()){
+            val exercises = getAllExercisesUseCase().getOrNull() ?: return
+            _state.update {
+                it.copy(exerciseList = exercises.map(ExerciseData::toModel))
+            }
+        }else{
+            val exercises = findExercisesUseCase(query).getOrNull() ?: return
+            _state.update {
+                it.copy(exerciseList = exercises.map(ExerciseData::toModel))
+            }
+        }
+    }
+
+    fun updateList(){
+        viewModelScope.launch {
+            updateList(state.value.searchQuery)
         }
     }
 

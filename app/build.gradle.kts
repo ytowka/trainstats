@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.dagger)
+    implementation(libs.androidx.fragment.ktx)
     kapt(libs.dagger.compiler)
 
     testImplementation(libs.junit)

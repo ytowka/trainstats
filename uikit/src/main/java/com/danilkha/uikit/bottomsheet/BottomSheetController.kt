@@ -15,7 +15,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
  * BottomSheetController designed for controlling old bottom sheets based on fragment manager
  * system from compose context. The lifecycle of component is bound to parent composition.
  */
-class BottomSheetController(
+open class BottomSheetController(
     val bottomSheetClass: Class<out ComposeContextBottomDialog>,
     val tag: String = bottomSheetClass.name,
     private val fragmentManager: FragmentManager,

@@ -2,15 +2,13 @@ package com.danilkha.trainstats.features.exercises.data
 
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import dagger.Binds
-import dagger.BindsInstance
 import javax.inject.Inject
 
 class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
 
     var idSequence = 1L
 
-    private val exercises = mutableListOf<ExerciseData>(
+    private val exercises = mutableListOf(
         ExerciseData(
             id = 1,
             name = "жим лежа",
@@ -22,6 +20,10 @@ class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
 
     override suspend fun getAllExercises(): List<ExerciseData> {
        return exercises
+    }
+
+    override suspend fun getExercise(id: Long): ExerciseData {
+        return exercises.first { it.id == id }
     }
 
     override suspend fun findExercise(query: String): List<ExerciseData> {
@@ -37,7 +39,7 @@ class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
 
     override suspend fun updateExercise(exerciseData: ExerciseData) {
         val added = exercises.indexOfFirst { it.id == exerciseData.id }
-        if(added != 0){
+        if(added != -1){
             exercises.removeAt(added)
             exercises.add(added, exerciseData)
         }
@@ -45,7 +47,7 @@ class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
 
     override suspend fun deleteExercise(id: Long) {
         val added = exercises.indexOfFirst { it.id == id }
-        if(added != 0){
+        if(added != -1){
             exercises.removeAt(added)
         }
     }

@@ -38,7 +38,10 @@ fun ExerciseListScreenPage(
     val state by viewModel.state.collectAsState()
     ExerciseListScreen(
         state = state,
-        onAddClicked = {exerciseEditor.show()}
+        onAddClicked = {exerciseEditor.show()},
+        onExerciseClicked = {
+            exerciseEditor.show(ExerciseEditorBottomSheet.buildArgs(it))
+        }
     )
 }
 
@@ -46,6 +49,7 @@ fun ExerciseListScreenPage(
 fun ExerciseListScreen(
     state: ExerciseListState,
     onAddClicked: () -> Unit,
+    onExerciseClicked: (Long) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -61,7 +65,10 @@ fun ExerciseListScreen(
                 ),
             ) {
                 items(items = state.exerciseList, key = { it.id }){
-                    ExerciseCard(it)
+                    ExerciseCard(
+                       exerciseModel =  it,
+                        onClick = { onExerciseClicked(it.id) }
+                    )
                 }
             }
         }
@@ -76,10 +83,13 @@ fun ExerciseListScreen(
 
 @Composable
 fun ExerciseCard(
-    exerciseModel: ExerciseModel
+    exerciseModel: ExerciseModel,
+    onClick: () -> Unit,
 ){
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
+        onClick = onClick,
         contentPadding = PaddingValues(horizontal = 15.dp, vertical = 10.dp)
     ) {
         Text(
@@ -94,14 +104,14 @@ fun ExerciseCard(
         ) {
             if(exerciseModel.separated){
                 Text(
-                    text = stringResource(id = com.danilkha.uikit.R.string.split),
+                    text = stringResource(id = R.string.split),
                     style = MaterialTheme.typography.body2
                 )
             }
             Text(
                 text = if(exerciseModel.hasWeight){
-                    stringResource(id = com.danilkha.uikit.R.string.has_weight)
-                }else stringResource(id = com.danilkha.uikit.R.string.with_body_weight),
+                    stringResource(id = R.string.has_weight)
+                }else stringResource(id = R.string.with_body_weight),
                 style = MaterialTheme.typography.body2
             )
         }

@@ -4,11 +4,13 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Shapes
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -59,6 +61,7 @@ fun TrainingStatsTheme(
 ) {
 
     val colorScheme = if(darkTheme) darkColors else lightColors
+    val designColors = if(darkTheme) darkDesignColors else lightDesignColors
 
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -69,9 +72,17 @@ fun TrainingStatsTheme(
         }
     }
 
+
     MaterialTheme(
         colors = colorScheme,
         shapes = shapes,
-        content = content
+        content = {
+            CompositionLocalProvider(
+                LocalDesignColors provides designColors,
+                LocalTextStyle provides ThemeTypography.body1.copy(color = designColors.text)
+            ) {
+                content()
+            }
+        }
     )
 }

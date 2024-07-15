@@ -5,11 +5,14 @@
         <item name="android:windowExitAnimation">@anim/dialog_out</item>
     </style>
 
-    <style name="Dialog">
+    <style name="Dialog" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowMinWidthMajor">90%</item>
         <item name="android:windowMinWidthMinor">90%</item>
         <item name="android:windowIsTranslucent">true</item>
+<!--
         <item name="android:windowBackground">@android:color/transparent</item>
+-->
+        <item name="android:windowBackground">@color/semi_transparent</item>
 
     </style>
 

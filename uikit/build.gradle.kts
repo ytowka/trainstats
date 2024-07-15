@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.compose.foundation)
     implementation(libs.androidx.lifecycle.viewmodel.compose.android)
+    implementation(libs.androidx.fragment.ktx)
     testImplementation(libs.junit)
     implementation(libs.coroutines.android)
     implementation(platform(libs.compose.bom))

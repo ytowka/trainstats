@@ -29,7 +29,8 @@ private fun ExerciseListScreenPreview(@PreviewParameter(ExerciseListScreenPrevie
     TrainingStatsTheme {
         ExerciseListScreen(
             state = state,
-            onAddClicked = {  }
+            onAddClicked = {  },
+            onExerciseClicked = {}
         )
     }
 }

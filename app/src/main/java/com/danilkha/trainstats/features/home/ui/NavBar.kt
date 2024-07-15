@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.danilkha.trainstats.R
 import com.danilkha.uikit.R.*
 import com.danilkha.uikit.theme.LocalPaddings
 import com.danilkha.uikit.theme.TrainingStatsTheme
@@ -149,11 +150,11 @@ private val NavigationItem.icon: Painter
 private val NavigationItem.label: String
     @Composable
     get() = stringResource(id = when (this){
-        NavigationItem.HOME -> string.navigation_item_home
-        NavigationItem.EXERCISES -> string.navigation_item_exercises
-        NavigationItem.WORKOUTS -> string.navigation_item_workouts
-        NavigationItem.STATS -> string.navigation_item_stats
-        NavigationItem.PROFILE -> string.navigation_item_profile
+        NavigationItem.HOME -> R.string.navigation_item_home
+        NavigationItem.EXERCISES -> R.string.navigation_item_exercises
+        NavigationItem.WORKOUTS -> R.string.navigation_item_workouts
+        NavigationItem.STATS -> R.string.navigation_item_stats
+        NavigationItem.PROFILE -> R.string.navigation_item_profile
     })
 
 enum class NavigationItem { HOME, EXERCISES, WORKOUTS, STATS, PROFILE }

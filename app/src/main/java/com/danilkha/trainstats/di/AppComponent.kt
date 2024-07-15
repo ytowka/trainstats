@@ -2,6 +2,8 @@ package com.danilkha.trainstats.di
 
 import android.content.Context
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
+import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorMode
+import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorViewModel
 import com.danilkha.trainstats.features.workout.ui.WorkoutDependencies
 import dagger.BindsInstance
 import dagger.Component
@@ -21,7 +23,9 @@ abstract class AppComponent : WorkoutDependencies {
                    context: Context): AppComponent
     }
 
+
     abstract val exerciseListViewModel: ExerciseListViewModel
+    abstract val exerciseEditorViewModel: ExerciseEditorViewModel
 }
 
 @Qualifier
