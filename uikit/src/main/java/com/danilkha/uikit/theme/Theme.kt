@@ -63,6 +63,14 @@ fun TrainingStatsTheme(
     val colorScheme = if(darkTheme) darkColors else lightColors
     val designColors = if(darkTheme) darkDesignColors else lightDesignColors
 
+    val typography = defaultThemeTextStyles.run { copy(
+        title = title.copy(color = designColors.text),
+        subtitle = subtitle.copy(color = designColors.text),
+        body1 = body1.copy(color = designColors.text),
+        body2 = body2.copy(color = designColors.text),
+        button = button.copy(color = designColors.text),
+    ) }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -79,7 +87,8 @@ fun TrainingStatsTheme(
         content = {
             CompositionLocalProvider(
                 LocalDesignColors provides designColors,
-                LocalTextStyle provides ThemeTypography.body1.copy(color = designColors.text)
+                LocalTextStyle provides ThemeTypography.body1.copy(color = designColors.text),
+                LocalThemeTypography provides typography
             ) {
                 content()
             }

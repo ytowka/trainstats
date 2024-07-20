@@ -28,6 +28,7 @@ import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottom
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.Fab
+import com.danilkha.uikit.theme.Colors
 
 @Composable
 fun ExerciseListScreenPage(
@@ -96,7 +97,8 @@ fun ExerciseCard(
             text = exerciseModel.name,
             style = MaterialTheme.typography.body1.copy(
                 fontWeight = FontWeight.Bold
-            )
+            ),
+            color = Colors.text,
         )
         Spacer(modifier = Modifier.height(10.dp))
         Row(
@@ -112,7 +114,8 @@ fun ExerciseCard(
                 text = if(exerciseModel.hasWeight){
                     stringResource(id = R.string.has_weight)
                 }else stringResource(id = R.string.with_body_weight),
-                style = MaterialTheme.typography.body2
+                style = MaterialTheme.typography.body2,
+                color = Colors.text,
             )
         }
     }

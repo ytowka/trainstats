@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +31,8 @@ import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
+import com.danilkha.uikit.theme.LocalDesignColors
+import com.danilkha.uikit.theme.ThemeTypography
 
 class ExerciseEditorBottomSheet : ComposeContextBottomDialog(){
 
@@ -103,58 +107,63 @@ fun ExerciseEditorBottomSheet(
     onDeleteClick: () -> Unit,
     onCloseClicked: () -> Unit,
 ){
-    BottomSheetContent(
-        title = stringResource(id = when(state.mode){
-            is ExerciseEditorMode.Edit -> R.string.edit_exercise
-            ExerciseEditorMode.New -> R.string.new_exercise
-        }),
-        onCloseClicked = onCloseClicked
+    CompositionLocalProvider(
+        LocalTextStyle provides ThemeTypography.body1
     ) {
-        GenericTextFiled(
-            modifier = Modifier.fillMaxWidth(),
-            value = state.name,
-            onValueChange = onNameChange,
-            hint = stringResource(id = R.string.name)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TumblerRow(
-            enabled = state.separated,
-            text = stringResource(id = R.string.separated),
-            onValueChanged = onSplitChange
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TumblerRow(
-            enabled = state.withWeight,
-            text = stringResource(id = R.string.has_weight),
-            onValueChanged = onWeightChange
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        BottomSheetContent(
+            title = stringResource(id = when(state.mode){
+                is ExerciseEditorMode.Edit -> R.string.edit_exercise
+                ExerciseEditorMode.New -> R.string.new_exercise
+            }),
+            onCloseClicked = onCloseClicked
         ) {
-            GenericButton(
-                onClick = onSaveClick,
-                color = Colors.primary
+            GenericTextFiled(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.name,
+                onValueChange = onNameChange,
+                hint = stringResource(id = R.string.name)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TumblerRow(
+                enabled = state.separated,
+                text = stringResource(id = R.string.separated),
+                onValueChanged = onSplitChange
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TumblerRow(
+                enabled = state.withWeight,
+                text = stringResource(id = R.string.has_weight),
+                onValueChanged = onWeightChange
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    text = stringResource(id = R.string.save),
-                )
-            }
-            if(state.mode is ExerciseEditorMode.Edit){
                 GenericButton(
-                    onClick = onDeleteClick,
-                    color = Colors.error
+                    onClick = onSaveClick,
+                    color = Colors.primary
                 ) {
                     Text(
-                        text = stringResource(id = R.string.delete),
+                        text = stringResource(id = R.string.save),
                     )
                 }
+                if(state.mode is ExerciseEditorMode.Edit){
+                    GenericButton(
+                        onClick = onDeleteClick,
+                        color = Colors.error
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.delete),
+                        )
+                    }
+                }
             }
+            Spacer(modifier = Modifier.height(20.dp))
         }
-        Spacer(modifier = Modifier.height(20.dp))
     }
+
 }
 
 @Composable

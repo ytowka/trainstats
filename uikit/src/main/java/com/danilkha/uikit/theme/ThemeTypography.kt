@@ -1,32 +1,49 @@
 package com.danilkha.uikit.theme
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-object ThemeTypography {
-    val title = TextStyle(
+
+internal val defaultThemeTextStyles = ThemeTextStyles(
+    title = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp
-    )
+    ),
 
-    val subtitle = TextStyle(
+    subtitle = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp
-    )
+    ),
 
-    val body1 = TextStyle(
+    body1 = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
-    )
+    ),
 
-    val body2 = TextStyle(
+    body2 = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp
-    )
+    ),
 
-    val button = TextStyle(
+    button = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp
-    )
-}
+    ),
+)
+
+data class ThemeTextStyles(
+    val title: TextStyle,
+    val subtitle: TextStyle,
+    val body1: TextStyle,
+    val body2: TextStyle,
+    val button: TextStyle,
+)
+
+val LocalThemeTypography = staticCompositionLocalOf { defaultThemeTextStyles }
+
+val ThemeTypography
+    @Composable @ReadOnlyComposable get() = LocalThemeTypography.current
