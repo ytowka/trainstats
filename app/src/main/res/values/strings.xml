@@ -18,4 +18,6 @@
     <string name="cancel">Отменить</string>
     <string name="delete_exercise_title">Удалить упражнение</string>
     <string name="delete_exercise_subtitle">Это действие нельзя отменить</string>
+    <string name="kg">кг</string>
+    <string name="reps">повт</string>
 </resources>

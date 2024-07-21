@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
@@ -27,9 +28,10 @@ fun GenericTextFiled(
     onValueChange: (String) -> Unit,
     hint: String = "",
     textStyle: TextStyle = ThemeTypography.body1,
+    textAlign: TextAlign = textStyle.textAlign,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    singleLine: Boolean = false,
+    singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     cursorBrush: Brush = SolidColor(Color.Black),
 ){
@@ -37,7 +39,9 @@ fun GenericTextFiled(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier,
-        textStyle = textStyle,
+        textStyle = textStyle.copy(
+            textAlign = textAlign
+        ),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,

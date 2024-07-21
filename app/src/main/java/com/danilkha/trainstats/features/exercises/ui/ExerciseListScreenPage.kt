@@ -55,23 +55,14 @@ fun ExerciseListScreen(
     Box(
         modifier = Modifier.fillMaxSize(),
     ){
-        Column {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 10.dp,
-                    end = 10.dp,
-                    top = 10.dp,
-                    bottom = 60.dp
-                ),
-            ) {
-                items(items = state.exerciseList, key = { it.id }){
-                    ExerciseCard(
-                       exerciseModel =  it,
-                        onClick = { onExerciseClicked(it.id) }
-                    )
-                }
+        ExerciseList(
+            items = state.exerciseList,
+            onClick = {
+                onExerciseClicked(it.id)
             }
+        )
+        Column {
+
         }
         Fab(
             modifier = Modifier
@@ -79,6 +70,29 @@ fun ExerciseListScreen(
                 .align(Alignment.BottomEnd),
             onClick = onAddClicked
         )
+    }
+}
+
+@Composable
+fun ExerciseList(
+    items: List<ExerciseModel>,
+    onClick: (ExerciseModel) -> Unit
+){
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 10.dp,
+            end = 10.dp,
+            top = 10.dp,
+            bottom = 60.dp
+        ),
+    ) {
+        items(items = items , key = { it.id }){
+            ExerciseCard(
+                exerciseModel =  it,
+                onClick = { onClick(it) }
+            )
+        }
     }
 }
 

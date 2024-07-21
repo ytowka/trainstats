@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun WorkoutRoute(
+fun WorkoutScreen(
     viewModel: WorkoutViewModel = viewModel()
 ){
     val state by viewModel.state.collectAsState(viewModel.startState)

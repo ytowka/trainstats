@@ -1,6 +1,5 @@
 package com.danilkha.trainstats.features.workout.domain.model
 
-import com.danilkha.trainstats.features.exercises.domain.model.ExerciseSet
 import korlibs.time.DateTime
 
 data class Workout(

@@ -4,30 +4,10 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class WorkoutState(
-    val items: List<Item>
+    val initialWorkout: WorkoutModel? = null,
+    val groups: List<ExerciseGroup> = emptyList(),
+    val collapsedGroupIds: Set<Long> = emptySet(),
 )
-
-
-sealed class Item{
-
-    class Initializing() : Item()
-
-    class ExerciseInfo() : Item()
-
-    class Set() : Item()
-
-    class EditingSet() : Item()
-
-    class Rest() : Item()
-
-    class EditingRest() : Item()
-
-    class NewSet() : Item()
-}
-
-sealed interface WorkoutEvent{
-
-}
 
 sealed interface WorkoutSideEffect{
 

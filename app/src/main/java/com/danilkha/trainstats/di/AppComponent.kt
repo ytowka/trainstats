@@ -2,9 +2,7 @@ package com.danilkha.trainstats.di
 
 import android.content.Context
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
-import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorMode
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorViewModel
-import com.danilkha.trainstats.features.workout.ui.WorkoutDependencies
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Qualifier
@@ -12,7 +10,7 @@ import javax.inject.Singleton
 
 @Component(modules = [RepositoryModule::class])
 @Singleton
-abstract class AppComponent : WorkoutDependencies {
+abstract class AppComponent  {
 
 
     @Component.Factory

@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.klock.android)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material)
+    implementation(libs.compose.material.icons)
     implementation(libs.navigation.compose)
     implementation(libs.ui)
     implementation(libs.ui.graphics)
