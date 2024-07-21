@@ -1,11 +1,15 @@
 package com.danilkha.trainstats.features.workout.ui
 
+import androidx.compose.ui.util.trace
 import androidx.lifecycle.viewModelScope
+import com.danilkha.trainstats.core.utils.format2
 import com.danilkha.trainstats.core.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.model.Kg
+import com.danilkha.trainstats.features.workout.ui.components.ExerciseSet
 import com.danilkha.uikit.components.move
 import korlibs.time.Date
+import korlibs.time.DateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
@@ -16,7 +20,11 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
 
     override val startState: WorkoutState = WorkoutState()
 
-    private var tempIndexes = 0L
+    private var tempIndexes: Long = 0
+        get() {
+            field++
+            return field
+        }
 
 
     fun init(editingId: Long?){
@@ -45,11 +53,13 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
 
     fun addExercise(exercise: ExerciseData?){
         val group = ExerciseGroup(
-            groupTempId = ++tempIndexes,
+            groupTempId = tempIndexes,
             exerciseId = 0,
             name = "Bench press $tempIndexes",
             imageUrl = null,
-            sets = emptyList()
+            hasWeight = true,
+            separated = false,
+            sets = listOf(ExerciseSetSlot.Stub(tempIndexes))
         )
         update {
             it.copy(
@@ -62,13 +72,37 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
         update {
             val group = it.groups[groupIndex]
             val set = group.sets[setIndex]
-            it.copy(
-                groups = it.groups.replace(groupIndex, group.copy(
-                    sets = group.sets.replace(setIndex, set.copy(
+
+            when (set){
+                is ExerciseSetSlot.ExerciseSetModel -> it.copy(
+                    groups = it.updateGroupsWithSets(
+                        groupIndex, group.sets.replace(setIndex, set.copy(
+                            weight = Kg(kg)
+                        )
+                    ),)
+                )
+                is ExerciseSetSlot.Stub -> {
+                    val newSet = ExerciseSetSlot.ExerciseSetModel(
+                        tempId = set.tempId,
+                        dateTime = DateTime.now(),
+                        reps = when (group.separated) {
+                            true -> RepetitionsModel.Double(null, null)
+                            false -> RepetitionsModel.Single(null)
+                        },
                         weight = Kg(kg)
-                    ))
-                ))
-            )
+                    )
+                    val newSets = group.sets.toMutableList()
+                        .apply {
+                            removeLast()
+                            add(newSet)
+                            add(ExerciseSetSlot.Stub(tempIndexes))
+                        }
+                    it.copy(
+                        groups = it.updateGroupsWithSets(groupIndex, newSets)
+                    )
+                }
+            }
+
         }
     }
 
@@ -76,32 +110,69 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
         update {
             val group = it.groups[groupIndex]
             val set = group.sets[setIndex]
-            val newReps = when(set.reps){
-                is RepetitionsModel.Double -> when(side){
-                    Side.Left -> RepetitionsModel.Double(reps, set.reps.right)
-                    Side.Right ->  RepetitionsModel.Double( set.reps.left, reps)
-                    null ->  RepetitionsModel.Double(reps, set.reps.right)
+
+            when (set){
+                is ExerciseSetSlot.ExerciseSetModel -> {
+                    val newReps = when(set.reps){
+                        is RepetitionsModel.Double -> when(side){
+                            Side.Left -> RepetitionsModel.Double(reps, set.reps.right)
+                            Side.Right ->  RepetitionsModel.Double( set.reps.left, reps)
+                            null ->  RepetitionsModel.Double(reps, set.reps.right)
+                        }
+                        is RepetitionsModel.Single -> RepetitionsModel.Single(reps)
+                    }
+                    it.copy(
+                        groups = it.groups.replace(groupIndex, group.copy(
+                            sets = group.sets.replace(setIndex, set.copy(
+                                reps = newReps
+                            ))
+                        ))
+                    )
                 }
-                is RepetitionsModel.Single -> RepetitionsModel.Single(reps)
+                is ExerciseSetSlot.Stub -> {
+                    val newReps = when(group.separated){
+                        true -> when(side){
+                            Side.Left -> RepetitionsModel.Double(reps, null)
+                            Side.Right ->  RepetitionsModel.Double( null, reps)
+                            null ->  RepetitionsModel.Double(reps, null)
+                        }
+                        false -> RepetitionsModel.Single(reps)
+                    }
+                    val newSet = ExerciseSetSlot.ExerciseSetModel(
+                        tempId = set.tempId,
+                        dateTime = DateTime.now(),
+                        reps = newReps,
+                        weight = null
+                    )
+                    val newSets = group.sets.toMutableList()
+                        .apply {
+                            removeLast()
+                            add(newSet)
+                            add(ExerciseSetSlot.Stub(tempIndexes))
+                        }
+                    it.copy(
+                        groups = it.updateGroupsWithSets(groupIndex, newSets)
+                    )
+                }
             }
-            it.copy(
-                groups = it.groups.replace(groupIndex, group.copy(
-                    sets = group.sets.replace(setIndex, set.copy(
-                        reps = newReps
-                    ))
-                ))
-            )
         }
+    }
+
+    private fun WorkoutState.updateGroupsWithSets(groupIndex: Int, sets: List<ExerciseSetSlot>): List<ExerciseGroup>{
+        val group = groups[groupIndex]
+        return groups.replace(groupIndex, group.copy(sets = sets))
     }
 
     fun onSetMove(groupIndex: Int, from: Int, to: Int){
         update {
             val group = it.groups[groupIndex]
-            it.copy(
-                groups = it.groups.replace(groupIndex, group.copy(
-                    sets = group.sets.toMutableList().apply { move(from, to) }.toList()
-                ))
-            )
+            if(to < group.sets.size-1){
+                it.copy(
+                    groups = it.groups.replace(groupIndex, group.copy(
+                        sets = group.sets.toMutableList().apply { move(from, to) }.toList()
+                    ))
+                )
+            }else it
         }
     }
 
@@ -148,6 +219,7 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
     fun returnDeletedSet(groupIndex: Int, setIndex: Int){
         update {
             val setId = it.groups[groupIndex].sets[setIndex].tempId
+            pendingDeletingSetMap[setId]?.cancel()
             pendingDeletingSetMap.remove(setId)
             it.copy(pendingDelete = it.pendingDelete - setId)
         }

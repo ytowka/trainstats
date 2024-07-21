@@ -19,21 +19,32 @@ data class ExerciseGroup(
     val exerciseId: Long = 0,
     val name: String,
     val imageUrl: String?,
-    val sets: List<ExerciseSetModel>,
-)
+    val hasWeight: Boolean,
+    val separated: Boolean,
+    val sets: List<ExerciseSetSlot>,
+){
 
-data class ExerciseSetModel(
-    val tempId: Long,
-    val dateTime: DateTime,
-    val reps: RepetitionsModel,
-    val weight: Kg?,
-)
+}
+
+sealed class ExerciseSetSlot(
+    open val tempId: Long
+){
+    data class ExerciseSetModel(
+        override val tempId: Long,
+        val dateTime: DateTime,
+        val reps: RepetitionsModel,
+        val weight: Kg?,
+    ) : ExerciseSetSlot(tempId)
+
+    class Stub(override val tempId: Long) : ExerciseSetSlot(tempId)
+}
+
 
 @Immutable
 sealed interface RepetitionsModel{
 
-    data class Single(val reps: Float) : RepetitionsModel
-    data class Double(val left: Float, val right: Float) : RepetitionsModel
+    data class Single(val reps: Float?) : RepetitionsModel
+    data class Double(val left: Float?, val right: Float?) : RepetitionsModel
 }
 
 const val SET_DELETE_DELAY = 5000L //ms

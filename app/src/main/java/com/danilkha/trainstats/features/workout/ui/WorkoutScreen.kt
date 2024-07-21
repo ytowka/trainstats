@@ -120,6 +120,8 @@ fun WorkoutScreen(
                    onReturnDeleted = { onReturnDeleted(groupIndex, it) },
                    onSetMoved = { from, to ->  onSetMoved(groupIndex, from, to) },
                    onExpandClick = { onExpandClick(groupIndex) },
+                   separated = item.separated,
+                   hasWeight = item.hasWeight,
 
                    onDragStart = { dragDispatcher.onDragStart(groupIndexUpdated) },
                    onDragEnd = dragDispatcher::onDragEnd,
