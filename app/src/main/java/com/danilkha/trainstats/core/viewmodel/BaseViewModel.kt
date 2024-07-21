@@ -31,6 +31,8 @@ abstract class BaseViewModel<State, SideEffect> : ViewModel(){
     }
 
 
+    protected fun update(newState: (State) -> State) = _state.update(newState)
+
 }
 
 @Composable

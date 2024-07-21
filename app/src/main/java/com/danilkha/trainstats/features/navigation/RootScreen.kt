@@ -12,6 +12,7 @@ import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
 import com.danilkha.trainstats.features.history.ui.HistoryScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
 import com.danilkha.trainstats.features.home.ui.NavigationItem
+import com.danilkha.trainstats.features.workout.ui.WorkoutScreenRoute
 
 @Composable
 fun RootScreen() {
@@ -36,7 +37,7 @@ fun RootScreen() {
             }
         }
         composable(Navigation.Workout.route){
-
+            WorkoutScreenRoute()
         }
     }
 }

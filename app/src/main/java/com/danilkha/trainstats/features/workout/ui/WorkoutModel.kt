@@ -7,20 +7,22 @@ import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import korlibs.time.DateTime
 
-class WorkoutModel(
+data class WorkoutModel(
     val id: Long,
     val dateTime: DateTime,
     val groups: List<ExerciseGroup>,
+    val saved: Boolean,
 )
 
-class ExerciseGroup(
+data class ExerciseGroup(
+    val groupTempId: Long = 0,
     val exerciseId: Long = 0,
     val name: String,
     val imageUrl: String?,
     val sets: List<ExerciseSetModel>,
 )
 
-class ExerciseSetModel(
+data class ExerciseSetModel(
     val tempId: Long,
     val dateTime: DateTime,
     val reps: RepetitionsModel,
@@ -33,5 +35,7 @@ sealed interface RepetitionsModel{
     data class Single(val reps: Float) : RepetitionsModel
     data class Double(val left: Float, val right: Float) : RepetitionsModel
 }
+
+const val SET_DELETE_DELAY = 5000L //ms
 
 enum class Side { Left, Right }

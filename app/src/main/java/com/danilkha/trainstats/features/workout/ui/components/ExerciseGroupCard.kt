@@ -46,6 +46,8 @@ import com.danilkha.trainstats.features.workout.ui.ExerciseSetModel
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.uikit.components.Card
+import com.danilkha.uikit.components.DragAndDropColumn
+import com.danilkha.uikit.components.DragDispatcher
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.components.Icon
 import com.danilkha.uikit.theme.Colors
@@ -64,10 +66,11 @@ fun ExerciseGroupCard(
     onRepsChange: (index: Int, Side?, value: Float) -> Unit,
     onDelete: (index: Int) -> Unit,
     onReturnDeleted: (index: Int) -> Unit,
+    onSetMoved: (from: Int, to: Int) -> Unit,
 
     onExpandClick: () -> Unit,
-    onDragStart: () -> Unit = { },
-    onDragEnd: () -> Unit = { },
+    onDragStart: () -> Unit ,
+    onDragEnd: () -> Unit,
     onVerticalDrag: (dragAmount: Float) -> Unit
 ) {
     Card {
@@ -96,7 +99,13 @@ fun ExerciseGroupCard(
             Card(
                 backgroundColor = Colors.background
             ){
-                sets.forEachIndexed { index, item ->
+                val dragDispatcher = remember { DragDispatcher() }
+                DragAndDropColumn(
+                    items = sets,
+                    onItemMoved = onSetMoved,
+                    dragDispatcher = dragDispatcher,
+                    keyProvider = { index, it -> it.tempId }
+                ) { index, item ->
                     ExerciseSet(
                         reps = item.reps,
                         weight = item.weight,
@@ -105,9 +114,9 @@ fun ExerciseGroupCard(
                         onRepsChange = { side, fl -> onRepsChange(index, side, fl) },
                         onDelete = { onDelete(index) },
                         onReturnDeleted = { onReturnDeleted(index) },
-                        onDragStart = {},
-                        onDragEnd = {},
-                        onVerticalDrag = {}
+                        onDragStart = { dragDispatcher.onDragStart(index) },
+                        onDragEnd = { dragDispatcher.onDragEnd() },
+                        onVerticalDrag = { dragDispatcher.onDrag(it) }
                     )
                 }
             }
@@ -330,6 +339,7 @@ private fun ExerciseSetPreview(){
                 onDragStart = {},
                 onDragEnd = {},
                 onVerticalDrag = {},
+                onSetMoved = { from, to ->  },
             )
 
             ExerciseGroupCard(
@@ -345,6 +355,7 @@ private fun ExerciseSetPreview(){
                 onDragStart = {},
                 onDragEnd = {},
                 onVerticalDrag = {},
+                onSetMoved = { from, to ->  },
             )
 
             val sets2 = listOf(
@@ -375,6 +386,7 @@ private fun ExerciseSetPreview(){
                 onDragStart = {},
                 onDragEnd = {},
                 onVerticalDrag = {},
+                onSetMoved = { from, to ->  },
             )
         }
 

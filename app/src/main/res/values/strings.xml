@@ -13,11 +13,14 @@
     <string name="edit_exercise">Редактировать упражнение</string>
     <string name="name">название</string>
     <string name="save">Сохранить</string>
+    <string name="update">Обновить</string>
     <string name="separated">Раздельно</string>
     <string name="delete">Удалить</string>
     <string name="cancel">Отменить</string>
     <string name="delete_exercise_title">Удалить упражнение</string>
+    <string name="delete_workout_title">Удалить тренировку</string>
     <string name="delete_exercise_subtitle">Это действие нельзя отменить</string>
     <string name="kg">кг</string>
     <string name="reps">повт</string>
+    <string name="add_exercise">Добавить упражнение</string>
 </resources>

@@ -37,7 +37,7 @@ fun <T> DragAndDropColumn(
     items: List<T>,
     onItemMoved: (fromPos: Int, toPos: Int) -> Unit,
     dragDispatcher: DragDispatcher,
-    keyProvider: (T) -> Any,
+    keyProvider: (Int, T) -> Any,
     content: @Composable (index: Int, item: T) -> Unit,
 ) {
     var dragItemIndex by remember { mutableStateOf<Int?>(null) }
@@ -45,8 +45,8 @@ fun <T> DragAndDropColumn(
     var dragY by remember { mutableFloatStateOf(0f) }
     var dragHeight by remember { mutableFloatStateOf(0f) }
 
-    val itemsY = items.map { remember(keyProvider(it)) { mutableFloatStateOf(0f) } }
-    val itemsLastTargetOffsets = items.map { remember(keyProvider(it)) { mutableFloatStateOf(0f) } }
+    val itemsY = items.mapIndexed { index, it -> remember(keyProvider(index,it)) { mutableFloatStateOf(0f) } }
+    val itemsLastTargetOffsets = items.mapIndexed { index, it -> remember(keyProvider(index,it)) { mutableFloatStateOf(0f) } }
 
     val dragTargetIndex by remember(items) { derivedStateOf {
         if(dragItemIndex != null){
@@ -59,7 +59,8 @@ fun <T> DragAndDropColumn(
         }else null
     } }
 
-    val height = remember { mutableStateListOf(*Array(items.size){0f}) }
+    val height = remember(items.size) { mutableStateListOf(*Array(items.size){0f}) }
+
 
 
     LaunchedEffect(dragDispatcher, items.size) {
@@ -87,7 +88,7 @@ fun <T> DragAndDropColumn(
 
     Column(modifier = modifier) {
         items.forEachIndexed { index, t ->
-            val key = keyProvider(t)
+            val key = keyProvider(index, t)
             key(key) {
                 var y by itemsY[index]
                 val animatedOffset = remember(index) {
@@ -159,6 +160,20 @@ private fun calculateOffsetMultiplier(
             0
         }
     } else 0
+}
+
+fun <T> MutableList<T>.move(from: Int, to: Int){
+    val item = get(from)
+    if(to > from){
+        for(i in from until to){
+            set(i, get(i+1))
+        }
+    }else if(from > to){
+        for(i in IntProgression.fromClosedRange(from, to+1, -1)){
+            set(i, get(i-1))
+        }
+    }
+    set(to, item)
 }
 
 private fun calculateTargetIndex(
