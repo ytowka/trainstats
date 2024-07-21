@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Shapes
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -40,6 +42,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -237,6 +241,10 @@ fun ExerciseSet(
                     modifier = Modifier.width(FIELD_WIDTH),
                     value = weightText,
                     textStyle = textFieldStyle,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    ),
                     onValueChange = {
                         if(it.length <= MAX_FIELD_LENGTH){
                             weightText = it
@@ -263,6 +271,10 @@ fun ExerciseSet(
                     GenericTextFiled(
                         modifier = Modifier.width(REPS_FIELD_WIDTH),
                         value = repsTextL,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
                         textStyle = textFieldStyle,
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
@@ -279,6 +291,10 @@ fun ExerciseSet(
                     GenericTextFiled(
                         modifier = Modifier.width(REPS_FIELD_WIDTH),
                         value = repsTextR,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
                         textStyle = textFieldStyle,
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
@@ -298,6 +314,10 @@ fun ExerciseSet(
                     GenericTextFiled(
                         modifier = Modifier.width(REPS_FIELD_WIDTH),
                         value = repsText,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
                         textStyle = textFieldStyle,
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){

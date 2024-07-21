@@ -17,13 +17,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.danilkha.uikit.theme.Colors
 
 @Composable
 fun Card(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(10.dp),
     backgroundColor: Color = MaterialTheme.colors.surface,
-    strokeColor: Color? = Color(0x4DBDBDBD),
+    strokeColor: Color? = Colors.outline,
     shape: Shape = MaterialTheme.shapes.large,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,

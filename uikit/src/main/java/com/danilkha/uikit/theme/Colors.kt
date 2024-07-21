@@ -22,6 +22,7 @@ class DesignColors(
     val onError: Color,
     val text: Color,
     val textInverse: Color,
+    val outline: Color,
     val isLight: Boolean
 )
 
@@ -40,6 +41,7 @@ val lightDesignColors = DesignColors(
     onError = Color(0xFFFFFFFF),
     text = Color(0xFF000000),
     textInverse = Color(0xFFFFFFFF),
+    outline = Color(0x4DBDBDBD),
     isLight = true
 )
 
@@ -48,7 +50,7 @@ val darkDesignColors = DesignColors(
     primaryVariant = Color(0xFF7A9EAF),
     secondary = Color(0xFFDF4616),
     secondaryVariant = Color(0xFFE05B31),
-    background = Color(0xFF0C0C0C),
+    background = Color(0xFF1F1F1F),
     surface = Color(0xFF000000),
     error = Color(0xFF9E1212),
     onPrimary = Color(0xFF000000),
@@ -58,6 +60,7 @@ val darkDesignColors = DesignColors(
     onError = Color(0xFF000000),
     text = Color(0xFFFFFFFF),
     textInverse = Color(0xFF000000),
+    outline = Color(0x4D303030),
     isLight = false
 )
 
