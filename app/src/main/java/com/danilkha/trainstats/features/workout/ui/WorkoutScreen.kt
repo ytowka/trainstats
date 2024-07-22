@@ -20,8 +20,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +35,7 @@ import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.format
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
+import com.danilkha.uikit.components.DateSelector
 import com.danilkha.uikit.components.DragAndDropColumn
 import com.danilkha.uikit.components.DragDispatcher
 import com.danilkha.uikit.components.GenericButton
@@ -45,6 +49,8 @@ fun WorkoutScreenRoute(
 ){
     val state by viewModel.state.collectAsState(viewModel.startState)
 
+    var showDateDialog by rememberSaveable { mutableStateOf(false) }
+
     val alertDialog = rememberAlertDialog(
         titleRes = R.string.delete_workout_title,
         textRes = R.string.delete_exercise_subtitle,
@@ -52,8 +58,19 @@ fun WorkoutScreenRoute(
         onConfirm = viewModel::deleteWorkout,
         onCancel = {  })
 
+    if(showDateDialog){
+        DateSelector(
+            onDismiss = {showDateDialog = false},
+            onDateSelected = {
+                viewModel.changeDate(it)
+                showDateDialog = false
+            }
+        )
+    }
+
     WorkoutScreen(
         state = state,
+        onDateClicked = { showDateDialog = true },
         onWeightChange = viewModel::editWeight,
         onRepsChange = viewModel::editReps,
         onDeleteSet = viewModel::deleteSet,
@@ -72,6 +89,7 @@ fun WorkoutScreenRoute(
 fun WorkoutScreen(
     state: WorkoutState,
 
+    onDateClicked: () -> Unit,
     onWeightChange: (groupIndex: Int,index: Int, Float) -> Unit,
     onRepsChange: (groupIndex: Int,index: Int, Side?, value: Float) -> Unit,
     onDeleteSet: (groupIndex: Int,index: Int) -> Unit,
@@ -95,7 +113,11 @@ fun WorkoutScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .clip(RoundedCornerShape(50))
+                .clickable(onClick = onDateClicked)
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             text = state.date.format(),
             style = ThemeTypography.title,
             color = Colors.primary

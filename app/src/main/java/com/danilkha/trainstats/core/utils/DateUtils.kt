@@ -2,11 +2,13 @@ package com.danilkha.trainstats.core.utils
 
 import korlibs.time.Date
 import korlibs.time.DateTime
+import korlibs.time.KlockLocale
 import korlibs.time.PatternDateFormat
 import korlibs.time.format
+import korlibs.time.locale.russian
 
 
-private val dateFormat = PatternDateFormat("EEEE, d MMMM", )
+private val dateFormat = PatternDateFormat("EEEE, d MMMM", locale = KlockLocale.russian)
 private val dateFormatYear = PatternDateFormat("EEEE, d MMMM yyyy")
 
 
