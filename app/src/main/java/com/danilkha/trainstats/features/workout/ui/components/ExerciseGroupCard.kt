@@ -2,6 +2,7 @@ package com.danilkha.trainstats.features.workout.ui.components
 
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -9,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,6 +84,7 @@ fun ExerciseGroupCard(
     onDelete: (index: Int) -> Unit,
     onReturnDeleted: (index: Int) -> Unit,
     onSetMoved: (from: Int, to: Int) -> Unit,
+    onDeleteGroup: () -> Unit,
 
     onExpandClick: () -> Unit,
     onDragStart: () -> Unit ,
@@ -100,8 +103,14 @@ fun ExerciseGroupCard(
                 text = title,
                 style = ThemeTypography.title
             )
+            Spacer(modifier = Modifier.size(10.dp))
+            if(sets.size == 1){
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    onClick = onDeleteGroup
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
-
             val rotation = animateFloatAsState(targetValue = if (expanded) 180f else 0f)
             Icon(
                 modifier = Modifier.rotate(rotation.value),
@@ -112,7 +121,8 @@ fun ExerciseGroupCard(
         AnimatedVisibility(visible = expanded) {
             Spacer(modifier = Modifier.size(10.dp))
             Card(
-                modifier = Modifier.clip(RectangleShape),
+                modifier = Modifier.clip(RectangleShape).animateContentSize(),
+                contentPadding = PaddingValues(vertical = 10.dp, horizontal = 5.dp),
                 backgroundColor = Colors.background
             ){
                 val dragDispatcher = remember { DragDispatcher() }
@@ -172,10 +182,8 @@ fun DragThumb(
 
 private const val MAX_FIELD_LENGTH = 6
 private const val MAX_REPS_FIELD_LENGTH = 3
-private val FIELD_WIDTH = 110.dp
-private val REPS_FIELD_WIDTH = 60.dp
-
-val deleteCountDownDuration = 5000 //ms
+private val FIELD_WIDTH = 90.dp
+private val REPS_FIELD_WIDTH = 50.dp
 
 private val textFieldStyle = TextStyle(
     textAlign = TextAlign.Center,
@@ -219,7 +227,7 @@ fun ExerciseSet(
                 shape = RoundedCornerShape(10.dp)
             )
             .fillMaxWidth()
-            .padding(vertical = 5.dp),
+            .padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -401,6 +409,7 @@ private fun ExerciseSetPreview(){
                 onDragEnd = {},
                 onVerticalDrag = {},
                 onSetMoved = { from, to ->  },
+                onDeleteGroup = {},
             )
 
             ExerciseGroupCard(
@@ -419,6 +428,7 @@ private fun ExerciseSetPreview(){
                 onDragEnd = {},
                 onVerticalDrag = {},
                 onSetMoved = { from, to ->  },
+                onDeleteGroup = {},
             )
 
             val sets2 = listOf(
@@ -451,7 +461,9 @@ private fun ExerciseSetPreview(){
                 onDragEnd = {},
                 onVerticalDrag = {},
                 onSetMoved = { from, to ->  },
-                hasWeight = true,)
+                hasWeight = true,
+                onDeleteGroup = {},
+                )
         }
 
     }

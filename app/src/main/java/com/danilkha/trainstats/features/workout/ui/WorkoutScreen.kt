@@ -63,7 +63,8 @@ fun WorkoutScreenRoute(
         onExpandClick = viewModel::toggleGroup,
         onSave = viewModel::saveWorkout,
         addExercise = { viewModel.addExercise(null) },
-        onDelete = alertDialog::show
+        onDelete = alertDialog::show,
+        onDeleteGroup = viewModel::deleteGroup
     )
 }
 
@@ -78,6 +79,7 @@ fun WorkoutScreen(
     onSetMoved: (groupIndex: Int, from: Int, to: Int) -> Unit,
     onGroupMoved: (from: Int, to: Int) -> Unit,
     onExpandClick: (groupIndex: Int,) -> Unit,
+    onDeleteGroup: (Int) -> Unit,
 
     addExercise: () -> Unit,
     onSave: () -> Unit,
@@ -126,6 +128,7 @@ fun WorkoutScreen(
                    onDragStart = { dragDispatcher.onDragStart(groupIndexUpdated) },
                    onDragEnd = dragDispatcher::onDragEnd,
                    onVerticalDrag = dragDispatcher::onDrag,
+                   onDeleteGroup = { onDeleteGroup(groupIndex) }
                )
            }
         }

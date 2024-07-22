@@ -196,7 +196,7 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
         }
     }
 
-    fun deleteGroup(groupIndex: Int,){
+    fun deleteGroup(groupIndex: Int){
         update {
             it.copy(
                 groups = it.groups.filterIndexed { index, exerciseGroup -> index != groupIndex }
