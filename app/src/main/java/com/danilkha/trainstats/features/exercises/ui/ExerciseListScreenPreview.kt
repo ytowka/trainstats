@@ -30,7 +30,8 @@ private fun ExerciseListScreenPreview(@PreviewParameter(ExerciseListScreenPrevie
         ExerciseListScreen(
             state = state,
             onAddClicked = {  },
-            onExerciseClicked = {}
+            onExerciseClicked = {},
+            onQueryChange = {}
         )
     }
 }

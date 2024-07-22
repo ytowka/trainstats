@@ -253,6 +253,7 @@ fun ExerciseSet(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Next
                     ),
+                    contentPadding = PaddingValues(vertical = 10.dp),
                     onValueChange = {
                         if(it.length <= MAX_FIELD_LENGTH){
                             weightText = it
@@ -283,6 +284,7 @@ fun ExerciseSet(
                             keyboardType = KeyboardType.Decimal,
                             imeAction = ImeAction.Next
                         ),
+                        contentPadding = PaddingValues(vertical = 10.dp),
                         textStyle = textFieldStyle,
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
@@ -303,6 +305,7 @@ fun ExerciseSet(
                             keyboardType = KeyboardType.Decimal,
                             imeAction = ImeAction.Next
                         ),
+                        contentPadding = PaddingValues(vertical = 10.dp),
                         textStyle = textFieldStyle,
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
@@ -326,6 +329,7 @@ fun ExerciseSet(
                             keyboardType = KeyboardType.Decimal,
                             imeAction = ImeAction.Next
                         ),
+                        contentPadding = PaddingValues(vertical = 10.dp),
                         textStyle = textFieldStyle,
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
