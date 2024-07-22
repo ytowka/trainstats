@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.danilkha.trainstats.core.utils.format2
 import com.danilkha.trainstats.core.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
+import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseSet
 import com.danilkha.uikit.components.move
@@ -51,14 +52,14 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
         }
     }
 
-    fun addExercise(exercise: ExerciseData?){
+    fun addExercise(exercise: ExerciseModel){
         val group = ExerciseGroup(
             groupTempId = tempIndexes,
-            exerciseId = 0,
-            name = "Bench press $tempIndexes",
-            imageUrl = null,
-            hasWeight = true,
-            separated = false,
+            exerciseId = exercise.id,
+            name = exercise.name,
+            imageUrl = exercise.imageUrl,
+            hasWeight = exercise.hasWeight,
+            separated = exercise.separated,
             sets = listOf(ExerciseSetSlot.Stub(tempIndexes))
         )
         update {

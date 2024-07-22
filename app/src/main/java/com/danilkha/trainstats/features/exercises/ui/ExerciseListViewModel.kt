@@ -16,7 +16,7 @@ import javax.inject.Inject
 class ExerciseListViewModel @Inject constructor(
     private val getAllExercisesUseCase: GetAllExercisesUseCase,
     private val findExercisesUseCase: FindExercisesUseCase,
-): BaseViewModel<ExerciseListState, Unit>(){
+): BaseViewModel<ExerciseListState, ExerciseListSideEffect>(){
     override val startState: ExerciseListState = ExerciseListState()
 
 
@@ -56,5 +56,9 @@ class ExerciseListViewModel @Inject constructor(
         _state.update {
             it.copy(searchQuery = text)
         }
+    }
+
+    fun onExerciseClicked(exerciseModel: ExerciseModel){
+        showSideEffect(ExerciseListSideEffect.ExerciseClicked(exerciseModel))
     }
 }

@@ -22,9 +22,7 @@ data class ExerciseGroup(
     val hasWeight: Boolean,
     val separated: Boolean,
     val sets: List<ExerciseSetSlot>,
-){
-
-}
+)
 
 sealed class ExerciseSetSlot(
     open val tempId: Long

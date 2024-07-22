@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 abstract class BaseViewModel<State, SideEffect> : ViewModel(){
 
@@ -26,8 +27,10 @@ abstract class BaseViewModel<State, SideEffect> : ViewModel(){
 
     abstract val startState: State
 
-    suspend fun showSideEffect(effect: SideEffect){
-        _sideEffects.emit(effect)
+    fun showSideEffect(effect: SideEffect){
+        viewModelScope.launch {
+            _sideEffects.emit(effect)
+        }
     }
 
 

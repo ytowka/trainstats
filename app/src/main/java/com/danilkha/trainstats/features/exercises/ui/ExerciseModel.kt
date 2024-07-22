@@ -6,9 +6,10 @@ data class ExerciseModel(
     val id: Long,
     val name: String,
     val separated: Boolean,
+    val imageUrl: String?,
     val hasWeight: Boolean,
 )
 
 fun ExerciseData.toModel() = ExerciseModel(
-    id, name, separated, hasWeight
+    id, name, separated, imageUrl, hasWeight,
 )

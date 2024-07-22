@@ -48,11 +48,12 @@ fun ExerciseListScreenPage(
     val exerciseEditor = rememberBottomSheetController(bottomSheetClass = ExerciseEditorBottomSheet::class.java)
 
     val state by viewModel.state.collectAsState()
+
     ExerciseListScreen(
         state = state,
         onAddClicked = {exerciseEditor.show()},
         onExerciseClicked = {
-            exerciseEditor.show(ExerciseEditorBottomSheet.buildArgs(it))
+            exerciseEditor.show(ExerciseEditorBottomSheet.buildArgs(it.id))
         },
         onQueryChange = viewModel::queryUpdated
     )
@@ -62,7 +63,7 @@ fun ExerciseListScreenPage(
 fun ExerciseListScreen(
     state: ExerciseListState,
     onAddClicked: () -> Unit,
-    onExerciseClicked: (Long) -> Unit,
+    onExerciseClicked: (ExerciseModel) -> Unit,
     onQueryChange: (String) -> Unit,
 ) {
     Column(
@@ -74,7 +75,7 @@ fun ExerciseListScreen(
         ExerciseList(
             items = state.exerciseList,
             onClick = {
-                onExerciseClicked(it.id)
+                onExerciseClicked(it)
             }
         )
     }
@@ -94,6 +95,7 @@ fun ExerciseList(
             top = 10.dp,
             bottom = 60.dp
         ),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(items = items , key = { it.id }){
             ExerciseCard(

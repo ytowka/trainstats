@@ -33,8 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.format
+import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
+import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
+import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
+import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
+import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.uikit.components.DateSelector
 import com.danilkha.uikit.components.DragAndDropColumn
 import com.danilkha.uikit.components.DragDispatcher
@@ -58,6 +63,20 @@ fun WorkoutScreenRoute(
         onConfirm = viewModel::deleteWorkout,
         onCancel = {  })
 
+    val exerciseSelectorViewModel = getCurrentViewModel { it.exerciseListViewModel }
+    val exerciseSelector = rememberBottomSheetController(
+        bottomSheetClass = ExerciseSelectorBottomSheet::class.java
+    )
+    exerciseSelectorViewModel.LaunchCollectEffects{
+        when(it){
+            is ExerciseListSideEffect.ExerciseClicked -> {
+                viewModel.addExercise(it.exerciseModel)
+                exerciseSelector.hide()
+            }
+        }
+    }
+
+
     if(showDateDialog){
         DateSelector(
             onDismiss = {showDateDialog = false},
@@ -79,7 +98,9 @@ fun WorkoutScreenRoute(
         onGroupMoved = viewModel::onGroupMove,
         onExpandClick = viewModel::toggleGroup,
         onSave = viewModel::saveWorkout,
-        addExercise = { viewModel.addExercise(null) },
+        addExercise = {
+            exerciseSelector.show()
+        },
         onDelete = alertDialog::show,
         onDeleteGroup = viewModel::deleteGroup
     )

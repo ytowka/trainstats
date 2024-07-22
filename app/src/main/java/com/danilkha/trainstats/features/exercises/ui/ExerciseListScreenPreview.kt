@@ -15,6 +15,7 @@ private class ExerciseListScreenPreviewProvider : PreviewParameterProvider<Exerc
                     id = 1,
                     name = "жим лежа",
                     separated = false,
+                    imageUrl = null,
                     hasWeight = true
                 )
             )
