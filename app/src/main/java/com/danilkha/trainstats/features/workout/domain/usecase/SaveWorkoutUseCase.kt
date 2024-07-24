@@ -13,10 +13,10 @@ import javax.inject.Inject
 
 class SaveWorkoutUseCase @Inject constructor(
     private val workoutRepository: WorkoutRepository
-) : UseCase<SaveWorkoutUseCase.WorkoutParams, Unit>(){
+) : UseCase<SaveWorkoutUseCase.WorkoutParams, Long>(){
 
 
-    override suspend fun execute(params: WorkoutParams) {
+    override suspend fun execute(params: WorkoutParams): Long {
         val steps = params.steps.mapIndexed { index, item ->
             ExerciseSet(
                 id = 0,
@@ -27,14 +27,18 @@ class SaveWorkoutUseCase @Inject constructor(
                 orderPosition = index
             )
         }
+        val now =  DateTime.now()
         val workout = Workout(
-            id = 0,
-            dateTime = DateTime.now(),
+            id = params.id ?: 0,
+            dateTime = DateTime(
+                date = params.date,
+                time = now.time
+            ),
             steps = steps,
             saved = false,
             archived = false
         )
-        workoutRepository.saveWorkout(workout)
+        return workoutRepository.saveWorkout(workout)
     }
 
     class WorkoutParams(

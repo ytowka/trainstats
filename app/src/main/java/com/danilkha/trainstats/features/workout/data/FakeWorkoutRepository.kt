@@ -1,5 +1,7 @@
 package com.danilkha.trainstats.features.workout.data
 
+import com.danilkha.trainstats.features.exercises.data.FakeExerciseRepository
+import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
@@ -9,11 +11,18 @@ import com.danilkha.trainstats.features.workout.domain.model.Workout
 import korlibs.time.DateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class FakeWorkoutRepository @Inject constructor(): WorkoutRepository {
+@Singleton
+class FakeWorkoutRepository @Inject constructor(
+    private val fakeExerciseRepository: ExerciseRepository,
+): WorkoutRepository {
 
     private var idSequence: Long = 0
         get() {
@@ -25,13 +34,7 @@ class FakeWorkoutRepository @Inject constructor(): WorkoutRepository {
 
     init {
         val id = idSequence
-        val exerciseData1 = ExerciseData(
-            id = 1,
-            name = "Жим лежа",
-            imageUrl = null,
-            separated = false,
-            hasWeight = true
-        )
+        val exerciseData1 = runBlocking{ fakeExerciseRepository.getAllExercises().first() }
         val steps = buildList {
             add(ExerciseSet(
                 id = idSequence,
@@ -77,18 +80,40 @@ class FakeWorkoutRepository @Inject constructor(): WorkoutRepository {
 
     override fun getWorkoutHistory(): Flow<List<Workout>> {
         return workouts.map {
+            val exerciseMap = fakeExerciseRepository.getAllExercises().associateBy {
+                it.id
+            }
             it.values
                 .toList()
                 .filterNot { it.archived }
+                .map { workout ->
+                    workout.copy(
+                        steps = workout.steps.map {
+                            val stub = it.exerciseData
+                            it.copy(
+                                exerciseData = exerciseMap[stub.id] ?: stub
+                            )
+                        }
+                    )
+                }
         }
     }
 
     override suspend fun getWorkoutById(id: Long): Workout {
-        return workouts.value[id]!!
+        val map = fakeExerciseRepository.getAllExercises().associateBy {
+            it.id
+        }
+        val workout = workouts.value[id]!!
+        return workout.copy(
+            steps = workout.steps.map {
+                val stub = it.exerciseData
+                it.copy(exerciseData = map[stub.id] ?: stub)
+            }
+        )
     }
 
-    override suspend fun saveWorkout(workout: Workout) {
-        if(workout.id == 0L){
+    override suspend fun saveWorkout(workout: Workout): Long {
+        return if(workout.id == 0L){
             val id = idSequence
             val steps = workout.steps.map {
                 it.copy(
@@ -102,12 +127,13 @@ class FakeWorkoutRepository @Inject constructor(): WorkoutRepository {
                 steps = steps
                 ) )
             }
+            id
         }else{
             workouts.update {
                 it + (workout.id to workout)
             }
+            workout.id
         }
-
     }
 
     override suspend fun commitWorkoutSave(id: Long) {

@@ -52,38 +52,37 @@ inline fun Workout.toModel(
     var lastExerciseId: Long? = null
     val lastGroupSets = mutableListOf<ExerciseSetSlot>()
     var lastGroup: ExerciseGroup? = null
-    steps.forEach {
-        if(it.exerciseData.id != lastExerciseId){
+    steps.forEach { step ->
+        if(step.exerciseData.id != lastExerciseId){
             lastGroup?.let { group ->
                 lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
                 groups.add(group.copy(
-                    sets = lastGroupSets
+                    sets = lastGroupSets.toList()
                 ))
             }
-            val newGroup = ExerciseGroup(
+            lastGroup = ExerciseGroup(
                 groupTempId = idProvider(),
-                exerciseId = it.exerciseData.id,
-                name = it.exerciseData.name,
-                imageUrl = it.exerciseData.imageUrl,
-                hasWeight = it.exerciseData.hasWeight,
-                separated = it.exerciseData.separated,
+                exerciseId = step.exerciseData.id,
+                name = step.exerciseData.name,
+                imageUrl = step.exerciseData.imageUrl,
+                hasWeight = step.exerciseData.hasWeight,
+                separated = step.exerciseData.separated,
                 sets = emptyList()
             )
-            lastGroup = newGroup
             lastGroupSets.clear()
         }
-        lastExerciseId = it.exerciseData.id
+        lastExerciseId = step.exerciseData.id
         val set = ExerciseSetSlot.ExerciseSetModel(
             tempId = idProvider(),
-            reps = it.reps.toModel(),
-            weight = it.weight,
+            reps = step.reps.toModel(),
+            weight = step.weight,
         )
         lastGroupSets.add(set)
     }
     lastGroup?.let { group ->
         lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
         groups.add(group.copy(
-            sets = lastGroupSets
+            sets = lastGroupSets.toList()
         ))
     }
 

@@ -24,4 +24,5 @@
     <string name="reps">повт</string>
     <string name="add_exercise">Добавить упражнение</string>
     <string name="history">История</string>
+    <string name="new_workout">Новая тренировка</string>
 </resources>

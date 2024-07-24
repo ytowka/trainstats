@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,10 +48,10 @@ fun RootScreen() {
                 type = NavType.LongType
             })
         ){ backStackEntry ->
-            val id = backStackEntry.arguments?.getLong(Navigation.Workout.idArg)
+            val id = backStackEntry.arguments?.getLong(Navigation.Workout.idArg)?.takeIf { it != -1L }
             WorkoutScreenRoute(
                 workoutId = id,
-                onDeleted = { navController.navigateUp() }
+                onSaved = { navController.navigateUp() }
             )
         }
     }

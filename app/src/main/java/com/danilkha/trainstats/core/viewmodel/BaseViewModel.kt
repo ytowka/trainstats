@@ -34,7 +34,7 @@ abstract class BaseViewModel<State, SideEffect> : ViewModel(){
     }
 
 
-    protected fun update(newState: (State) -> State) = _state.update(newState)
+    protected fun update(newState: (State) -> State): State = _state.updateAndGet(newState)
 
 
     fun <T> Flow<Result<T>>.collectResult(onSuccess: suspend (T) -> Unit){

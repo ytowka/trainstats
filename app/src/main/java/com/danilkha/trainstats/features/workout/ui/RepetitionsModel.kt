@@ -13,3 +13,9 @@ fun Repetitions.toModel() = when(this){
     is Repetitions.Double -> RepetitionsModel.Double(left, right)
     is Repetitions.Single -> RepetitionsModel.Single(reps)
 }
+
+fun RepetitionsModel.toDomain() = when(this){
+    is RepetitionsModel.Double -> Repetitions.Double(left ?: 0f, right ?: 0f)
+    is RepetitionsModel.Single -> Repetitions.Single(reps ?: 0f)
+}
+

@@ -3,7 +3,9 @@ package com.danilkha.trainstats.features.exercises.data
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
 
     var idSequence = 1L

@@ -1,10 +1,8 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.danilkha.trainstats.core.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
-import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.usecase.ArchiveWorkoutUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.CommitWorkoutSaveUseCase
@@ -15,6 +13,7 @@ import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import com.danilkha.trainstats.features.workout.ui.SET_DELETE_DELAY
 import com.danilkha.trainstats.features.workout.ui.Side
+import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.toModel
 import com.danilkha.uikit.components.move
 import korlibs.time.Date
@@ -22,11 +21,13 @@ import korlibs.time.DateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 class WorkoutViewModel @Inject constructor(
+    private val workoutSaver: WorkoutSaver,
     private val saveWorkoutUseCase: SaveWorkoutUseCase,
     private val commitWorkoutSaveUseCase: CommitWorkoutSaveUseCase,
     private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,
@@ -47,7 +48,6 @@ class WorkoutViewModel @Inject constructor(
             if (editingId != null){
                 getWorkoutByIdUseCase(editingId).onSuccess { workout ->
                     update {
-                        Log.d("debugg", "init() called $workout")
                         val workoutModel = workout.toModel { tempIndexes }
                         it.copy(
                             initialWorkout = workoutModel,
@@ -58,8 +58,19 @@ class WorkoutViewModel @Inject constructor(
                     }
                 }
             }else{
+                val id = saveWorkoutUseCase(SaveWorkoutUseCase.WorkoutParams(
+                    id = null,
+                    date = DateTime.now().date,
+                    steps = emptyList()
+                )).getOrThrow()
                 update {
                     it.copy(
+                        initialWorkout = WorkoutModel(
+                            id = id,
+                            dateTime = DateTime.now(),
+                            groups = emptyList(),
+                            saved = false
+                        ),
                         initialized = true
                     )
                 }
@@ -68,8 +79,10 @@ class WorkoutViewModel @Inject constructor(
     }
 
     fun changeDate(date: Date){
-        _state.update {
+        _state.updateAndGet {
             it.copy(date = date)
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -101,6 +114,8 @@ class WorkoutViewModel @Inject constructor(
             it.copy(
                 groups = it.groups + group
             )
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -137,7 +152,8 @@ class WorkoutViewModel @Inject constructor(
                     )
                 }
             }
-
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -189,6 +205,8 @@ class WorkoutViewModel @Inject constructor(
                     )
                 }
             }
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -207,6 +225,8 @@ class WorkoutViewModel @Inject constructor(
                     ))
                 )
             }else it
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -214,6 +234,8 @@ class WorkoutViewModel @Inject constructor(
         it.copy(
             groups = it.groups.toMutableList().apply { move(from, to) }.toList()
         )
+    }.also {
+        workoutSaver.update(it.mapToParams())
     }
 
     private val pendingDeletingSetMap = mutableMapOf<Long, Job>()
@@ -235,6 +257,8 @@ class WorkoutViewModel @Inject constructor(
             it.copy(
                 groups = it.groups.filterIndexed { index, exerciseGroup -> index != groupIndex }
             )
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -247,6 +271,8 @@ class WorkoutViewModel @Inject constructor(
                 )
             }
             it.copy(groups = groups, pendingDelete = it.pendingDelete - setId)
+        }.also {
+            workoutSaver.update(it.mapToParams())
         }
     }
 
@@ -271,6 +297,14 @@ class WorkoutViewModel @Inject constructor(
 
     fun saveWorkout(){
 
+    }
+
+    fun commitSave(){
+        workoutSaver.commit(_state.value.mapToParams())
+    }
+
+    override fun onCleared() {
+        workoutSaver.commit(_state.value.mapToParams())
     }
 }
 

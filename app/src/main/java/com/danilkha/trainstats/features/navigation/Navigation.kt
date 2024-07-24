@@ -10,11 +10,8 @@ object Navigation {
         const val route = "$name?$idArg={$idArg}"
 
         operator fun invoke(id: Long?): String{
-            return if(id == null){
-                name
-            }else{
-                "$name?$idArg=$id"
-            }
+            val validId = id ?: -1
+            return "$name?$idArg=$validId"
         }
     }
 }
