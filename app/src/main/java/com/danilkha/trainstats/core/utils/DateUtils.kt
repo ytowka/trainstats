@@ -9,7 +9,7 @@ import korlibs.time.locale.russian
 
 
 private val dateFormat = PatternDateFormat("EEEE, d MMMM", locale = KlockLocale.russian)
-private val dateFormatYear = PatternDateFormat("EEEE, d MMMM yyyy")
+private val dateFormatYear = PatternDateFormat("EEEE, d MMMM yyyy", locale = KlockLocale.russian)
 
 
 
@@ -22,6 +22,7 @@ fun Date.format(): String{
         dateFormat.format(this)
     }
 }
+
 
 
 fun Date.asJavaDate() = java.util.Date(

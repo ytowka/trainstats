@@ -6,4 +6,15 @@ data class ExerciseData(
     val imageUrl: String?,
     val separated: Boolean,
     val hasWeight: Boolean,
-)
+){
+
+    companion object{
+        fun stub(id: Long) = ExerciseData(
+            id = id,
+            name = "[stub]",
+            imageUrl = null,
+            separated = false,
+            hasWeight = false
+        )
+    }
+}

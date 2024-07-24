@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.workout.ui
+package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +17,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +38,7 @@ import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
+import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.uikit.components.DateSelector
@@ -50,9 +51,21 @@ import com.danilkha.uikit.theme.ThemeTypography
 
 @Composable
 fun WorkoutScreenRoute(
-    viewModel: WorkoutViewModel = viewModel()
+    workoutId: Long? = null,
+    viewModel: WorkoutViewModel = getCurrentViewModel{ it.workoutViewModel },
+    onDeleted: () -> Unit
 ){
     val state by viewModel.state.collectAsState(viewModel.startState)
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.init(workoutId)
+    }
+
+    viewModel.LaunchCollectEffects{ event ->
+        when(event){
+            WorkoutSideEffect.Deleted -> onDeleted()
+        }
+    }
 
     var showDateDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -112,7 +125,7 @@ fun WorkoutScreen(
 
     onDateClicked: () -> Unit,
     onWeightChange: (groupIndex: Int,index: Int, Float) -> Unit,
-    onRepsChange: (groupIndex: Int,index: Int, Side?, value: Float) -> Unit,
+    onRepsChange: (groupIndex: Int, index: Int, Side?, value: Float) -> Unit,
     onDeleteSet: (groupIndex: Int,index: Int) -> Unit,
     onReturnDeleted: (groupIndex: Int,index: Int) -> Unit,
     onSetMoved: (groupIndex: Int, from: Int, to: Int) -> Unit,
@@ -201,7 +214,7 @@ fun WorkoutScreen(
             val isSaved = state.initialWorkout != null && state.initialWorkout.saved
             if (isSaved){
                 GenericButton(
-                    onClick = onSave,
+                    onClick = onDelete,
                     color = Colors.error
                 ) {
                     Text(

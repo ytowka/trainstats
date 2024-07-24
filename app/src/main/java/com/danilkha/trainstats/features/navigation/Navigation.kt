@@ -9,7 +9,7 @@ object Navigation {
 
         const val route = "$name?$idArg={$idArg}"
 
-        operator fun invoke(id: String?): String{
+        operator fun invoke(id: Long?): String{
             return if(id == null){
                 name
             }else{

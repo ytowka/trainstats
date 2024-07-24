@@ -95,7 +95,7 @@ fun ExerciseList(
             top = 10.dp,
             bottom = 60.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         items(items = items , key = { it.id }){
             ExerciseCard(
@@ -113,7 +113,7 @@ fun ExerciseSearchBar(
     onAddClicked: () -> Unit,
 ){
     Card(
-        shape = RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp)
+        shape = RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp),
     ) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Min)

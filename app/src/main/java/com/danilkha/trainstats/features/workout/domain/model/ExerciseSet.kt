@@ -8,7 +8,6 @@ import korlibs.time.TimeSpan
 data class ExerciseSet(
     val id: Long = 0,
     val workoutId: Long,
-    val dateTime: DateTime,
     val exerciseData: ExerciseData,
     val reps: Repetitions,
     val weight: Kg?,
@@ -16,7 +15,7 @@ data class ExerciseSet(
 )
 
 sealed interface Repetitions{
-    data class Single(val reps: Int) : Repetitions
-    data class Double(val left: Int, val right: Int) : Repetitions
+    data class Single(val reps: Float) : Repetitions
+    data class Double(val left: Float, val right: Float) : Repetitions
 }
 

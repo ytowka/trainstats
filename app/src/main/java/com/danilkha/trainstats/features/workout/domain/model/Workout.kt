@@ -5,5 +5,7 @@ import korlibs.time.DateTime
 data class Workout(
     val id: Long = 0,
     val dateTime: DateTime,
-    val steps: List<ExerciseSet>
+    val steps: List<ExerciseSet>,
+    val saved: Boolean,
+    val archived: Boolean,
 )

@@ -36,6 +36,16 @@ abstract class BaseViewModel<State, SideEffect> : ViewModel(){
 
     protected fun update(newState: (State) -> State) = _state.update(newState)
 
+
+    fun <T> Flow<Result<T>>.collectResult(onSuccess: suspend (T) -> Unit){
+        viewModelScope.launch {
+            collect{
+                it.onSuccess {
+                    onSuccess(it)
+                }
+            }
+        }
+    }
 }
 
 @Composable

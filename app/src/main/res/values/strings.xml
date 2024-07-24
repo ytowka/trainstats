@@ -23,4 +23,5 @@
     <string name="kg">кг</string>
     <string name="reps">повт</string>
     <string name="add_exercise">Добавить упражнение</string>
+    <string name="history">История</string>
 </resources>

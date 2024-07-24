@@ -18,9 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Shapes
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -87,7 +85,7 @@ fun ExerciseGroupCard(
     onDeleteGroup: () -> Unit,
 
     onExpandClick: () -> Unit,
-    onDragStart: () -> Unit ,
+    onDragStart: () -> Unit,
     onDragEnd: () -> Unit,
     onVerticalDrag: (dragAmount: Float) -> Unit
 ) {
@@ -103,13 +101,6 @@ fun ExerciseGroupCard(
                 text = title,
                 style = ThemeTypography.title
             )
-            Spacer(modifier = Modifier.size(10.dp))
-            if(sets.size == 1){
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    onClick = onDeleteGroup
-                )
-            }
             Spacer(modifier = Modifier.weight(1f))
             val rotation = animateFloatAsState(targetValue = if (expanded) 180f else 0f)
             Icon(
@@ -134,18 +125,26 @@ fun ExerciseGroupCard(
                 ) { index, item ->
                     val updatedIndex by rememberUpdatedState(newValue = index)
                     val asModel = item as? ExerciseSetSlot.ExerciseSetModel
+                    val isStub = item is ExerciseSetSlot.Stub
                     ExerciseSet(
                         reps = asModel?.reps ?: when(separated){
                             true -> RepetitionsModel.Double(null, null)
                             false -> RepetitionsModel.Single(null)
                         },
                         hasWeight = hasWeight,
-                        isStub = item is ExerciseSetSlot.Stub,
+                        isStub = isStub,
+                        isOnlyStub = isStub && sets.size == 1,
                         weight = asModel?.weight,
                         deleted = asModel?.tempId in deleted,
                         onWeightChange = { onWeightChange(index, it) },
                         onRepsChange = { side, fl -> onRepsChange(index, side, fl) },
-                        onDelete = { onDelete(index) },
+                        onDelete = {
+                            if(isStub){
+                                onDeleteGroup()
+                            }else{
+                                onDelete(index)
+                            }
+                        },
                         onReturnDeleted = { onReturnDeleted(index) },
                         onDragStart = { dragDispatcher.onDragStart(updatedIndex) },
                         onDragEnd = { dragDispatcher.onDragEnd() },
@@ -198,6 +197,7 @@ fun ExerciseSet(
     weight: Kg?,
     deleted: Boolean,
     isStub: Boolean,
+    isOnlyStub: Boolean,
     onWeightChange: (Float) -> Unit,
     onRepsChange: (Side?, Float) -> Unit,
     onDelete: () -> Unit,
@@ -357,7 +357,7 @@ fun ExerciseSet(
                 alpha = 0.5f,
                 onClick = onReturnDeleted
             )
-        }else if(!isStub){
+        }else if(!isStub || isOnlyStub){
             Icon(
                 imageVector = Icons.Default.Clear,
                 alpha = 0.5f,
@@ -380,19 +380,16 @@ private fun ExerciseSetPreview(){
             val sets = listOf(
                 ExerciseSetSlot.ExerciseSetModel(
                     tempId = 0,
-                    dateTime = DateTime.now(),
                     reps = RepetitionsModel.Single(10f),
                     weight = Kg(10f)
                 ),
                 ExerciseSetSlot.ExerciseSetModel(
                     tempId = 1,
-                    dateTime = DateTime.now(),
                     reps = RepetitionsModel.Single(9f),
                     weight = Kg(20f)
                 ),
                 ExerciseSetSlot.ExerciseSetModel(
                     tempId = 2,
-                    dateTime = DateTime.now(),
                     reps = RepetitionsModel.Single(8f),
                     weight = Kg(30f)
                 )
@@ -438,13 +435,11 @@ private fun ExerciseSetPreview(){
             val sets2 = listOf(
                 ExerciseSetSlot.ExerciseSetModel(
                     tempId = 0,
-                    dateTime = DateTime.now(),
                     reps = RepetitionsModel.Double(10f, 10f),
                     weight = Kg(10f)
                 ),
                 ExerciseSetSlot.ExerciseSetModel(
                     tempId = 1,
-                    dateTime = DateTime.now(),
                     reps = RepetitionsModel.Double(10f, 10f),
                     weight = Kg(20f)
                 ),

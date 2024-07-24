@@ -1,13 +1,21 @@
-package com.danilkha.trainstats.features.workout.ui
+package com.danilkha.trainstats.features.workout.ui.editor
 
-import androidx.compose.ui.util.trace
+import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.utils.format2
 import com.danilkha.trainstats.core.viewmodel.BaseViewModel
-import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
+import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Kg
-import com.danilkha.trainstats.features.workout.ui.components.ExerciseSet
+import com.danilkha.trainstats.features.workout.domain.usecase.ArchiveWorkoutUseCase
+import com.danilkha.trainstats.features.workout.domain.usecase.CommitWorkoutSaveUseCase
+import com.danilkha.trainstats.features.workout.domain.usecase.GetWorkoutByIdUseCase
+import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
+import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
+import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
+import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
+import com.danilkha.trainstats.features.workout.ui.SET_DELETE_DELAY
+import com.danilkha.trainstats.features.workout.ui.Side
+import com.danilkha.trainstats.features.workout.ui.toModel
 import com.danilkha.uikit.components.move
 import korlibs.time.Date
 import korlibs.time.DateTime
@@ -15,9 +23,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
+class WorkoutViewModel @Inject constructor(
+    private val saveWorkoutUseCase: SaveWorkoutUseCase,
+    private val commitWorkoutSaveUseCase: CommitWorkoutSaveUseCase,
+    private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,
+    private val archiveWorkoutUseCase: ArchiveWorkoutUseCase,
+): BaseViewModel<WorkoutState, WorkoutSideEffect>(){
 
     override val startState: WorkoutState = WorkoutState()
 
@@ -29,7 +43,28 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
 
 
     fun init(editingId: Long?){
-
+        viewModelScope.launch {
+            if (editingId != null){
+                getWorkoutByIdUseCase(editingId).onSuccess { workout ->
+                    update {
+                        Log.d("debugg", "init() called $workout")
+                        val workoutModel = workout.toModel { tempIndexes }
+                        it.copy(
+                            initialWorkout = workoutModel,
+                            date = workoutModel.dateTime.date,
+                            groups = workoutModel.groups,
+                            initialized = true
+                        )
+                    }
+                }
+            }else{
+                update {
+                    it.copy(
+                        initialized = true
+                    )
+                }
+            }
+        }
     }
 
     fun changeDate(date: Date){
@@ -85,7 +120,6 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
                 is ExerciseSetSlot.Stub -> {
                     val newSet = ExerciseSetSlot.ExerciseSetModel(
                         tempId = set.tempId,
-                        dateTime = DateTime.now(),
                         reps = when (group.separated) {
                             true -> RepetitionsModel.Double(null, null)
                             false -> RepetitionsModel.Single(null)
@@ -117,8 +151,8 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
                     val newReps = when(set.reps){
                         is RepetitionsModel.Double -> when(side){
                             Side.Left -> RepetitionsModel.Double(reps, set.reps.right)
-                            Side.Right ->  RepetitionsModel.Double( set.reps.left, reps)
-                            null ->  RepetitionsModel.Double(reps, set.reps.right)
+                            Side.Right -> RepetitionsModel.Double(set.reps.left, reps)
+                            null -> RepetitionsModel.Double(reps, set.reps.right)
                         }
                         is RepetitionsModel.Single -> RepetitionsModel.Single(reps)
                     }
@@ -134,14 +168,13 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
                     val newReps = when(group.separated){
                         true -> when(side){
                             Side.Left -> RepetitionsModel.Double(reps, null)
-                            Side.Right ->  RepetitionsModel.Double( null, reps)
-                            null ->  RepetitionsModel.Double(reps, null)
+                            Side.Right -> RepetitionsModel.Double(null, reps)
+                            null -> RepetitionsModel.Double(reps, null)
                         }
                         false -> RepetitionsModel.Single(reps)
                     }
                     val newSet = ExerciseSetSlot.ExerciseSetModel(
                         tempId = set.tempId,
-                        dateTime = DateTime.now(),
                         reps = newReps,
                         weight = null
                     )
@@ -227,7 +260,13 @@ class WorkoutViewModel : BaseViewModel<WorkoutState, WorkoutSideEffect>(){
     }
 
     fun deleteWorkout(){
-
+        viewModelScope.launch {
+            _state.value.initialWorkout?.id?.let { id ->
+                archiveWorkoutUseCase(id).onSuccess {
+                    showSideEffect(WorkoutSideEffect.Deleted)
+                }
+            }
+        }
     }
 
     fun saveWorkout(){

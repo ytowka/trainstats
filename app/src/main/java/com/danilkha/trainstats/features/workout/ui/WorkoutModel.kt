@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Kg
-import com.danilkha.trainstats.features.workout.domain.model.Repetitions
+import com.danilkha.trainstats.features.workout.domain.model.Workout
 import korlibs.time.DateTime
 
 data class WorkoutModel(
@@ -29,7 +29,6 @@ sealed class ExerciseSetSlot(
 ){
     data class ExerciseSetModel(
         override val tempId: Long,
-        val dateTime: DateTime,
         val reps: RepetitionsModel,
         val weight: Kg?,
     ) : ExerciseSetSlot(tempId)
@@ -38,13 +37,60 @@ sealed class ExerciseSetSlot(
 }
 
 
-@Immutable
-sealed interface RepetitionsModel{
 
-    data class Single(val reps: Float?) : RepetitionsModel
-    data class Double(val left: Float?, val right: Float?) : RepetitionsModel
-}
+
 
 const val SET_DELETE_DELAY = 5000L //ms
 
 enum class Side { Left, Right }
+
+inline fun Workout.toModel(
+    idProvider: () -> Long,
+) : WorkoutModel{
+    val groups = mutableListOf<ExerciseGroup>()
+
+    var lastExerciseId: Long? = null
+    val lastGroupSets = mutableListOf<ExerciseSetSlot>()
+    var lastGroup: ExerciseGroup? = null
+    steps.forEach {
+        if(it.exerciseData.id != lastExerciseId){
+            lastGroup?.let { group ->
+                lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
+                groups.add(group.copy(
+                    sets = lastGroupSets
+                ))
+            }
+            val newGroup = ExerciseGroup(
+                groupTempId = idProvider(),
+                exerciseId = it.exerciseData.id,
+                name = it.exerciseData.name,
+                imageUrl = it.exerciseData.imageUrl,
+                hasWeight = it.exerciseData.hasWeight,
+                separated = it.exerciseData.separated,
+                sets = emptyList()
+            )
+            lastGroup = newGroup
+            lastGroupSets.clear()
+        }
+        lastExerciseId = it.exerciseData.id
+        val set = ExerciseSetSlot.ExerciseSetModel(
+            tempId = idProvider(),
+            reps = it.reps.toModel(),
+            weight = it.weight,
+        )
+        lastGroupSets.add(set)
+    }
+    lastGroup?.let { group ->
+        lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
+        groups.add(group.copy(
+            sets = lastGroupSets
+        ))
+    }
+
+    return WorkoutModel(
+        id = id,
+        dateTime = dateTime,
+        groups = groups.toList(),
+        saved = saved
+    )
+}
