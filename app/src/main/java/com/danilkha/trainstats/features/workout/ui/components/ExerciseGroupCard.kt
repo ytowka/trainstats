@@ -186,12 +186,6 @@ private const val MAX_REPS_FIELD_LENGTH = 3
 private val FIELD_WIDTH = 90.dp
 private val REPS_FIELD_WIDTH = 50.dp
 
-private val textFieldStyle = TextStyle(
-    textAlign = TextAlign.Center,
-    fontSize = 20.sp,
-    fontWeight = FontWeight.Bold,
-)
-
 @Composable
 fun ExerciseSet(
     reps: RepetitionsModel,
@@ -221,6 +215,13 @@ fun ExerciseSet(
             backgroundColor.animateTo(defaultColor,)
         }
     }
+
+    val textFieldStyle = TextStyle(
+        textAlign = TextAlign.Center,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        color = Colors.text
+    )
     
     Box(
         modifier = Modifier
