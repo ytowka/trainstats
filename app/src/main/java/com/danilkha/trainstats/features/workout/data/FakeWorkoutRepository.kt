@@ -34,38 +34,41 @@ class FakeWorkoutRepository @Inject constructor(
 
     init {
         val id = idSequence
-        val exerciseData1 = runBlocking{ fakeExerciseRepository.getAllExercises().first() }
-        val steps = buildList {
-            add(ExerciseSet(
-                id = idSequence,
-                workoutId = id,
-                exerciseData = exerciseData1,
-                reps = Repetitions.Single(10f),
-                weight = Kg(50f),
-                orderPosition = 0,
-                )
-            )
-            add(
-                ExerciseSet(
+        val exerciseData1 = runBlocking{ fakeExerciseRepository.getAllExercises().firstOrNull() }
+        val steps = exerciseData1?.let {
+            buildList {
+                add(ExerciseSet(
                     id = idSequence,
                     workoutId = id,
                     exerciseData = exerciseData1,
                     reps = Repetitions.Single(10f),
                     weight = Kg(50f),
-                    orderPosition = 0
+                    orderPosition = 0,
                 )
-            )
-            add(
-                ExerciseSet(
-                    id = idSequence,
-                    workoutId = id,
-                    exerciseData = exerciseData1,
-                    reps = Repetitions.Single(10f),
-                    weight = Kg(50f),
-                    orderPosition = 0
                 )
-            )
-        }
+                add(
+                    ExerciseSet(
+                        id = idSequence,
+                        workoutId = id,
+                        exerciseData = exerciseData1,
+                        reps = Repetitions.Single(10f),
+                        weight = Kg(50f),
+                        orderPosition = 0
+                    )
+                )
+                add(
+                    ExerciseSet(
+                        id = idSequence,
+                        workoutId = id,
+                        exerciseData = exerciseData1,
+                        reps = Repetitions.Single(10f),
+                        weight = Kg(50f),
+                        orderPosition = 0
+                    )
+                )
+            }
+        } ?: emptyList()
+
         val initWorkout = Workout(
             id = id,
             dateTime = DateTime.now(),
@@ -77,7 +80,6 @@ class FakeWorkoutRepository @Inject constructor(
             it.plus(id to initWorkout)
         }
     }
-
     override fun getWorkoutHistory(): Flow<List<Workout>> {
         return workouts.map {
             val exerciseMap = fakeExerciseRepository.getAllExercises().associateBy {

@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.di
 
 import com.danilkha.trainstats.features.exercises.data.FakeExerciseRepository
+import com.danilkha.trainstats.features.exercises.data.repository.ExerciseRepositoryImpl
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.workout.data.FakeWorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
@@ -13,7 +14,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindExerciseRepository(fakeExerciseRepository: FakeExerciseRepository): ExerciseRepository
+    abstract fun bindExerciseRepository(exerciseRepository: ExerciseRepositoryImpl): ExerciseRepository
 
     @Binds
     @Singleton

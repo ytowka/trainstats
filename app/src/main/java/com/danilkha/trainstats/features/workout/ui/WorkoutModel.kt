@@ -37,9 +37,6 @@ sealed class ExerciseSetSlot(
 }
 
 
-
-
-
 const val SET_DELETE_DELAY = 5000L //ms
 
 enum class Side { Left, Right }

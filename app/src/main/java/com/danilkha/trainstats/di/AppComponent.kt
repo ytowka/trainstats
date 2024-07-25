@@ -10,7 +10,7 @@ import dagger.Component
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@Component(modules = [RepositoryModule::class])
+@Component(modules = [RepositoryModule::class, DatasourceModule::class, DbModule::class])
 @Singleton
 abstract class AppComponent  {
 

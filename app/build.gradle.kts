@@ -2,7 +2,7 @@
 plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
-    alias(libs.plugins.kapt)
+    alias(libs.plugins.room)
     alias(libs.plugins.ksp)
 }
 
@@ -43,8 +43,12 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -73,7 +77,12 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.dagger)
     implementation(libs.androidx.fragment.ktx)
-    kapt(libs.dagger.compiler)
+    ksp(libs.dagger.compiler)
+
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
