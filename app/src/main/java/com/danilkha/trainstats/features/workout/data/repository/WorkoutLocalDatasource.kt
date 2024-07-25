@@ -1,11 +1,10 @@
-package com.danilkha.trainstats.features.workout.domain
+package com.danilkha.trainstats.features.workout.data.repository
 
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import kotlinx.coroutines.flow.Flow
 
-interface WorkoutRepository {
-
+interface WorkoutLocalDatasource {
     fun getWorkoutHistory(): Flow<List<WorkoutPreview>>
     suspend fun getWorkoutById(id: Long): Workout
     suspend fun saveWorkout(workout: Workout): Long

@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -159,12 +160,13 @@ fun ExerciseGroupCard(
 
 @Composable
 fun DragThumb(
+    modifier: Modifier = Modifier,
     onDragStart: () -> Unit = { },
     onDragEnd: () -> Unit = { },
     onVerticalDrag: (dragAmount: Float) -> Unit
 ){
     Image(
-        modifier = Modifier
+        modifier = modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
                     onDragStart = {onDragStart()},
@@ -220,7 +222,7 @@ fun ExerciseSet(
         }
     }
     
-    Row(
+    Box(
         modifier = Modifier
             .background(
                 color = backgroundColor.value,
@@ -228,18 +230,17 @@ fun ExerciseSet(
             )
             .fillMaxWidth()
             .padding(5.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
     ) {
         if(!isStub){
             DragThumb(
+                modifier = Modifier.align(Alignment.CenterStart),
                 onDragStart = onDragStart,
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd
             )
         }
-        Spacer(modifier = Modifier.size(10.dp))
         Row(
+            modifier = Modifier.align(Alignment.Center),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if(hasWeight){
@@ -350,15 +351,16 @@ fun ExerciseSet(
                 style = ThemeTypography.body1.copy(fontWeight = FontWeight.Normal)
             )
         }
-        Spacer(modifier = Modifier.size(10.dp))
         if(deleted){
             Icon(
+                modifier = Modifier.align(Alignment.CenterEnd),
                 imageVector = Icons.AutoMirrored.Default.Undo,
                 alpha = 0.5f,
                 onClick = onReturnDeleted
             )
         }else if(!isStub || isOnlyStub){
             Icon(
+                modifier = Modifier.align(Alignment.CenterEnd),
                 imageVector = Icons.Default.Clear,
                 alpha = 0.5f,
                 onClick = onDelete

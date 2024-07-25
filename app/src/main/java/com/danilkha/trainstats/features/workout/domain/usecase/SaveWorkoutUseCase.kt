@@ -21,7 +21,7 @@ class SaveWorkoutUseCase @Inject constructor(
             ExerciseSet(
                 id = 0,
                 workoutId = 0,
-                exerciseData = ExerciseData.stub(item.exerciseId),
+                exerciseData = ExerciseData.stub(item.exerciseId, item.exerciseName),
                 reps = item.reps,
                 weight = item.weight,
                 orderPosition = index
@@ -49,6 +49,7 @@ class SaveWorkoutUseCase @Inject constructor(
 
     class SetParams(
         val exerciseId: Long,
+        val exerciseName: String,
         val reps: Repetitions,
         val weight: Kg?,
     )

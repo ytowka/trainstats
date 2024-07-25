@@ -26,13 +26,14 @@ data class WorkoutState(
             group.sets
                 .filterIsInstance<ExerciseSetSlot.ExerciseSetModel>()
                 .map { set ->
-                group.exerciseId to set
+                group to set
             }
-        }.map { (exerciseId, set) ->
+        }.map { (group, set) ->
             SaveWorkoutUseCase.SetParams(
-                exerciseId = exerciseId,
+                exerciseId = group.exerciseId,
                 reps = set.reps.toDomain(),
-                weight = set.weight
+                weight = set.weight,
+                exerciseName = group.name
             )
         }
     )

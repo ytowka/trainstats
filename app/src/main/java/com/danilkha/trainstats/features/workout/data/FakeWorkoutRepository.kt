@@ -8,6 +8,7 @@ import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.Workout
+import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import korlibs.time.DateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,7 +81,7 @@ class FakeWorkoutRepository @Inject constructor(
             it.plus(id to initWorkout)
         }
     }
-    override fun getWorkoutHistory(): Flow<List<Workout>> {
+    override fun getWorkoutHistory(): Flow<List<WorkoutPreview>> {
         return workouts.map {
             val exerciseMap = fakeExerciseRepository.getAllExercises().associateBy {
                 it.id
@@ -89,13 +90,15 @@ class FakeWorkoutRepository @Inject constructor(
                 .toList()
                 .filterNot { it.archived }
                 .map { workout ->
-                    workout.copy(
-                        steps = workout.steps.map {
-                            val stub = it.exerciseData
-                            it.copy(
-                                exerciseData = exerciseMap[stub.id] ?: stub
-                            )
-                        }
+                    val exercises = workout.steps.mapNotNull {
+                        exerciseMap[it.exerciseData.id]?.name
+                    }.toSet()
+                    WorkoutPreview(
+                        id = workout.id,
+                        dateTime = workout.dateTime,
+                        exercises = exercises.toList(),
+                        saved = workout.saved,
+                        archived = workout.archived
                     )
                 }
         }

@@ -65,12 +65,6 @@ fun WorkoutScreenRoute(
         viewModel.init(workoutId)
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.commitSave()
-        }
-    }
-
     viewModel.LaunchCollectEffects{ event ->
         when(event){
             WorkoutSideEffect.Deleted -> onSaved()

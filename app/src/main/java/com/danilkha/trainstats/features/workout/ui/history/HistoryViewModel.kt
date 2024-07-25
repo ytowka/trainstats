@@ -19,14 +19,11 @@ class HistoryViewModel @Inject constructor(
             getWorkoutHistoryUseCase().collectResult { workouts ->
                 update { state ->
                     state.copy(workouts = workouts.map { workout ->
-                        val exercises = mutableMapOf<Long, String>()
-                        workout.steps.forEach {
-                            exercises[it.exerciseData.id] = it.exerciseData.name
-                        }
+
                         WorkoutHistoryModel(
                             id = workout.id,
                             date = workout.dateTime,
-                            exercises = exercises.values.toList()
+                            exercises = workout.exercises
                         )
                     })
                 }

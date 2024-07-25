@@ -4,6 +4,7 @@ import com.danilkha.trainstats.features.exercises.data.FakeExerciseRepository
 import com.danilkha.trainstats.features.exercises.data.repository.ExerciseRepositoryImpl
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.workout.data.FakeWorkoutRepository
+import com.danilkha.trainstats.features.workout.data.repository.WorkoutRepositoryImpl
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import dagger.Binds
 import dagger.Module
@@ -18,5 +19,5 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindWorkoutRepository(fakeWorkoutRepository: FakeWorkoutRepository) : WorkoutRepository
+    abstract fun bindWorkoutRepository(workoutRepository: WorkoutRepositoryImpl) : WorkoutRepository
 }

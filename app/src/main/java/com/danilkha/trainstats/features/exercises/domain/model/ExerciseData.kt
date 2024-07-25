@@ -9,9 +9,9 @@ data class ExerciseData(
 ){
 
     companion object{
-        fun stub(id: Long) = ExerciseData(
+        fun stub(id: Long, name: String) = ExerciseData(
             id = id,
-            name = "[stub]",
+            name = name,
             imageUrl = null,
             separated = false,
             hasWeight = false
