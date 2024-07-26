@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import android.util.Log
+import com.danilkha.trainstats.features.workout.domain.usecase.DeleteWorkoutUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 
 @Singleton
 class WorkoutSaver @Inject constructor(
-    private val saveWorkoutUseCase: SaveWorkoutUseCase
+    private val saveWorkoutUseCase: SaveWorkoutUseCase,
+    private val deleteWorkoutUseCase: DeleteWorkoutUseCase,
 ){
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -38,12 +40,15 @@ class WorkoutSaver @Inject constructor(
     fun commit(workout: SaveWorkoutUseCase.WorkoutParams){
         currentState.value = null
         scope.launch {
-            commitInternal(workout)
+            if(workout.steps.isEmpty()){
+                workout.id?.let { deleteWorkoutUseCase(it) }
+            }else{
+                commitInternal(workout)
+            }
         }
     }
 
     private suspend fun commitInternal(workout: SaveWorkoutUseCase.WorkoutParams){
-        Log.d("debugg", "commitInternal() called with: workout = $workout")
         saveWorkoutUseCase(workout)
     }
 }

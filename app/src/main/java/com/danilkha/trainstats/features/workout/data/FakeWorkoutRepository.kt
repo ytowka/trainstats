@@ -157,4 +157,10 @@ class FakeWorkoutRepository @Inject constructor(
             } ?: map
         }
     }
+
+    override suspend fun deleteWorkout(id: Long) {
+        workouts.update {
+            it - id
+        }
+    }
 }

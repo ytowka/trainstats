@@ -10,13 +10,13 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 @Dao
 interface ExerciseDao {
 
-    @Query("select * from ExerciseEntity")
+    @Query("select * from ExerciseEntity where archived = 0")
     suspend fun getAllExercises(): List<ExerciseEntity>
 
     @Query("select * from ExerciseEntity where id = :id")
     suspend fun getExercise(id: Long): ExerciseEntity
 
-    @Query("select * from ExerciseEntity where name like '%'+:query+'%' ")
+    @Query("select * from ExerciseEntity where name like '%'+:query+'%' and archived = 0")
     suspend fun findExercise(query: String): List<ExerciseEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -25,6 +25,6 @@ interface ExerciseDao {
     @Update
     suspend fun updateExercise(exercise: ExerciseEntity)
 
-    @Query("delete from ExerciseEntity where id = :id")
+    @Query("update ExerciseEntity set archived = 1 where id = :id")
     suspend fun deleteExercise(id: Long)
 }

@@ -11,6 +11,7 @@ data class ExerciseEntity(
     val imageUrl: String?,
     val separated: Boolean,
     val hasWeight: Boolean,
+    val archived: Boolean,
 )
 
 fun  ExerciseEntity.toDomain() = ExerciseData(
@@ -26,5 +27,6 @@ fun ExerciseData.toEntity() = ExerciseEntity(
     name = name,
     imageUrl = imageUrl,
     separated = separated,
-    hasWeight = hasWeight
+    hasWeight = hasWeight,
+    archived = false
 )

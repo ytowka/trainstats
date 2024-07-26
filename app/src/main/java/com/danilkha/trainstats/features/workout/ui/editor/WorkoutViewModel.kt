@@ -299,10 +299,6 @@ class WorkoutViewModel @Inject constructor(
 
     }
 
-    fun commitSave(){
-        workoutSaver.commit(_state.value.mapToParams())
-    }
-
     override fun onCleared() {
         workoutSaver.commit(_state.value.mapToParams())
     }

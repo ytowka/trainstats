@@ -50,4 +50,7 @@ interface WorkoutDao {
 
     @Query("update workoutentity set archived = 1 where id = :id")
     fun archiveWorkout(id: Long)
+
+    @Query("delete from workoutentity where id = :id")
+    fun deleteWorkout(id: Long)
 }

@@ -30,4 +30,8 @@ class WorkoutRepositoryImpl @Inject constructor(
     override suspend fun archiveWorkout(id: Long) {
         withContext(Dispatchers.IO){ workoutLocalDatasource.archiveWorkout(id) }
     }
+
+    override suspend fun deleteWorkout(id: Long) {
+        withContext(Dispatchers.IO){ workoutLocalDatasource.deleteWorkout(id) }
+    }
 }

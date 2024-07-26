@@ -11,4 +11,5 @@ interface WorkoutRepository {
     suspend fun saveWorkout(workout: Workout): Long
     suspend fun commitWorkoutSave(id: Long)
     suspend fun archiveWorkout(id: Long)
+    suspend fun deleteWorkout(id: Long)
 }

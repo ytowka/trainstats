@@ -39,4 +39,8 @@ class RoomWorkoutDatasource @Inject constructor(
         workoutDao.archiveWorkout(id)
     }
 
+    override suspend fun deleteWorkout(id: Long) {
+        workoutDao.deleteWorkout(id)
+    }
+
 }
