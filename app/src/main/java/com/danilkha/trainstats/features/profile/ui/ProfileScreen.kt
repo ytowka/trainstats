@@ -52,6 +52,10 @@ fun ProfileScreen(
             is ProfileSingleEvent.ImportSuccess -> {
                 Toast.makeText(context, "import ok exercises: ${event.exercises}, workouts: ${event.workouts}", Toast.LENGTH_SHORT).show()
             }
+
+            ProfileSingleEvent.Error -> {
+                Toast.makeText(context, "error parsing", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

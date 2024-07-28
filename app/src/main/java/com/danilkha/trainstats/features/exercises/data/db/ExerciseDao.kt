@@ -10,7 +10,13 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 @Dao
 interface ExerciseDao {
 
-    @Query("select * from ExerciseEntity where archived = 0")
+    @Query("""
+select * from ExerciseEntity as e
+inner join ExerciseCountView as stats on stats.exerciseId = e.id 
+where archived = 0
+order by stats.inWorkouts desc
+        
+        """)
     suspend fun getAllExercises(): List<ExerciseEntity>
 
     @Query("select * from ExerciseEntity where id = :id")
