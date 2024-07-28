@@ -142,7 +142,7 @@ private val NavigationItem.icon: Painter
     get() = painterResource(id = when(this){
         NavigationItem.HOME -> drawable.ic_home
         NavigationItem.EXERCISES -> drawable.ic_exercise
-        NavigationItem.WORKOUTS -> drawable.ic_list
+        //NavigationItem.WORKOUTS -> drawable.ic_list
         NavigationItem.STATS -> drawable.ic_chart
         NavigationItem.PROFILE -> drawable.ic_person
     })
@@ -152,12 +152,17 @@ private val NavigationItem.label: String
     get() = stringResource(id = when (this){
         NavigationItem.HOME -> R.string.navigation_item_home
         NavigationItem.EXERCISES -> R.string.navigation_item_exercises
-        NavigationItem.WORKOUTS -> R.string.navigation_item_workouts
+        //NavigationItem.WORKOUTS -> R.string.navigation_item_workouts
         NavigationItem.STATS -> R.string.navigation_item_stats
         NavigationItem.PROFILE -> R.string.navigation_item_profile
     })
 
-enum class NavigationItem { HOME, EXERCISES, WORKOUTS, STATS, PROFILE }
+enum class NavigationItem {
+                          HOME,
+    EXERCISES,
+    STATS,
+    PROFILE
+}
 
 @Preview
 @Composable

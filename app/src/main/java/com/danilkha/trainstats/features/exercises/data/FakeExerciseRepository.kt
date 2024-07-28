@@ -28,15 +28,21 @@ class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
         return exercises.first { it.id == id }
     }
 
+    override suspend fun getExerciseIds(names: List<String>): List<Pair<String, Long>> {
+        return exercises.filter { it.name in names }
+            .map { it.name to it.id }
+    }
+
     override suspend fun findExercise(query: String): List<ExerciseData> {
         return exercises.filter {
             it.name.contains(query)
         }
     }
 
-    override suspend fun createExercise(exerciseData: ExerciseData) {
+    override suspend fun createExercise(exerciseData: ExerciseData): Long {
         idSequence++
         exercises.add(exerciseData.copy(id = idSequence))
+        return idSequence
     }
 
     override suspend fun updateExercise(exerciseData: ExerciseData) {

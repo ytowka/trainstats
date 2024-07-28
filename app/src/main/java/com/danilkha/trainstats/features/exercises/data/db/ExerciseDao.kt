@@ -27,4 +27,7 @@ interface ExerciseDao {
 
     @Query("update ExerciseEntity set archived = 1 where id = :id")
     suspend fun deleteExercise(id: Long)
+
+    @Query("select e.id, e.name from ExerciseEntity as e where e.name in (:names)")
+    suspend fun getExerciseIds(names: List<String>): List<ExerciseEntity.NameId>
 }

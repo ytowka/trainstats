@@ -4,16 +4,14 @@ import com.danilkha.trainstats.core.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
-import com.danilkha.trainstats.features.workout.domain.model.Kg
-import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.Workout
-import korlibs.time.Date
+import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import korlibs.time.DateTime
 import javax.inject.Inject
 
 class SaveWorkoutUseCase @Inject constructor(
     private val workoutRepository: WorkoutRepository
-) : UseCase<SaveWorkoutUseCase.WorkoutParams, Long>(){
+) : UseCase<WorkoutParams, Long>(){
 
 
     override suspend fun execute(params: WorkoutParams): Long {
@@ -41,16 +39,4 @@ class SaveWorkoutUseCase @Inject constructor(
         return workoutRepository.saveWorkout(workout)
     }
 
-    class WorkoutParams(
-        val id: Long?,
-        val date: Date,
-        val steps: List<SetParams>,
-    )
-
-    class SetParams(
-        val exerciseId: Long,
-        val exerciseName: String,
-        val reps: Repetitions,
-        val weight: Kg?,
-    )
 }

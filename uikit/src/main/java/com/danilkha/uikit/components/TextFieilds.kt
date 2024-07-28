@@ -14,7 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.danilkha.uikit.theme.Colors
@@ -36,6 +38,8 @@ fun GenericTextFiled(
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     cursorBrush: Brush = SolidColor(Colors.text),
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
     contentStart: @Composable (() -> Unit)? = null,
 ){
     BasicTextField(
@@ -50,6 +54,8 @@ fun GenericTextFiled(
         singleLine = singleLine,
         maxLines = maxLines,
         cursorBrush = cursorBrush,
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout,
         decorationBox = { innerTextField ->
             Card(
                 contentPadding = contentPadding

@@ -1,8 +1,8 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
-import android.util.Log
 import com.danilkha.trainstats.features.workout.domain.usecase.DeleteWorkoutUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
+import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,7 +20,7 @@ class WorkoutSaver @Inject constructor(
 ){
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    private val currentState = MutableStateFlow<SaveWorkoutUseCase.WorkoutParams?>(null)
+    private val currentState = MutableStateFlow<WorkoutParams?>(null)
 
     init {
         scope.launch {
@@ -33,11 +33,11 @@ class WorkoutSaver @Inject constructor(
         }
     }
 
-    fun update(workout: SaveWorkoutUseCase.WorkoutParams){
+    fun update(workout: WorkoutParams){
         currentState.value = workout
     }
 
-    fun commit(workout: SaveWorkoutUseCase.WorkoutParams){
+    fun commit(workout: WorkoutParams){
         currentState.value = null
         scope.launch {
             if(workout.steps.isEmpty()){
@@ -48,7 +48,7 @@ class WorkoutSaver @Inject constructor(
         }
     }
 
-    private suspend fun commitInternal(workout: SaveWorkoutUseCase.WorkoutParams){
+    private suspend fun commitInternal(workout: WorkoutParams){
         saveWorkoutUseCase(workout)
     }
 }

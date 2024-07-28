@@ -20,11 +20,15 @@ class ExerciseRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO){ exerciseLocalDatasource.getExercise(id) }
     }
 
+    override suspend fun getExerciseIds(names: List<String>): List<Pair<String, Long>> {
+        return exerciseLocalDatasource.getExerciseIds(names)
+    }
+
     override suspend fun findExercise(query: String): List<ExerciseData> {
         return withContext(Dispatchers.IO){ exerciseLocalDatasource.findExercise(query) }
     }
 
-    override suspend fun createExercise(exerciseData: ExerciseData) {
+    override suspend fun createExercise(exerciseData: ExerciseData): Long {
         return withContext(Dispatchers.IO){ exerciseLocalDatasource.createExercise(exerciseData) }
     }
 

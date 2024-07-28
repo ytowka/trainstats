@@ -8,7 +8,12 @@ import javax.inject.Inject
 class CreateExercisesUseCase @Inject constructor(
     private val exerciseRepository: ExerciseRepository,
 ) : UseCase<ExerciseData, Unit>(){
+
     override suspend fun execute(params: ExerciseData) {
-        return exerciseRepository.createExercise(params)
+        exerciseRepository.createExercise(
+            params.copy(
+                name = params.name.lowercase().trim()
+            )
+        )
     }
 }

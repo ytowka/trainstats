@@ -13,6 +13,7 @@ import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
 import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
 import com.danilkha.trainstats.features.home.ui.NavigationItem
+import com.danilkha.trainstats.features.profile.ui.ProfileScreen
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutScreenRoute
 
 @Composable
@@ -36,9 +37,9 @@ fun RootScreen() {
                         }
                     )
                     NavigationItem.EXERCISES -> ExerciseListScreenPage()
-                    NavigationItem.WORKOUTS -> Unit
+                    //NavigationItem.WORKOUTS -> Unit
                     NavigationItem.STATS -> Unit
-                    NavigationItem.PROFILE -> Unit
+                    NavigationItem.PROFILE -> ProfileScreen()
                 }
             }
         }

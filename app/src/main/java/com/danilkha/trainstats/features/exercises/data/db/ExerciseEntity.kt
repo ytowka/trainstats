@@ -1,10 +1,13 @@
 package com.danilkha.trainstats.features.exercises.data.db
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 
-@Entity
+@Entity(
+    indices = [ Index(value = ["name"], unique = true) ]
+)
 data class ExerciseEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
@@ -12,7 +15,13 @@ data class ExerciseEntity(
     val separated: Boolean,
     val hasWeight: Boolean,
     val archived: Boolean,
-)
+){
+
+    data class NameId(
+        val id: Long,
+        val name: String,
+    )
+}
 
 fun  ExerciseEntity.toDomain() = ExerciseData(
     id = id,

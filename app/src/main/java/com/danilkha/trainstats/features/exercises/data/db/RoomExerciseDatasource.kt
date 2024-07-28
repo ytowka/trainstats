@@ -15,14 +15,20 @@ class RoomExerciseDatasource @Inject constructor(
         return exerciseDao.getExercise(id).toDomain()
     }
 
+    override suspend fun getExerciseIds(names: List<String>): List<Pair<String, Long>> {
+        return exerciseDao.getExerciseIds(names).map {
+            it.name to it.id
+        }
+    }
+
     override suspend fun findExercise(query: String): List<ExerciseData> {
         return exerciseDao.findExercise(query).map {
             it.toDomain()
         }
     }
 
-    override suspend fun createExercise(exerciseData: ExerciseData) {
-        exerciseDao.createExercise(exerciseData.toEntity())
+    override suspend fun createExercise(exerciseData: ExerciseData): Long {
+        return exerciseDao.createExercise(exerciseData.toEntity())
     }
 
     override suspend fun updateExercise(exerciseData: ExerciseData) {

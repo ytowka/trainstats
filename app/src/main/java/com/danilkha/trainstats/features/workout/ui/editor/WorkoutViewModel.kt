@@ -8,6 +8,7 @@ import com.danilkha.trainstats.features.workout.domain.usecase.ArchiveWorkoutUse
 import com.danilkha.trainstats.features.workout.domain.usecase.CommitWorkoutSaveUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.GetWorkoutByIdUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
+import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
@@ -20,7 +21,6 @@ import korlibs.time.Date
 import korlibs.time.DateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -58,11 +58,13 @@ class WorkoutViewModel @Inject constructor(
                     }
                 }
             }else{
-                val id = saveWorkoutUseCase(SaveWorkoutUseCase.WorkoutParams(
+                val id = saveWorkoutUseCase(
+                    WorkoutParams(
                     id = null,
                     date = DateTime.now().date,
                     steps = emptyList()
-                )).getOrThrow()
+                )
+                ).getOrThrow()
                 update {
                     it.copy(
                         initialWorkout = WorkoutModel(

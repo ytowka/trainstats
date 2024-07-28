@@ -1,7 +1,8 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.compose.runtime.Immutable
-import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
+import com.danilkha.trainstats.features.workout.domain.model.SetParams
+import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
@@ -19,7 +20,7 @@ data class WorkoutState(
     val pendingDelete: Set<Long> = emptySet(),
 ){
 
-    fun mapToParams() =  SaveWorkoutUseCase.WorkoutParams(
+    fun mapToParams() =  WorkoutParams(
         id = initialWorkout?.id,
         date = date,
         steps = groups.flatMap { group ->
@@ -29,7 +30,7 @@ data class WorkoutState(
                 group to set
             }
         }.map { (group, set) ->
-            SaveWorkoutUseCase.SetParams(
+            SetParams(
                 exerciseId = group.exerciseId,
                 reps = set.reps.toDomain(),
                 weight = set.weight,

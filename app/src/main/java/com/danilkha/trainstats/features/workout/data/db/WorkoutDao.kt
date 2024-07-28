@@ -35,13 +35,11 @@ interface WorkoutDao {
         sets: List<ExerciseSetEntity>
     ): Long{
         val workoutId = saveWorkout(workoutEntity)
-        if(workoutEntity.id != 0L){
-            deleteWorkoutExercises(workoutEntity.id)
-            val newSets = sets.map {
-                it.copy(workoutId = workoutId)
-            }
-            saveSets(newSets)
+        deleteWorkoutExercises(workoutEntity.id)
+        val newSets = sets.map {
+            it.copy(workoutId = workoutId)
         }
+        saveSets(newSets)
         return workoutId
     }
 
