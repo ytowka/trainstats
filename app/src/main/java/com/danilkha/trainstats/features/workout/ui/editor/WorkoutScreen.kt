@@ -40,6 +40,7 @@ import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
+import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheet
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
@@ -84,6 +85,9 @@ fun WorkoutScreenRoute(
     val exerciseSelector = rememberBottomSheetController(
         bottomSheetClass = ExerciseSelectorBottomSheet::class.java
     )
+    val exerciseHistory = rememberBottomSheetController(
+        bottomSheetClass = ExerciseHistoryBottomSheet::class.java
+    )
     exerciseSelectorViewModel.LaunchCollectEffects{
         when(it){
             is ExerciseListSideEffect.ExerciseClicked -> {
@@ -122,7 +126,10 @@ fun WorkoutScreenRoute(
             exerciseSelector.show()
         },
         onDelete = alertDialog::show,
-        onDeleteGroup = viewModel::deleteGroup
+        onDeleteGroup = viewModel::deleteGroup,
+        onHistoryClick = {
+            exerciseHistory.show()
+        }
     )
 }
 
@@ -139,6 +146,7 @@ fun WorkoutScreen(
     onGroupMoved: (from: Int, to: Int) -> Unit,
     onExpandClick: (groupIndex: Int,) -> Unit,
     onDeleteGroup: (Int) -> Unit,
+    onHistoryClick: (Long) -> Unit,
 
     addExercise: () -> Unit,
     onSave: () -> Unit,
@@ -214,7 +222,8 @@ fun WorkoutScreen(
                         onDragStart = { dragDispatcher.onDragStart(groupIndexUpdated) },
                         onDragEnd = dragDispatcher::onDragEnd,
                         onVerticalDrag = dragDispatcher::onDrag,
-                        onDeleteGroup = { onDeleteGroup(groupIndex) }
+                        onDeleteGroup = { onDeleteGroup(groupIndex) },
+                        onHistoryClick = { onHistoryClick(item.exerciseId) }
                     )
                 }
             }

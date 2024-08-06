@@ -3,6 +3,7 @@ package com.danilkha.trainstats.di
 import android.content.Context
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorViewModel
+import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryViewModel
 import com.danilkha.trainstats.features.profile.ui.ProfileViewModel
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutViewModel
 import com.danilkha.trainstats.features.workout.ui.history.HistoryViewModel
@@ -30,6 +31,7 @@ abstract class AppComponent  {
     abstract val historyViewModel: HistoryViewModel
     abstract val workoutViewModel: WorkoutViewModel
     abstract val profileViewModel: ProfileViewModel
+    abstract val exerciseHistoryViewModel : ExerciseHistoryViewModel
 }
 
 @Qualifier

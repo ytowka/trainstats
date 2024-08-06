@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -84,6 +86,7 @@ fun ExerciseGroupCard(
     onReturnDeleted: (index: Int) -> Unit,
     onSetMoved: (from: Int, to: Int) -> Unit,
     onDeleteGroup: () -> Unit,
+    onHistoryClick: () -> Unit,
 
     onExpandClick: () -> Unit,
     onDragStart: () -> Unit,
@@ -98,11 +101,19 @@ fun ExerciseGroupCard(
                 onDragStart = onDragStart, onDragEnd = onDragEnd, onVerticalDrag = onVerticalDrag
             )
             Spacer(modifier = Modifier.size(10.dp))
-            Text(
-                text = title,
-                style = ThemeTypography.title
-            )
-            Spacer(modifier = Modifier.weight(1f))
+            Row(modifier = Modifier.weight(1f)) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = title,
+                    style = ThemeTypography.title
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Icon(
+                    modifier = Modifier.padding(end = 10.dp),
+                    imageVector = Icons.Default.History,
+                    onClick = onHistoryClick
+                )
+            }
             val rotation = animateFloatAsState(targetValue = if (expanded) 180f else 0f)
             Icon(
                 modifier = Modifier.rotate(rotation.value),
@@ -113,7 +124,9 @@ fun ExerciseGroupCard(
         AnimatedVisibility(visible = expanded) {
             Spacer(modifier = Modifier.size(10.dp))
             Card(
-                modifier = Modifier.clip(RectangleShape).animateContentSize(),
+                modifier = Modifier
+                    .clip(RectangleShape)
+                    .animateContentSize(),
                 contentPadding = PaddingValues(vertical = 10.dp, horizontal = 5.dp),
                 backgroundColor = Colors.background
             ){
@@ -413,7 +426,7 @@ private fun ExerciseSetPreview(){
                 onDragEnd = {},
                 onVerticalDrag = {},
                 onSetMoved = { from, to ->  },
-                onDeleteGroup = {},
+                onDeleteGroup = {}, onHistoryClick = {},
             )
 
             ExerciseGroupCard(
@@ -432,7 +445,8 @@ private fun ExerciseSetPreview(){
                 onDragEnd = {},
                 onVerticalDrag = {},
                 onSetMoved = { from, to ->  },
-                onDeleteGroup = {},
+                onDeleteGroup = {}, onHistoryClick = {},
+
             )
 
             val sets2 = listOf(
@@ -465,6 +479,7 @@ private fun ExerciseSetPreview(){
                 onSetMoved = { from, to ->  },
                 hasWeight = true,
                 onDeleteGroup = {},
+                onHistoryClick = {},
                 )
         }
 
