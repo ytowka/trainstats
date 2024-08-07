@@ -15,14 +15,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Shapes
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -130,6 +134,11 @@ fun ExerciseHistoryBottomSheet(
                 contentDescription = null
             )
         }
+        Text(
+            modifier = Modifier.padding(start = 20.dp),
+            text = stringResource(id = R.string.total_entries) +": "+state.list.size,
+            style = ThemeTypography.body1.copy(fontWeight = FontWeight.Normal)
+        )
         val pagerState = rememberPagerState(pageCount = { state.list.size })
 
         HorizontalPager(
@@ -145,6 +154,7 @@ fun ExerciseHistoryBottomSheet(
             val sets = state.list[it]
             ExerciseSetsHistoryCard(
                 date = sets.date,
+                index = it + 1,
                 sets = sets.sets
             )
         }
@@ -155,6 +165,7 @@ fun ExerciseHistoryBottomSheet(
 @Composable
 fun ExerciseSetsHistoryCard(
     date: Date,
+    index: Int,
     sets: List<ExerciseSetHistoryModel>,
 ){
     Card(
@@ -163,16 +174,36 @@ fun ExerciseSetsHistoryCard(
             .fillMaxWidth(),
         backgroundColor = Colors.background,
     ) {
-        Text(
-            modifier = Modifier.padding(horizontal = 10.dp),
-            text = date.format(),
-            color = Colors.primary,
-            style = ThemeTypography.title
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 10.dp),
+                text = date.format(),
+                color = Colors.primary,
+                style = ThemeTypography.title
+            )
+
+            Text(
+                modifier = Modifier
+                    .padding(end = 15.dp),
+                text = index.toString(),
+                style = ThemeTypography.subtitle
+            )
+        }
+
         Spacer(modifier = Modifier.size(10.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            //verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(
+                top = 20.dp,
+                bottom = 0.dp,
+                end = 10.dp,
+                start = 10.dp
+            )
         ) {
             val textFieldStyle = TextStyle(
                 fontSize = 20.sp,
@@ -188,10 +219,17 @@ fun ExerciseSetsHistoryCard(
             )
 
             sets.forEachIndexed { index,  set ->
-                if(index != 0){
-                    Divider()
-                }
-                Row {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        modifier = Modifier
+                            .background(color = Colors.secondary, shape = CircleShape)
+                            .size(25.dp)
+                            .wrapContentHeight(Alignment.CenterVertically),
+                        text = "${index+1}",
+                        style = ThemeTypography.body2,
+                        textAlign = TextAlign.Center,
+                        color = Colors.textInverse
+                    )
                     if(set.weight != null){
                         Text(
                             modifier = Modifier
@@ -229,6 +267,8 @@ fun ExerciseSetsHistoryCard(
                         color = Colors.text
                     )
                 }
+                Divider()
+                Spacer(modifier = Modifier.size(20.dp))
             }
         }
     }
