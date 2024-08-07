@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.workout.domain
 
+import com.danilkha.trainstats.features.workout.domain.model.ExerciseWorkout
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import kotlinx.coroutines.flow.Flow
@@ -12,4 +13,5 @@ interface WorkoutRepository {
     suspend fun commitWorkoutSave(id: Long)
     suspend fun archiveWorkout(id: Long)
     suspend fun deleteWorkout(id: Long)
+    suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout>
 }

@@ -128,7 +128,7 @@ fun WorkoutScreenRoute(
         onDelete = alertDialog::show,
         onDeleteGroup = viewModel::deleteGroup,
         onHistoryClick = {
-            exerciseHistory.show()
+            exerciseHistory.show(ExerciseHistoryBottomSheet.buildArgs(it))
         }
     )
 }

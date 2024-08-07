@@ -2,7 +2,6 @@ package com.danilkha.trainstats.features.exercises.domain
 
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 
-
 interface ExerciseRepository {
 
     suspend fun getAllExercises(): List<ExerciseData>
@@ -12,5 +11,4 @@ interface ExerciseRepository {
     suspend fun createExercise(exerciseData: ExerciseData): Long
     suspend fun updateExercise(exerciseData: ExerciseData)
     suspend fun deleteExercise(id: Long)
-
 }

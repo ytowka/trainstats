@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.workout.data.repository
 
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
+import com.danilkha.trainstats.features.workout.domain.model.ExerciseWorkout
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import kotlinx.coroutines.Dispatchers
@@ -33,5 +34,9 @@ class WorkoutRepositoryImpl @Inject constructor(
 
     override suspend fun deleteWorkout(id: Long) {
         withContext(Dispatchers.IO){ workoutLocalDatasource.deleteWorkout(id) }
+    }
+
+    override suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout> {
+        return withContext(Dispatchers.IO){ workoutLocalDatasource.getExerciseHistory(exerciseId) }
     }
 }

@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import com.danilkha.trainstats.features.workout.data.db.entity.ExerciseSetEntity
 import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutEntity
 import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutWithExercises
+import com.danilkha.trainstats.features.workout.data.db.entity.exercises.ExerciseWorkoutRelation
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -51,4 +52,13 @@ interface WorkoutDao {
 
     @Query("delete from workoutentity where id = :id")
     fun deleteWorkout(id: Long)
+
+    @Query("""
+select s.*, w.dateTime, e.name as exerciseName  from ExerciseSetEntity as s
+inner join WorkoutEntity w on w.id = s.workoutId
+inner join ExerciseEntity e on e.id = s.exerciseId
+where exerciseId = :exerciseId
+order by dateTime desc
+    """)
+    suspend fun getHistoryByExercise(exerciseId: Long): List<ExerciseWorkoutRelation>
 }

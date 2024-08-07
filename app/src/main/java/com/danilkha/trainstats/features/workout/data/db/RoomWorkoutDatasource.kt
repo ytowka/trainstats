@@ -1,10 +1,15 @@
 package com.danilkha.trainstats.features.workout.data.db
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
+import com.danilkha.trainstats.features.workout.data.db.entity.RepetitionsDb
 import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutEntity
 import com.danilkha.trainstats.features.workout.data.db.entity.toDomain
 import com.danilkha.trainstats.features.workout.data.db.entity.toEntity
 import com.danilkha.trainstats.features.workout.data.db.entity.toPreview
 import com.danilkha.trainstats.features.workout.data.repository.WorkoutLocalDatasource
+import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
+import com.danilkha.trainstats.features.workout.domain.model.ExerciseWorkout
+import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +46,35 @@ class RoomWorkoutDatasource @Inject constructor(
 
     override suspend fun deleteWorkout(id: Long) {
         workoutDao.deleteWorkout(id)
+    }
+
+    override suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout> {
+        val rawResult = workoutDao.getHistoryByExercise(exerciseId)
+        val grouped = rawResult.groupBy { it.workoutId }
+        return grouped.values.map { group ->
+            val date = group.first().dateTime.date
+            val sets = group.map { set ->
+                val exerciseData = ExerciseData(
+                    id = set.exerciseId,
+                    name = set.exerciseName,
+                    imageUrl = null,
+                    separated = set.reps is RepetitionsDb.Double,
+                    hasWeight = set.weightKg != null
+                )
+                ExerciseSet(
+                    id = set.id,
+                    workoutId = set.workoutId,
+                    exerciseData = exerciseData,
+                    reps = set.reps.toDomain(),
+                    weight = set.weightKg?.let { Kg(it) },
+                    orderPosition = set.orderPosition
+                )
+            }
+            ExerciseWorkout(
+                date = date,
+                sets = sets
+            )
+        }
     }
 
 }

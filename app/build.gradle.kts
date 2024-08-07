@@ -57,6 +57,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    sourceSets["androidTest"].assets {
+        srcDirs("src/androidTest/assets")
+    }
+    /*sourceSets["androidTest"].run{
+        assets.srcDirs("src/androidTest/assets")
+        java.srcDirs("src/androidTest/java")
+    }*/
 }
 
 dependencies {

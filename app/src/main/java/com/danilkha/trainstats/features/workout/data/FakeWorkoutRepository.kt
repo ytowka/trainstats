@@ -5,6 +5,7 @@ import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
+import com.danilkha.trainstats.features.workout.domain.model.ExerciseWorkout
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.Workout
@@ -162,5 +163,9 @@ class FakeWorkoutRepository @Inject constructor(
         workouts.update {
             it - id
         }
+    }
+
+    override suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout> {
+        return emptyList()
     }
 }
