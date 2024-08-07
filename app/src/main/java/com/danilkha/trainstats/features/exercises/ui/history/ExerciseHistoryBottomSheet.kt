@@ -3,10 +3,7 @@ package com.danilkha.trainstats.features.exercises.ui.history
 import android.os.Bundle
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,17 +21,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Shapes
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -59,6 +59,7 @@ import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
 import com.danilkha.uikit.components.BottomSheetContent
 import com.danilkha.uikit.components.Card
+import com.danilkha.uikit.components.Icon
 import com.danilkha.uikit.components.bottomSheetShape
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
@@ -67,6 +68,7 @@ import korlibs.time.Date
 import korlibs.time.DateTime
 import korlibs.time.DateTimeTz
 import korlibs.time.days
+import kotlinx.coroutines.launch
 
 class ExerciseHistoryBottomSheet : ComposeContextBottomDialog(){
 
@@ -125,13 +127,10 @@ fun ExerciseHistoryBottomSheet(
                 style = ThemeTypography.title
             )
             Icon(
-                modifier = Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false),
-                    onClick = { onDismiss() },
-                ),
                 imageVector = Icons.Default.Close,
-                contentDescription = null
+                onClick = {
+                    onDismiss()
+                }
             )
         }
         Text(
@@ -140,6 +139,8 @@ fun ExerciseHistoryBottomSheet(
             style = ThemeTypography.body1.copy(fontWeight = FontWeight.Normal)
         )
         val pagerState = rememberPagerState(pageCount = { state.list.size })
+
+        val coroutineScope = rememberCoroutineScope()
 
         HorizontalPager(
             modifier = Modifier
@@ -157,6 +158,48 @@ fun ExerciseHistoryBottomSheet(
                 index = it + 1,
                 sets = sets.sets
             )
+        }
+        Card(
+            modifier = Modifier.padding(top = 10.dp, end = 10.dp, start = 10.dp),
+            backgroundColor = Colors.background,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardDoubleArrowLeft,
+                    onClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(0)
+                        }
+                    }
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    onClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(pagerState.targetPage - 1)
+                        }
+                    }
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    onClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(pagerState.targetPage + 1)
+                        }
+                    }
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                    onClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(state.list.size-1)
+                        }
+                    }
+                )
+            }
         }
     }
 
