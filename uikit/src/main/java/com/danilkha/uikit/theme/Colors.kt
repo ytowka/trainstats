@@ -60,7 +60,7 @@ val darkDesignColors = DesignColors(
     onError = Color(0xFF000000),
     text = Color(0xFFFFFFFF),
     textInverse = Color(0xFF000000),
-    outline = Color(0x4D303030),
+    outline = Color(0x4D989898),
     isLight = false
 )
 

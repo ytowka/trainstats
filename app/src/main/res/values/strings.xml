@@ -7,7 +7,7 @@
     <string name="navigation_item_stats">Статистика</string>
     <string name="navigation_item_profile">Профиль</string>
     <string name="split">split</string>
-    <string name="has_weight">с отягощением</string>
+    <string name="has_weight">с доп. весом</string>
     <string name="with_body_weight">с собественным весом</string>
     <string name="new_exercise">Новое упражнение</string>
     <string name="edit_exercise">Редактировать упражнение</string>

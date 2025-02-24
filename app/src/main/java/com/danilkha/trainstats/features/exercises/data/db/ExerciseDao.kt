@@ -22,7 +22,7 @@ order by stats.inWorkouts desc
     @Query("select * from ExerciseEntity where id = :id")
     suspend fun getExercise(id: Long): ExerciseEntity
 
-    @Query("select * from ExerciseEntity where name like '%'+:query+'%' and archived = 0")
+    @Query("select * from ExerciseEntity where name like '%' || :query || '%' and archived = 0")
     suspend fun findExercise(query: String): List<ExerciseEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
