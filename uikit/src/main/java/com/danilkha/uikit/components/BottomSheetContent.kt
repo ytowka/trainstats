@@ -1,5 +1,7 @@
 package com.danilkha.uikit.components
 
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -54,7 +56,7 @@ fun BottomSheetContent(
             Icon(
                 modifier = Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false),
+                    indication = LocalIndication.current,
                     onClick = onCloseClicked,
                 ),
                 imageVector = Icons.Default.Close,

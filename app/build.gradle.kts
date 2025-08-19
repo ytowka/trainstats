@@ -4,16 +4,17 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.danilkha.trainstats"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.danilkha.trainstats"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -42,9 +43,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
     room {
         schemaDirectory("$projectDir/schemas")
     }
@@ -61,10 +59,12 @@ android {
     sourceSets["androidTest"].assets {
         srcDirs("src/androidTest/assets")
     }
-    /*sourceSets["androidTest"].run{
-        assets.srcDirs("src/androidTest/assets")
-        java.srcDirs("src/androidTest/java")
-    }*/
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -95,7 +95,10 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    testImplementation(libs.junit)
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assert)
+    testImplementation(libs.kotest.property)
+    testImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))

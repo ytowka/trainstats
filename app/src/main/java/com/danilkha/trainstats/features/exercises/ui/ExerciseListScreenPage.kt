@@ -121,8 +121,9 @@ fun ExerciseSearchBar(
             GenericTextFiled(
                 modifier = Modifier.weight(1f),
                 value = query,
+                hint = stringResource(R.string.search),
                 onValueChange = onQueryChange,
-                contentStart ={
+                contentStart = {
                     Icon(imageVector = Icons.Default.Search)
                 }
             )

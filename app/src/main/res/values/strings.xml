@@ -28,4 +28,5 @@
     <string name="import_workout">Импорт</string>
     <string name="to_import">Импортировать</string>
     <string name="total_entries">Всего записей</string>
+    <string name="search">Поиск</string>
 </resources>

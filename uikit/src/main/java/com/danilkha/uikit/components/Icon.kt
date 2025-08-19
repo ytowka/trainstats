@@ -2,6 +2,7 @@ package com.danilkha.uikit.components
 
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.ripple.rememberRipple
@@ -27,7 +28,7 @@ fun Icon(
         modifier = modifier
             .then(if(onClick != null) Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(bounded = false),
+                indication = LocalIndication.current,
                 onClick = onClick
             ) else Modifier),
         imageVector = imageVector,
