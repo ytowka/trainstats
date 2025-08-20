@@ -1,9 +1,11 @@
 package com.danilkha.trainstats.features.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +28,7 @@ fun RootScreen() {
         startDestination = Navigation.root
     ){
         composable(Navigation.root){
-            HomeScreen{
+            HomeScreen {
                 when(it){
                     NavigationItem.HOME -> HistoryScreenPage(
                         onWorkoutClicked = {
