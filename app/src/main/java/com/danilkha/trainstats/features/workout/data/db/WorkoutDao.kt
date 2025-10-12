@@ -17,6 +17,11 @@ interface WorkoutDao {
     @Query("select * from workoutentity where archived = 0 order by dateTime desc")
     fun getWorkoutHistory(): Flow<List<WorkoutEntity>>
 
+    @Query("""
+select * from workoutentity where archived = 0 order by dateTime desc
+    """)
+    fun getAll(): List<WorkoutWithExercises>
+
     @Query("select * from workoutentity where id = :id")
     @Transaction
     fun getWorkoutById(id: Long): WorkoutWithExercises

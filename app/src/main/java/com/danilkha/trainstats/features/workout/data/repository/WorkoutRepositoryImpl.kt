@@ -20,6 +20,10 @@ class WorkoutRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO){ workoutLocalDatasource.getWorkoutById(id) }
     }
 
+    override suspend fun getAll(): List<Workout> {
+        return workoutLocalDatasource.getAll()
+    }
+
     override suspend fun saveWorkout(workout: Workout): Long {
         return withContext(Dispatchers.IO){ workoutLocalDatasource.saveWorkout(workout) }
     }

@@ -118,6 +118,10 @@ class FakeWorkoutRepository @Inject constructor(
         )
     }
 
+    override suspend fun getAll(): List<Workout> {
+        return workouts.value.map { (k, v ) -> v }
+    }
+
     override suspend fun saveWorkout(workout: Workout): Long {
         return if(workout.id == 0L){
             val id = idSequence

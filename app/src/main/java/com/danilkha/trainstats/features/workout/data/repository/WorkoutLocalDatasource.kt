@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface WorkoutLocalDatasource {
     fun getWorkoutHistory(): Flow<List<WorkoutPreview>>
+    suspend fun getAll(): List<Workout>
     suspend fun getWorkoutById(id: Long): Workout
     suspend fun saveWorkout(workout: Workout): Long
     suspend fun commitWorkoutSave(id: Long)

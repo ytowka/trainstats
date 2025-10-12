@@ -3,6 +3,7 @@ package com.danilkha.trainstats.features.workout.data.db
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.data.db.entity.RepetitionsDb
 import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutEntity
+import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutWithExercises
 import com.danilkha.trainstats.features.workout.data.db.entity.toDomain
 import com.danilkha.trainstats.features.workout.data.db.entity.toEntity
 import com.danilkha.trainstats.features.workout.data.db.entity.toPreview
@@ -23,6 +24,10 @@ class RoomWorkoutDatasource @Inject constructor(
         return workoutDao.getWorkoutHistory().map {
             it.map(WorkoutEntity::toPreview)
         }
+    }
+
+    override suspend fun getAll(): List<Workout> {
+        return workoutDao.getAll().map(WorkoutWithExercises::toDomain)
     }
 
     override suspend fun getWorkoutById(id: Long): Workout {

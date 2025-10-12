@@ -9,6 +9,7 @@ interface WorkoutRepository {
 
     fun getWorkoutHistory(): Flow<List<WorkoutPreview>>
     suspend fun getWorkoutById(id: Long): Workout
+    suspend fun getAll() : List<Workout>
     suspend fun saveWorkout(workout: Workout): Long
     suspend fun commitWorkoutSave(id: Long)
     suspend fun archiveWorkout(id: Long)

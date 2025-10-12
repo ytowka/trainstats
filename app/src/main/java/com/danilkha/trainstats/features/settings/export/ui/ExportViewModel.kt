@@ -17,6 +17,8 @@ class ExportViewModel @Inject constructor(
             _state.value = ExportState.Loading
             exportWorkoutUseCase.invoke().onSuccess {
                 _state.value = ExportState.Saved(it)
+            }.onFailure {
+                _state.value = ExportState.Error(it)
             }
         }
     }
@@ -26,6 +28,7 @@ sealed interface ExportState {
     data object Init : ExportState
     data object Loading : ExportState
     data class Saved(val filename: String) : ExportState
+    data class Error(val throwable: Throwable) : ExportState
 }
 
 sealed interface ExportSideEffect {
