@@ -62,13 +62,9 @@ fun NavigationBar(
     val cornerSize = 4.dp
     val padding = 4.dp
 
-    val bottomInset = with(LocalDensity.current) {
-        WindowInsets.navigationBars.getBottom(this).toDp()
-    }
     Row(
         modifier = Modifier
             .background(color = MaterialTheme.colors.surface)
-            .padding(bottom = bottomInset)
             .height(NavigationBarDimensions.height)
             .drawBehind {
                 val width = size.width / NavigationItem.values().size
