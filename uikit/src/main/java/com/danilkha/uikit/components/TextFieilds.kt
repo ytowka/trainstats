@@ -41,6 +41,7 @@ fun GenericTextFiled(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     contentStart: @Composable (() -> Unit)? = null,
+    contentEnd: @Composable (() -> Unit)? = null,
 ){
     BasicTextField(
         value = value,
@@ -65,7 +66,7 @@ fun GenericTextFiled(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     contentStart?.invoke()
-                    Box{
+                    Box(modifier = Modifier.weight(1f)){
                         if(hint.isNotBlank() && value.isEmpty()){
                             Text(
                                 text = hint,
@@ -75,6 +76,7 @@ fun GenericTextFiled(
                         }
                         innerTextField()
                     }
+                    contentEnd?.invoke()
                 }
             }
         },

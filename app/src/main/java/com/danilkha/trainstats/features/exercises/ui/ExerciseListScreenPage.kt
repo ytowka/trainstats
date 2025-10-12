@@ -21,6 +21,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -116,6 +118,7 @@ fun ExerciseSearchBar(
     focusRequester: FocusRequester = remember { FocusRequester() },
     onAddClicked: () -> Unit,
 ){
+    val focusManager = LocalFocusManager.current
     Card(
         modifier = Modifier.padding(horizontal = 10.dp),
     ) {
@@ -131,7 +134,18 @@ fun ExerciseSearchBar(
                 onValueChange = onQueryChange,
                 contentStart = {
                     Icon(imageVector = Icons.Default.Search)
-                }
+                },
+                contentEnd = if(query.isNotEmpty()) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            onClick = {
+                                onQueryChange("")
+                                focusManager.clearFocus()
+                            }
+                        )
+                    }
+                } else null
             )
             Spacer(modifier = Modifier.size(10.dp))
             GenericButton(

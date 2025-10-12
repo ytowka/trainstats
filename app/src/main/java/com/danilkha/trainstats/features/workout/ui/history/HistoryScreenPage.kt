@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -162,6 +164,7 @@ fun TopBar(
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     Card(
         modifier = Modifier
             .padding(horizontal = 10.dp)
@@ -179,7 +182,18 @@ fun TopBar(
                 hint = stringResource(id = R.string.history),
                 contentStart = {
                     Icon(imageVector = Icons.Default.Search)
-                }
+                },
+                contentEnd = if(searchQuery.isNotEmpty()) {
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            onClick = {
+                                onSearchQueryChanged("")
+                                focusManager.clearFocus()
+                            }
+                        )
+                    }
+                } else null
             )
         }
         Row(
@@ -273,7 +287,7 @@ fun HistoryPagePreview() {
     PreviewContent {
         HistoryPage(
             state = HistoryState(
-                workouts = listOf(
+                allWorkouts = listOf(
                     WorkoutHistoryModel(
                         id = 0,
                         date = DateTime.now(),

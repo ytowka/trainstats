@@ -17,7 +17,7 @@ class HistoryViewModel @Inject constructor(
     override fun reduce(state: HistoryState, event: HistoryEvent): HistoryState {
         return when(event) {
             is HistoryEvent.DataLoaded -> state.copy(
-                workouts = event.workouts.map { workout ->
+                allWorkouts = event.workouts.map { workout ->
                     WorkoutHistoryModel(
                         id = workout.id,
                         date = workout.dateTime,
