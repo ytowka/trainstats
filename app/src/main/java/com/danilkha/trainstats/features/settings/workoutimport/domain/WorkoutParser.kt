@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.profile.domain
+package com.danilkha.trainstats.features.settings.workoutimport.domain
 
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams

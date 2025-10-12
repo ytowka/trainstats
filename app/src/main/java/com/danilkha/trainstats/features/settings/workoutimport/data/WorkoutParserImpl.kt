@@ -1,8 +1,8 @@
-package com.danilkha.trainstats.features.profile.data
+package com.danilkha.trainstats.features.settings.workoutimport.data
 
 import android.util.Log
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import com.danilkha.trainstats.features.profile.domain.WorkoutParser
+import com.danilkha.trainstats.features.settings.workoutimport.domain.WorkoutParser
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.SetParams

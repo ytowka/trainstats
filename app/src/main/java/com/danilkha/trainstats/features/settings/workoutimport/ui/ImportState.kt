@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.profile.ui
+package com.danilkha.trainstats.features.settings.workoutimport.ui
 
 import androidx.compose.ui.text.TextRange
 

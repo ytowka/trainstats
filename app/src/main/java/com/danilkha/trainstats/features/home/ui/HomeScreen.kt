@@ -15,9 +15,10 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun HomeScreen(
+    currentPageItem: NavigationItem,
+    onChange: (NavigationItem) -> Unit,
     currentPage: @Composable AnimatedContentScope.(NavigationItem) -> Unit
 ){
-    var currentPageItem by rememberSaveable { mutableStateOf(NavigationItem.HOME) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
@@ -30,7 +31,7 @@ fun HomeScreen(
         )
         NavigationBar(
             selectedItem = currentPageItem,
-            onItemClicked = {currentPageItem = it}
+            onItemClicked = onChange
         )
     }
 }

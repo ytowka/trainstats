@@ -1,13 +1,12 @@
-package com.danilkha.trainstats.features.profile.ui
+package com.danilkha.trainstats.features.settings.workoutimport.ui
 
-import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.viewModelScope
 import com.danilkha.trainstats.core.viewmodel.BaseViewModel
-import com.danilkha.trainstats.features.profile.domain.ImportWorkoutsUseCase
+import com.danilkha.trainstats.features.settings.workoutimport.domain.ImportWorkoutsUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ProfileViewModel @Inject constructor(
+class ImportViewModel @Inject constructor(
     private val importWorkoutsUseCase: ImportWorkoutsUseCase
 ) : BaseViewModel<ProfileState, ProfileSingleEvent>(){
     override val startState: ProfileState = ProfileState()

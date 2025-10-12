@@ -1,10 +1,10 @@
-package com.danilkha.trainstats.features.profile.domain
+package com.danilkha.trainstats.features.settings.workoutimport.domain
 
 import android.util.Log
 import com.danilkha.trainstats.core.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import com.danilkha.trainstats.features.profile.data.ParserException
+import com.danilkha.trainstats.features.settings.workoutimport.data.ParserException
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Workout

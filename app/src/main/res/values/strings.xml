@@ -26,7 +26,10 @@
     <string name="history">История</string>
     <string name="new_workout">Новая тренировка</string>
     <string name="import_workout">Импорт</string>
+    <string name="export_workout">Экспорт</string>
     <string name="to_import">Импортировать</string>
+    <string name="to_export">Экспортировать</string>
+    <string name="settings">Настройки</string>
     <string name="total_entries">Всего записей</string>
     <string name="search">Поиск</string>
 </resources>

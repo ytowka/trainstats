@@ -51,6 +51,7 @@ import com.danilkha.uikit.components.DragAndDropColumn
 import com.danilkha.uikit.components.DragDispatcher
 import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.Icon
+import com.danilkha.uikit.components.TextToolbar
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
 
@@ -153,28 +154,10 @@ fun WorkoutScreen(
     onDelete: () -> Unit
 ) {
     Column {
-        Card(
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(
-                horizontal = 20.dp,
-                vertical = 15.dp
-            )
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    onClick = onSave
-                )
-                Text(
-                    text = stringResource(id = R.string.new_workout),
-                    style = ThemeTypography.title
-                )
-            }
-        }
+        TextToolbar(
+            title = stringResource(id = R.string.new_workout),
+            onBack = onSave
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()

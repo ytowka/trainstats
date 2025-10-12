@@ -3,6 +3,10 @@ package com.danilkha.trainstats.features.navigation
 import androidx.compose.foundation.background
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +17,8 @@ import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
 import com.danilkha.trainstats.features.home.ui.NavigationItem
 import com.danilkha.trainstats.features.profile.ui.ProfileScreen
+import com.danilkha.trainstats.features.settings.SettingsHostScreen
+import com.danilkha.trainstats.features.settings.SettingsScreen
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutScreenRoute
 import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
 import com.danilkha.uikit.theme.insetPaddings
@@ -21,6 +27,7 @@ import com.danilkha.uikit.theme.insetPaddings
 fun RootScreen() {
 
     val navController = rememberNavController()
+    var currentPageItem by rememberSaveable { mutableStateOf(NavigationItem.HOME) }
 
     NavHost(
         modifier = Modifier
@@ -31,7 +38,10 @@ fun RootScreen() {
         startDestination = Navigation.root
     ){
         composable(Navigation.root){
-            HomeScreen {
+            HomeScreen(
+                currentPageItem = currentPageItem,
+                onChange = { currentPageItem = it }
+            ) {
                 when(it){
                     NavigationItem.HOME -> HistoryScreenPage(
                         onWorkoutClicked = {
@@ -44,9 +54,16 @@ fun RootScreen() {
                     NavigationItem.EXERCISES -> ExerciseListScreenPage()
                     //NavigationItem.WORKOUTS -> Unit
                     // NavigationItem.STATS -> Unit
-                    NavigationItem.PROFILE -> ProfileScreen()
+                    NavigationItem.PROFILE -> ProfileScreen(
+                        onSettingsClicked = { navController.navigate(Navigation.settings) }
+                    )
                 }
             }
+        }
+        composable(Navigation.settings) {
+            SettingsHostScreen(
+                onBack = { navController.navigateUp() }
+            )
         }
         composable(
             route = Navigation.Workout.route,
