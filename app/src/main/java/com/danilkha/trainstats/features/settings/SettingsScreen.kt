@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.danilkha.trainstats.R
+import com.danilkha.trainstats.features.settings.export.ui.ExportScreenPage
 import com.danilkha.trainstats.features.settings.workoutimport.ui.ImportScreen
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.TextToolbar
@@ -56,6 +57,11 @@ fun SettingsHostScreen(
         composable(SettingsOption.Import.name) {
             ImportScreen(
                 onBack = { navController.navigateUp() }
+            )
+        }
+        composable(SettingsOption.Export.name) {
+            ExportScreenPage(
+                onBack = onBack
             )
         }
     }
