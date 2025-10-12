@@ -1,29 +1,32 @@
 package com.danilkha.trainstats.features.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
-import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
 import com.danilkha.trainstats.features.home.ui.NavigationItem
 import com.danilkha.trainstats.features.profile.ui.ProfileScreen
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutScreenRoute
+import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
+import com.danilkha.uikit.theme.insetPaddings
 
 @Composable
 fun RootScreen() {
 
     val navController = rememberNavController()
+
     NavHost(
-        modifier = Modifier.background(color = MaterialTheme.colors.background),
+        modifier = Modifier
+            .background(color = MaterialTheme.colors.background)
+            .insetPaddings()
+        ,
         navController = navController,
         startDestination = Navigation.root
     ){
@@ -40,7 +43,7 @@ fun RootScreen() {
                     )
                     NavigationItem.EXERCISES -> ExerciseListScreenPage()
                     //NavigationItem.WORKOUTS -> Unit
-                    NavigationItem.STATS -> Unit
+                    // NavigationItem.STATS -> Unit
                     NavigationItem.PROFILE -> ProfileScreen()
                 }
             }

@@ -19,7 +19,7 @@ import androidx.core.view.WindowCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.danilkha.uikit.R
-
+import com.danilkha.uikit.theme.insetPaddings
 
 abstract class ComposeContextBottomDialog : DialogFragment() {
 
@@ -89,7 +89,9 @@ abstract class ComposeContextBottomDialog : DialogFragment() {
         expanded: Boolean = true,
         content: @Composable () -> Unit,
     ){
-        Column {
+        Column(
+            modifier = Modifier.insetPaddings()
+        ) {
             Spacer(modifier = Modifier
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },

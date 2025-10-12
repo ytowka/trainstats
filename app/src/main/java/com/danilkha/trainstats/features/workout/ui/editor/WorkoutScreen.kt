@@ -154,8 +154,9 @@ fun WorkoutScreen(
 ) {
     Column {
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp),
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
             contentPadding = PaddingValues(
                 horizontal = 20.dp,
                 vertical = 15.dp

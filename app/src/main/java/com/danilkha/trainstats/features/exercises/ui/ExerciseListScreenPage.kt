@@ -25,8 +25,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -110,16 +113,19 @@ fun ExerciseList(
 fun ExerciseSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
+    focusRequester: FocusRequester = remember { FocusRequester() },
     onAddClicked: () -> Unit,
 ){
     Card(
-        shape = RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp),
+        modifier = Modifier.padding(horizontal = 10.dp),
     ) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Min)
         ){
             GenericTextFiled(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .weight(1f),
                 value = query,
                 hint = stringResource(R.string.search),
                 onValueChange = onQueryChange,

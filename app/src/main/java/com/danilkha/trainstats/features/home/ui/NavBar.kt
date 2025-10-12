@@ -45,18 +45,15 @@ import com.danilkha.uikit.R.*
 import com.danilkha.uikit.theme.LocalPaddings
 import com.danilkha.uikit.theme.TrainingStatsTheme
 
-
-object NavigationBarDimensions{
+object NavigationBarDimensions {
     val height = 56.dp
 }
-
-
 
 @Composable
 fun NavigationBar(
     selectedItem: NavigationItem,
     onItemClicked: (NavigationItem) -> Unit,
-){
+) {
     val selectedBackgroundColor = MaterialTheme.colors.primary
     val index = NavigationItem.values().indexOf(selectedItem)
     val indexMultiplier by animateFloatAsState(
@@ -107,7 +104,7 @@ fun RowScope.NavigationBarItem(
     isSelected: Boolean,
     item: NavigationItem,
     onClick: () -> Unit,
-){
+) {
     Column(
         modifier = Modifier
             .weight(1f)
@@ -123,16 +120,16 @@ fun RowScope.NavigationBarItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        val iconColor = if(isSelected){
+        val iconColor = if (isSelected) {
             MaterialTheme.colors.onPrimary
-        }else MaterialTheme.colors.onSurface
+        } else MaterialTheme.colors.onSurface
 
         Icon(
             painter = item.icon,
             contentDescription = null,
             tint = iconColor,
         )
-        if(isSelected){
+        if (isSelected) {
             Text(
                 text = item.label,
                 color = iconColor,
@@ -145,40 +142,43 @@ fun RowScope.NavigationBarItem(
     }
 }
 
-
 private val NavigationItem.icon: Painter
     @Composable
-    get() = painterResource(id = when(this){
-        NavigationItem.HOME -> drawable.ic_home
-        NavigationItem.EXERCISES -> drawable.ic_exercise
-        //NavigationItem.WORKOUTS -> drawable.ic_list
-        NavigationItem.STATS -> drawable.ic_chart
-        NavigationItem.PROFILE -> drawable.ic_person
-    })
+    get() = painterResource(
+        id = when (this) {
+            NavigationItem.HOME -> drawable.ic_home
+            NavigationItem.EXERCISES -> drawable.ic_exercise
+            //NavigationItem.WORKOUTS -> drawable.ic_list
+            //NavigationItem.STATS -> drawable.ic_chart
+            NavigationItem.PROFILE -> drawable.ic_person
+        }
+    )
 
 private val NavigationItem.label: String
     @Composable
-    get() = stringResource(id = when (this){
-        NavigationItem.HOME -> R.string.navigation_item_home
-        NavigationItem.EXERCISES -> R.string.navigation_item_exercises
-        //NavigationItem.WORKOUTS -> R.string.navigation_item_workouts
-        NavigationItem.STATS -> R.string.navigation_item_stats
-        NavigationItem.PROFILE -> R.string.navigation_item_profile
-    })
+    get() = stringResource(
+        id = when (this) {
+            NavigationItem.HOME -> R.string.navigation_item_home
+            NavigationItem.EXERCISES -> R.string.navigation_item_exercises
+            //NavigationItem.WORKOUTS -> R.string.navigation_item_workouts
+            //NavigationItem.STATS -> R.string.navigation_item_stats
+            NavigationItem.PROFILE -> R.string.navigation_item_profile
+        }
+    )
 
 enum class NavigationItem {
-                          HOME,
+    HOME,
     EXERCISES,
-    STATS,
+    //STATS,
     PROFILE
 }
 
 @Preview
 @Composable
-fun NavigationBarPreview(){
+fun NavigationBarPreview() {
     var selectedItem by remember { mutableStateOf(NavigationItem.HOME) }
 
     TrainingStatsTheme {
-        NavigationBar(selectedItem =selectedItem, onItemClicked = { selectedItem = it})
+        NavigationBar(selectedItem = selectedItem, onItemClicked = { selectedItem = it })
     }
 }

@@ -31,7 +31,7 @@ object FabDimensions{
 fun Fab(
     modifier: Modifier = Modifier,
     icon: Painter = painterResource(id = R.drawable.ic_add),
-    color: Color = MaterialTheme.colors.secondary,
+    color: Color = MaterialTheme.colors.primary,
     onClick: () -> Unit,
 ){
     Box(
@@ -45,7 +45,7 @@ fun Fab(
         Icon(
             painter = icon,
             contentDescription = "fab_icon",
-            tint = MaterialTheme.colors.onSecondary
+            tint = MaterialTheme.colors.onPrimary
         )
     }
 }

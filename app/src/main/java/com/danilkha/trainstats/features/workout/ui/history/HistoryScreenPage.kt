@@ -1,68 +1,74 @@
 package com.danilkha.trainstats.features.workout.ui.history
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.room.Query
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.format
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
-import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.Fab
-import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.components.Icon
 import com.danilkha.uikit.theme.Colors
+import com.danilkha.uikit.theme.PreviewContent
 import com.danilkha.uikit.theme.ThemeTypography
+import korlibs.time.DateTime
+import kotlinx.coroutines.launch
 
 @Composable
 fun HistoryScreenPage(
     viewModel: HistoryViewModel = getCurrentViewModel { it.historyViewModel },
     onWorkoutClicked: (id: Long) -> Unit,
     onAddClicked: () -> Unit
-){
+) {
     val state by viewModel.state.collectAsState()
 
     HistoryPage(
         state = state,
         onWorkoutClicked = { onWorkoutClicked(it.id) },
-        onCalendarClicked = {  },
-        onSearchClicked = {  },
-        onSearchQueryChanged = {  },
+        onCalendarClicked = { },
+        onSearchQueryChanged = { viewModel.processEvent(HistoryEvent.ChangeSearchQuery(it)) },
         onAddClicked = onAddClicked,
     )
 }
@@ -72,102 +78,151 @@ fun HistoryPage(
     state: HistoryState,
     onWorkoutClicked: (WorkoutHistoryModel) -> Unit,
     onCalendarClicked: () -> Unit,
-    onSearchClicked: () -> Unit,
     onSearchQueryChanged: (String) -> Unit,
     onAddClicked: () -> Unit,
-){
+) {
+    val listState = rememberLazyListState()
+    val isScrolled by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0
+        }
+    }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ){
-        Column {
+    HistoryPageLayout(
+        topBar = {
             TopBar(
                 onCalendarClicked = onCalendarClicked,
                 searchQuery = state.searchQuery,
-                onSearchClicked = onSearchClicked,
+                onAddClicked = onAddClicked,
                 onSearchQueryChanged = onSearchQueryChanged,
             )
+        },
+        workoutList = {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth(),
+                state = listState,
                 contentPadding = PaddingValues(10.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                items(items = state.workouts, key = { it.id }){
+                items(items = state.workouts, key = { it.id }) {
                     WorkoutCard(
                         workout = it,
                         onClick = { onWorkoutClicked(it) }
                     )
                 }
             }
+        },
+        isScrolled = isScrolled,
+        onScrollToTop = {
+            listState.animateScrollToItem(0)
         }
-        Fab(
+    )
+}
+
+@Composable
+fun HistoryPageLayout(
+    topBar: @Composable ColumnScope.() -> Unit,
+    workoutList: @Composable ColumnScope.() -> Unit,
+    isScrolled: Boolean,
+    onScrollToTop: suspend () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    Box(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Column {
+            topBar()
+            workoutList()
+        }
+        AnimatedVisibility(
             modifier = Modifier
                 .padding(12.dp)
                 .align(Alignment.BottomEnd),
-            onClick = onAddClicked
-        )
+            visible = isScrolled,
+            enter = slideInVertically { it / 2 } + fadeIn(),
+            exit = slideOutVertically { it / 2 } + fadeOut(),
+        ) {
+            Fab(
+                icon =  rememberVectorPainter(Icons.Default.KeyboardArrowUp),
+                onClick = {
+                    scope.launch {
+                        onScrollToTop()
+                    }
+                }
+            )
+        }
     }
-
 }
 
 @Composable
 fun TopBar(
     onCalendarClicked: () -> Unit,
+    onAddClicked: () -> Unit,
     searchQuery: String,
-    onSearchClicked: () -> Unit,
     onSearchQueryChanged: (String) -> Unit,
-){
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp),
-        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        val topPadding = with(LocalDensity.current) {
-            WindowInsets.statusBars.getTop(this).toDp()
-        }
         Row(
             modifier = Modifier
-                .padding(top = topPadding)
                 .height(IntrinsicSize.Min)
-        ){
-            /*Text(
-                modifier = Modifier.padding(start = 10.dp),
-                text = stringResource(id = R.string.history),
-                style = ThemeTypography.title
-            )*/
+        ) {
             GenericTextFiled(
                 modifier = Modifier.weight(1f),
                 value = searchQuery,
                 onValueChange = onSearchQueryChanged,
                 hint = stringResource(id = R.string.history),
-                contentStart ={
+                contentStart = {
                     Icon(imageVector = Icons.Default.Search)
                 }
             )
-            Spacer(modifier = Modifier.size(10.dp))
-            GenericButton(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(1f),
-                contentPaddings = PaddingValues(0.dp),
-                color = Colors.background,
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            LargeButton(
+                painter = painterResource(com.danilkha.uikit.R.drawable.ic_add),
+                onClick = onAddClicked
+            )
+            LargeButton(
+                painter = painterResource(com.danilkha.uikit.R.drawable.ic_chart),
+                onClick = {}
+            )
+            LargeButton(
+                painter = rememberVectorPainter(Icons.Default.CalendarMonth),
                 onClick = onCalendarClicked
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth
-                )
-            }
+            )
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun WorkoutCard(
+private fun LargeButton(
+    painter: Painter,
+    onClick: () -> Unit,
+) {
+    Card(
+        backgroundColor = Colors.background,
+        onClick = onClick
+    ) {
+        androidx.compose.material.Icon(
+            painter = painter,
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+private fun WorkoutCard(
     workout: WorkoutHistoryModel,
     onClick: () -> Unit,
-){
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -210,4 +265,26 @@ fun ExerciseChip(
         text = label,
         color = Colors.textInverse
     )
+}
+
+@Composable
+@Preview
+fun HistoryPagePreview() {
+    PreviewContent {
+        HistoryPage(
+            state = HistoryState(
+                workouts = listOf(
+                    WorkoutHistoryModel(
+                        id = 0,
+                        date = DateTime.now(),
+                        exercises = listOf("becnh press")
+                    )
+                ),
+            ),
+            onWorkoutClicked = {},
+            onAddClicked = {},
+            onCalendarClicked = {},
+            onSearchQueryChanged = {}
+        )
+    }
 }

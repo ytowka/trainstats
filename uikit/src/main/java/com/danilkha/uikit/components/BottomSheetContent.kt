@@ -28,24 +28,24 @@ import androidx.compose.ui.unit.sp
 import com.danilkha.uikit.theme.ThemeTypography
 
 val bottomSheetShape = RoundedCornerShape(
-    topStart = 12.dp, topEnd = 12.dp,
-    bottomStart = 0.dp, bottomEnd = 0.dp
+    size = 12.dp
 )
 
 @Composable
 fun BottomSheetContent(
+    modifier: Modifier = Modifier,
     title: String,
     onCloseClicked: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = Modifier
-            .background(color = MaterialTheme.colors.surface, shape = bottomSheetShape)
             .padding(10.dp)
-            .fillMaxWidth(),
+            .background(color = MaterialTheme.colors.background, shape = bottomSheetShape)
+            .fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 6.dp, bottom = 16.dp),
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 26.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -63,6 +63,10 @@ fun BottomSheetContent(
                 contentDescription = null
             )
         }
-        content()
+        Column(
+            modifier = modifier
+        ) {
+            content()
+        }
     }
 }

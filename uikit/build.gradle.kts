@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.compose.foundation)
+    implementation(libs.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose.android)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.klock.android)

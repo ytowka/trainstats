@@ -111,6 +111,7 @@ fun ExerciseEditorBottomSheet(
         LocalTextStyle provides ThemeTypography.body1
     ) {
         BottomSheetContent(
+            modifier = Modifier.padding(10.dp),
             title = stringResource(id = when(state.mode){
                 is ExerciseEditorMode.Edit -> R.string.edit_exercise
                 ExerciseEditorMode.New -> R.string.new_exercise
