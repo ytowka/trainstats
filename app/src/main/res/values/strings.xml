@@ -32,4 +32,5 @@
     <string name="settings">Настройки</string>
     <string name="total_entries">Всего записей</string>
     <string name="search">Поиск</string>
+    <string name="success_export">"Экспортировано в загрзуки %s</string>
 </resources>

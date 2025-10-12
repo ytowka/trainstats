@@ -4,6 +4,7 @@ import android.content.Context
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorViewModel
 import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryViewModel
+import com.danilkha.trainstats.features.settings.export.ui.ExportViewModel
 import com.danilkha.trainstats.features.settings.workoutimport.ui.ImportViewModel
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutViewModel
 import com.danilkha.trainstats.features.workout.ui.history.HistoryViewModel
@@ -32,6 +33,7 @@ abstract class AppComponent  {
     abstract val workoutViewModel: WorkoutViewModel
     abstract val profileViewModel: ImportViewModel
     abstract val exerciseHistoryViewModel : ExerciseHistoryViewModel
+    abstract val exportViewModel: ExportViewModel
 }
 
 @Qualifier
