@@ -53,7 +53,8 @@ class WorkoutViewModel @Inject constructor(
                             initialWorkout = workoutModel,
                             date = workoutModel.dateTime.date,
                             groups = workoutModel.groups,
-                            initialized = true
+                            initialized = true,
+                            initialization = WorkoutEditorInitialization.EDIT
                         )
                     }
                 }
@@ -73,7 +74,8 @@ class WorkoutViewModel @Inject constructor(
                             groups = emptyList(),
                             saved = false
                         ),
-                        initialized = true
+                        initialized = true,
+                        initialization = WorkoutEditorInitialization.NEW
                     )
                 }
             }
@@ -145,7 +147,7 @@ class WorkoutViewModel @Inject constructor(
                     )
                     val newSets = group.sets.toMutableList()
                         .apply {
-                            removeLast()
+                            removeAt(lastIndex)
                             add(newSet)
                             add(ExerciseSetSlot.Stub(tempIndexes))
                         }
@@ -198,7 +200,7 @@ class WorkoutViewModel @Inject constructor(
                     )
                     val newSets = group.sets.toMutableList()
                         .apply {
-                            removeLast()
+                            removeAt(lastIndex)
                             add(newSet)
                             add(ExerciseSetSlot.Stub(tempIndexes))
                         }

@@ -18,6 +18,7 @@ data class WorkoutState(
     val groups: List<ExerciseGroup> = emptyList(),
     val collapsedGroupIds: Set<Long> = emptySet(),
     val pendingDelete: Set<Long> = emptySet(),
+    val initialization: WorkoutEditorInitialization? = null,
 ){
 
     fun mapToParams() =  WorkoutParams(
@@ -39,6 +40,8 @@ data class WorkoutState(
         }
     )
 }
+
+enum class WorkoutEditorInitialization { NEW, EDIT }
 
 sealed interface WorkoutSideEffect{
 

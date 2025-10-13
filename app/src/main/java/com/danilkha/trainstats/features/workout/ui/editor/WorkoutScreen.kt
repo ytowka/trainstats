@@ -86,6 +86,12 @@ fun WorkoutScreenRoute(
     val exerciseSelector = rememberBottomSheetController(
         bottomSheetClass = ExerciseSelectorBottomSheet::class.java
     )
+    LaunchedEffect(state.initialWorkout) {
+        if(state.initialization == WorkoutEditorInitialization.NEW) {
+            exerciseSelector.show()
+        }
+    }
+
     val exerciseHistory = rememberBottomSheetController(
         bottomSheetClass = ExerciseHistoryBottomSheet::class.java
     )
