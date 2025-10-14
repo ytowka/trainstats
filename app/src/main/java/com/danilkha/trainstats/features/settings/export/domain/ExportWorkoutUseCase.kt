@@ -37,9 +37,7 @@ class ExportWorkoutUseCase @Inject constructor(
                     it.steps.forEach { step ->
                         val currentExerciseName = step.exerciseData.name
                         if(currentExerciseName != lastExercise) {
-                            if(lastExercise != null) {
-                                appendLine()
-                            }
+                            appendLine()
                             lastExercise = currentExerciseName
                             appendLine(currentExerciseName)
                         }
@@ -58,7 +56,7 @@ class ExportWorkoutUseCase @Inject constructor(
                         appendLine()
                     }
                     appendLine()
-                    append("---")
+                    appendLine("---")
                     appendLine()
                 }
             }

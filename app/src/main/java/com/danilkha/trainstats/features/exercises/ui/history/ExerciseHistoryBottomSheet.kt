@@ -106,33 +106,16 @@ fun ExerciseHistoryBottomSheet(
     state: ExerciseHistoryState,
     onDismiss: () -> Unit,
 ){
-    Column(
-        modifier = Modifier
-            .background(color = MaterialTheme.colors.surface, shape = bottomSheetShape)
-            .padding(vertical = 10.dp)
-            .fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = buildString {
-                    append(stringResource(id = R.string.history) )
-                    append(": ")
-                    append(state.exerciseName)
+    BottomSheetContent(
+        title = buildString {
+            append(stringResource(id = R.string.history) )
+            append(": ")
+            append(state.exerciseName)
 
-                },
-                modifier = Modifier.weight(1f),
-                style = ThemeTypography.title
-            )
-            Icon(
-                imageVector = Icons.Default.Close,
-                onClick = {
-                    onDismiss()
-                }
-            )
-        }
+        },
+        onCloseClicked = { onDismiss() }
+    ) {
+
         Text(
             modifier = Modifier.padding(start = 20.dp),
             text = stringResource(id = R.string.total_entries) +": "+state.list.size,
@@ -159,10 +142,7 @@ fun ExerciseHistoryBottomSheet(
                 sets = sets.sets
             )
         }
-        Card(
-            modifier = Modifier.padding(top = 10.dp, end = 10.dp, start = 10.dp),
-            backgroundColor = Colors.background,
-        ) {
+        Card(modifier = Modifier.padding(10.dp),) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
@@ -202,7 +182,6 @@ fun ExerciseHistoryBottomSheet(
             }
         }
     }
-
 }
 
 @Composable
@@ -215,7 +194,6 @@ fun ExerciseSetsHistoryCard(
         modifier = Modifier
             .padding(horizontal = 5.dp)
             .fillMaxWidth(),
-        backgroundColor = Colors.background,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -237,16 +215,15 @@ fun ExerciseSetsHistoryCard(
             )
         }
 
-        Spacer(modifier = Modifier.size(10.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
+        Spacer(modifier = Modifier.size(20.dp))
+        Column(
+            modifier = Modifier
+                .padding(top = 20.dp,
+                    bottom = 0.dp,
+                    end = 10.dp,
+                    start = 10.dp)
+                .fillMaxWidth(),
             //verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(
-                top = 20.dp,
-                bottom = 0.dp,
-                end = 10.dp,
-                start = 10.dp
-            )
         ) {
             val textFieldStyle = TextStyle(
                 fontSize = 20.sp,
