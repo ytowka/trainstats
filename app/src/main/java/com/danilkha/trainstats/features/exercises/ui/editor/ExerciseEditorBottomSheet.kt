@@ -3,6 +3,7 @@ package com.danilkha.trainstats.features.exercises.ui.editor
 import android.os.Bundle
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import com.danilkha.trainstats.R
@@ -32,6 +34,7 @@ import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.uikit.theme.LocalDesignColors
+import com.danilkha.uikit.theme.PreviewContent
 import com.danilkha.uikit.theme.ThemeTypography
 
 class ExerciseEditorBottomSheet : ComposeContextBottomDialog(){
@@ -121,6 +124,7 @@ fun ExerciseEditorBottomSheet(
             GenericTextFiled(
                 modifier = Modifier.fillMaxWidth(),
                 value = state.name,
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
                 onValueChange = onNameChange,
                 hint = stringResource(id = R.string.name)
             )
@@ -165,6 +169,22 @@ fun ExerciseEditorBottomSheet(
         }
     }
 
+}
+
+@Composable
+@Preview
+fun ExerciseEditorBottomSheetPreview() {
+    PreviewContent {
+        ExerciseEditorBottomSheet(
+            state = ExerciseEditorState(),
+            onNameChange = {},
+            onSplitChange = {},
+            onWeightChange = {},
+            onSaveClick = {},
+            onDeleteClick = {},
+            onCloseClicked = {},
+        )
+    }
 }
 
 @Composable

@@ -12,6 +12,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -90,7 +91,7 @@ abstract class ComposeContextBottomDialog : DialogFragment() {
         content: @Composable () -> Unit,
     ){
         Column(
-            modifier = Modifier.insetPaddings()
+            modifier = Modifier.safeDrawingPadding()
         ) {
             Spacer(modifier = Modifier
                 .clickable(

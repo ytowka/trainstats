@@ -171,31 +171,25 @@ fun TopBar(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .height(IntrinsicSize.Min)
-        ) {
-            GenericTextFiled(
-                modifier = Modifier.weight(1f),
-                value = searchQuery,
-                onValueChange = onSearchQueryChanged,
-                hint = stringResource(id = R.string.history),
-                contentStart = {
-                    Icon(imageVector = Icons.Default.Search)
-                },
-                contentEnd = if(searchQuery.isNotEmpty()) {
-                    {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            onClick = {
-                                onSearchQueryChanged("")
-                                focusManager.clearFocus()
-                            }
-                        )
-                    }
-                } else null
-            )
-        }
+        GenericTextFiled(
+            value = searchQuery,
+            onValueChange = onSearchQueryChanged,
+            hint = stringResource(id = R.string.history),
+            contentStart = {
+                Icon(imageVector = Icons.Default.Search)
+            },
+            contentEnd = if(searchQuery.isNotEmpty()) {
+                {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        onClick = {
+                            onSearchQueryChanged("")
+                            focusManager.clearFocus()
+                        }
+                    )
+                }
+            } else null
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
