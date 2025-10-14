@@ -58,17 +58,17 @@ import com.danilkha.uikit.theme.ThemeTypography
 @Composable
 fun WorkoutScreenRoute(
     workoutId: Long? = null,
-    viewModel: WorkoutViewModel = getCurrentViewModel{ it.workoutViewModel },
+    viewModel: WorkoutViewModel = getCurrentViewModel { it.workoutViewModel },
     onSaved: () -> Unit
-){
+) {
     val state by viewModel.state.collectAsState(viewModel.startState)
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.init(workoutId)
+        viewModel.processEvent(WorkoutEvent.RequestInit(workoutId))
     }
 
-    viewModel.LaunchCollectEffects{ event ->
-        when(event){
+    viewModel.LaunchCollectEffects { event ->
+        when (event) {
             WorkoutSideEffect.Deleted -> onSaved()
         }
     }
@@ -79,15 +79,17 @@ fun WorkoutScreenRoute(
         titleRes = R.string.delete_workout_title,
         textRes = R.string.delete_exercise_subtitle,
         dialogKey = "delete",
-        onConfirm = viewModel::deleteWorkout,
-        onCancel = {  })
+        onConfirm = {
+            viewModel.processEvent(WorkoutEvent.DeleteWorkout)
+        },
+        onCancel = { })
 
     val exerciseSelectorViewModel = getCurrentViewModel { it.exerciseListViewModel }
     val exerciseSelector = rememberBottomSheetController(
         bottomSheetClass = ExerciseSelectorBottomSheet::class.java
     )
     LaunchedEffect(state.initialWorkout) {
-        if(state.initialization == WorkoutEditorInitialization.NEW) {
+        if (state.initialization == WorkoutEditorInitialization.NEW) {
             exerciseSelector.show()
         }
     }
@@ -95,21 +97,21 @@ fun WorkoutScreenRoute(
     val exerciseHistory = rememberBottomSheetController(
         bottomSheetClass = ExerciseHistoryBottomSheet::class.java
     )
-    exerciseSelectorViewModel.LaunchCollectEffects{
-        when(it){
+    exerciseSelectorViewModel.LaunchCollectEffects {
+        when (it) {
             is ExerciseListSideEffect.ExerciseClicked -> {
-                viewModel.addExercise(it.exerciseModel)
+                viewModel.processEvent(WorkoutEvent.AddExercise(it.exerciseModel))
                 exerciseSelector.hide()
             }
         }
     }
 
 
-    if(showDateDialog){
+    if (showDateDialog) {
         DateSelector(
-            onDismiss = {showDateDialog = false},
+            onDismiss = { showDateDialog = false },
             onDateSelected = {
-                viewModel.changeDate(it)
+                viewModel.processEvent(WorkoutEvent.ChangeDate(it))
                 showDateDialog = false
             }
         )
@@ -117,23 +119,16 @@ fun WorkoutScreenRoute(
 
     WorkoutScreen(
         state = state,
+        eventConsumer = viewModel::processEvent,
         onDateClicked = { showDateDialog = true },
-        onWeightChange = viewModel::editWeight,
-        onRepsChange = viewModel::editReps,
-        onDeleteSet = viewModel::deleteSet,
-        onReturnDeleted = viewModel::returnDeletedSet,
-        onSetMoved = viewModel::onSetMove,
-        onGroupMoved = viewModel::onGroupMove,
-        onExpandClick = viewModel::toggleGroup,
         onSave = {
-            viewModel.saveWorkout()
+            viewModel.processEvent(WorkoutEvent.SaveWorkout)
             onSaved()
         },
         addExercise = {
             exerciseSelector.show()
         },
         onDelete = alertDialog::show,
-        onDeleteGroup = viewModel::deleteGroup,
         onHistoryClick = {
             exerciseHistory.show(ExerciseHistoryBottomSheet.buildArgs(it))
         }
@@ -143,25 +138,21 @@ fun WorkoutScreenRoute(
 @Composable
 fun WorkoutScreen(
     state: WorkoutState,
+    eventConsumer: (WorkoutEvent) -> Unit,
 
     onDateClicked: () -> Unit,
-    onWeightChange: (groupIndex: Int,index: Int, Float) -> Unit,
-    onRepsChange: (groupIndex: Int, index: Int, Side?, value: Float) -> Unit,
-    onDeleteSet: (groupIndex: Int,index: Int) -> Unit,
-    onReturnDeleted: (groupIndex: Int,index: Int) -> Unit,
-    onSetMoved: (groupIndex: Int, from: Int, to: Int) -> Unit,
-    onGroupMoved: (from: Int, to: Int) -> Unit,
-    onExpandClick: (groupIndex: Int,) -> Unit,
-    onDeleteGroup: (Int) -> Unit,
     onHistoryClick: (Long) -> Unit,
-
     addExercise: () -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit
 ) {
     Column {
         TextToolbar(
-            title = stringResource(id = R.string.new_workout),
+            title = stringResource(id = when(state.initialization){
+                WorkoutEditorInitialization.NEW -> R.string.new_workout
+                WorkoutEditorInitialization.EDIT -> R.string.edit_workout
+                null -> R.string.new_workout
+            }),
             onBack = onSave
         )
         Column(
@@ -172,7 +163,7 @@ fun WorkoutScreen(
                 .padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
 
             Text(
                 modifier = Modifier
@@ -189,7 +180,9 @@ fun WorkoutScreen(
 
             DragAndDropColumn(
                 items = state.groups,
-                onItemMoved = onGroupMoved,
+                onItemMoved = { from, to ->
+                    eventConsumer(WorkoutEvent.OnGroupMove(from, to))
+                },
                 dragDispatcher = dragDispatcher,
                 keyProvider = { index, it -> it.groupTempId }
             ) { groupIndex, item ->
@@ -200,19 +193,36 @@ fun WorkoutScreen(
                         expanded = item.groupTempId !in state.collapsedGroupIds,
                         sets = item.sets,
                         deleted = state.pendingDelete,
-                        onWeightChange = { index, value -> onWeightChange(groupIndex, index, value) },
-                        onRepsChange =  { index, side, value -> onRepsChange(groupIndex, index, side, value) },
-                        onDelete = { onDeleteSet(groupIndex, it) },
-                        onReturnDeleted = { onReturnDeleted(groupIndex, it) },
-                        onSetMoved = { from, to ->  onSetMoved(groupIndex, from, to) },
-                        onExpandClick = { onExpandClick(groupIndex) },
+                        onWeightChange = { index, value ->
+                            eventConsumer(
+                                WorkoutEvent.EditWeight(
+                                    groupIndex,
+                                    index,
+                                    value
+                                )
+                            )
+                        },
+                        onRepsChange = { index, side, value ->
+                            eventConsumer(
+                                WorkoutEvent.EditReps(
+                                    groupIndex,
+                                    index,
+                                    side,
+                                    value
+                                )
+                            )
+                        },
+                        onDelete = { eventConsumer(WorkoutEvent.DeleteSet(groupIndex, it)) },
+                        onReturnDeleted = { eventConsumer(WorkoutEvent.ReturnDeletedSet(groupIndex, it)) },
+                        onSetMoved = { from, to -> eventConsumer(WorkoutEvent.OnSetMove(groupIndex, from, to)) },
+                        onExpandClick = { eventConsumer(WorkoutEvent.ToggleGroup(groupIndex)) },
                         separated = item.separated,
                         hasWeight = item.hasWeight,
 
                         onDragStart = { dragDispatcher.onDragStart(groupIndexUpdated) },
                         onDragEnd = dragDispatcher::onDragEnd,
                         onVerticalDrag = dragDispatcher::onDrag,
-                        onDeleteGroup = { onDeleteGroup(groupIndex) },
+                        onDeleteGroup = { eventConsumer(WorkoutEvent.DeleteGroup(groupIndex)) },
                         onHistoryClick = { onHistoryClick(item.exerciseId) }
                     )
                 }
@@ -241,7 +251,7 @@ fun WorkoutScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 val isSaved = state.initialWorkout != null && state.initialWorkout.saved
-                if (isSaved){
+                if (isSaved) {
                     GenericButton(
                         onClick = onDelete,
                         color = Colors.error
@@ -255,8 +265,10 @@ fun WorkoutScreen(
                 GenericButton(
                     onClick = onSave,
                 ) {
-                    Text(text = if(isSaved) stringResource(id = R.string.update)
-                    else stringResource(id = R.string.save))
+                    Text(
+                        text = if (isSaved) stringResource(id = R.string.update)
+                        else stringResource(id = R.string.save)
+                    )
                 }
             }
         }

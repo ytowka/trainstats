@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.BaseViewModel
+import com.danilkha.trainstats.core.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.usecase.ArchiveWorkoutUseCase
@@ -9,22 +9,21 @@ import com.danilkha.trainstats.features.workout.domain.usecase.CommitWorkoutSave
 import com.danilkha.trainstats.features.workout.domain.usecase.GetWorkoutByIdUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
+import com.danilkha.trainstats.features.workout.domain.usecase.GetExerciseHistoryUseCase
 import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import com.danilkha.trainstats.features.workout.ui.SET_DELETE_DELAY
 import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
+import com.danilkha.trainstats.features.workout.ui.isNotEmpty
 import com.danilkha.trainstats.features.workout.ui.toModel
 import com.danilkha.uikit.components.move
-import korlibs.time.Date
 import korlibs.time.DateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 class WorkoutViewModel @Inject constructor(
     private val workoutSaver: WorkoutSaver,
@@ -32,7 +31,8 @@ class WorkoutViewModel @Inject constructor(
     private val commitWorkoutSaveUseCase: CommitWorkoutSaveUseCase,
     private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,
     private val archiveWorkoutUseCase: ArchiveWorkoutUseCase,
-): BaseViewModel<WorkoutState, WorkoutSideEffect>(){
+    private val getExerciseHistoryUseCase: GetExerciseHistoryUseCase,
+) : MviViewModel<WorkoutState, WorkoutEvent, WorkoutSideEffect>() {
 
     override val startState: WorkoutState = WorkoutState()
 
@@ -42,69 +42,148 @@ class WorkoutViewModel @Inject constructor(
             return field
         }
 
+    private val pendingDeletingSetMap = mutableMapOf<Long, Job>()
 
-    fun init(editingId: Long?){
-        viewModelScope.launch {
-            if (editingId != null){
-                getWorkoutByIdUseCase(editingId).onSuccess { workout ->
-                    update {
-                        val workoutModel = workout.toModel { tempIndexes }
-                        it.copy(
-                            initialWorkout = workoutModel,
-                            date = workoutModel.dateTime.date,
-                            groups = workoutModel.groups,
-                            initialized = true,
-                            initialization = WorkoutEditorInitialization.EDIT
-                        )
-                    }
-                }
-            }else{
-                val id = saveWorkoutUseCase(
-                    WorkoutParams(
-                    id = null,
-                    date = DateTime.now().date,
-                    steps = emptyList()
-                )
-                ).getOrThrow()
-                update {
-                    it.copy(
-                        initialWorkout = WorkoutModel(
-                            id = id,
-                            dateTime = DateTime.now(),
-                            groups = emptyList(),
-                            saved = false
-                        ),
-                        initialized = true,
-                        initialization = WorkoutEditorInitialization.NEW
+    override fun reduce(
+        state: WorkoutState,
+        event: WorkoutEvent
+    ): WorkoutState {
+        return when (event) {
+            is WorkoutEvent.InitState -> event.state
+            is WorkoutEvent.AddExercise -> state.reduceAddExercise(event.exercise)
+            is WorkoutEvent.ChangeDate -> state.copy(date = event.date)
+            is WorkoutEvent.DeleteGroup -> state.copy(
+                groups = state.groups.filterIndexed { index, exerciseGroup -> index != event.groupIndex }
+            )
+            is WorkoutEvent.DeleteSet -> {
+                val group = state.groups[event.groupIndex]
+                val id = group.sets[event.setIndex].tempId
+                state.copy(pendingDelete = state.pendingDelete + id)
+            }
+            is WorkoutEvent.CommitDeleteSet -> {
+                val groups = state.groups.map { group ->
+                    group.copy(
+                        sets = group.sets.filterNot { it.tempId == event.setId }
                     )
                 }
+                state.copy(groups = groups, pendingDelete = state.pendingDelete - event.setId)
+            }
+            is WorkoutEvent.EditReps -> state.reduceEditReps(
+                groupIndex = event.groupIndex,
+                setIndex = event.setIndex,
+                side = event.side,
+                reps = event.reps
+            )
+            is WorkoutEvent.EditWeight -> state.reduceEditWeight(
+                groupIndex = event.groupIndex,
+                setIndex = event.setIndex,
+                kg = event.kg
+            )
+            is WorkoutEvent.OnGroupMove -> state.reduceGroupMove(event.from, event.to)
+            is WorkoutEvent.OnSetMove -> state.reduceSetMove(
+                groupIndex = event.groupIndex,
+                from = event.from,
+                to = event.to
+            )
+            is WorkoutEvent.ReturnDeletedSet -> {
+                val setId = state.groups[event.groupIndex].sets[event.setIndex].tempId
+                state.copy(pendingDelete = state.pendingDelete - setId)
+            }
+            is WorkoutEvent.ToggleGroup -> state.reduceToggleGroup(event.groupIndex)
+            else -> state
+        }
+    }
+
+    override suspend fun afterReduce(
+        newState: WorkoutState,
+        event: WorkoutEvent
+    ) {
+        when (event) {
+            is WorkoutEvent.RequestInit -> init(event.editingId)
+            is WorkoutEvent.DeleteSet -> {
+                val group = newState.groups[event.groupIndex]
+                val set = group.sets[event.setIndex]
+                pendingDeletingSetMap[set.tempId] = viewModelScope.launch {
+                    if(set.isNotEmpty) {
+                        delay(SET_DELETE_DELAY)
+                    }
+                    processEvent(WorkoutEvent.CommitDeleteSet(set.tempId))
+                }
+            }
+            is WorkoutEvent.CommitDeleteSet -> {
+                pendingDeletingSetMap.remove(event.setId)
+            }
+            is WorkoutEvent.ReturnDeletedSet -> {
+                val setId = newState.groups[event.groupIndex].sets[event.setIndex].tempId
+                pendingDeletingSetMap[setId]?.cancel()
+                pendingDeletingSetMap.remove(setId)
+            }
+            is WorkoutEvent.DeleteWorkout -> deleteWorkout()
+            else -> Unit
+        }
+        when (event) {
+            is WorkoutEvent.CommitDeleteSet,
+            is WorkoutEvent.DeleteGroup,
+            is WorkoutEvent.OnGroupMove,
+            is WorkoutEvent.OnSetMove,
+            is WorkoutEvent.EditReps,
+            is WorkoutEvent.EditWeight,
+            is WorkoutEvent.AddExercise,
+            is WorkoutEvent.ChangeDate -> workoutSaver.update(newState.mapToParams())
+            else -> Unit
+        }
+    }
+
+    private fun init(editingId: Long?) {
+        viewModelScope.launch {
+            if (editingId != null) {
+                getWorkoutByIdUseCase(editingId).onSuccess { workout ->
+                    val workoutModel = workout.toModel { tempIndexes }
+                    val state = startState.copy(
+                        initialWorkout = workoutModel,
+                        date = workoutModel.dateTime.date,
+                        groups = workoutModel.groups,
+                        initialized = true,
+                        initialization = WorkoutEditorInitialization.EDIT
+                    )
+                    processEvent(WorkoutEvent.InitState(state))
+                }
+            } else {
+                val id = saveWorkoutUseCase(
+                    WorkoutParams(
+                        id = null,
+                        date = DateTime.now().date,
+                        steps = emptyList()
+                    )
+                ).getOrThrow()
+                val state = startState.copy(
+                    initialWorkout = WorkoutModel(
+                        id = id,
+                        dateTime = DateTime.now(),
+                        groups = emptyList(),
+                        saved = false
+                    ),
+                    initialized = true,
+                    initialization = WorkoutEditorInitialization.NEW
+                )
+                processEvent(WorkoutEvent.InitState(state))
             }
         }
     }
 
-    fun changeDate(date: Date){
-        _state.updateAndGet {
-            it.copy(date = date)
-        }.also {
-            workoutSaver.update(it.mapToParams())
-        }
+    private fun WorkoutState.reduceToggleGroup(groupIndex: Int): WorkoutState {
+        val groupId = groups[groupIndex].groupTempId
+        val isOpened = groupId in collapsedGroupIds
+        return copy(
+            collapsedGroupIds = if (isOpened) {
+                collapsedGroupIds - groupId
+            } else {
+                collapsedGroupIds + groupId
+            }
+        )
     }
 
-    fun toggleGroup(groupIndex: Int){
-        update{
-            val groupId = it.groups[groupIndex].groupTempId
-            val isOpened = groupId in it.collapsedGroupIds
-            it.copy(
-                collapsedGroupIds = if (isOpened) {
-                    it.collapsedGroupIds - groupId
-                }else {
-                    it.collapsedGroupIds + groupId
-                }
-            )
-        }
-    }
-
-    fun addExercise(exercise: ExerciseModel){
+    private fun WorkoutState.reduceAddExercise(exercise: ExerciseModel): WorkoutState {
         val group = ExerciseGroup(
             groupTempId = tempIndexes,
             exerciseId = exercise.id,
@@ -114,182 +193,126 @@ class WorkoutViewModel @Inject constructor(
             separated = exercise.separated,
             sets = listOf(ExerciseSetSlot.Stub(tempIndexes))
         )
-        update {
-            it.copy(
-                groups = it.groups + group
-            )
-        }.also {
-            workoutSaver.update(it.mapToParams())
-        }
+        return copy(
+            groups = groups + group
+        )
     }
 
-    fun editWeight(groupIndex: Int, setIndex: Int, kg: Float){
-        update {
-            val group = it.groups[groupIndex]
-            val set = group.sets[setIndex]
+    private fun WorkoutState.reduceEditWeight(groupIndex: Int, setIndex: Int, kg: Float): WorkoutState {
+        val group = groups[groupIndex]
+        val set = group.sets[setIndex]
 
-            when (set){
-                is ExerciseSetSlot.ExerciseSetModel -> it.copy(
-                    groups = it.updateGroupsWithSets(
-                        groupIndex, group.sets.replace(setIndex, set.copy(
+        return when (set) {
+            is ExerciseSetSlot.ExerciseSetModel -> copy(
+                groups = updateGroupsWithSets(
+                    groupIndex,
+                    group.sets.replace(
+                        setIndex, set.copy(
                             weight = Kg(kg)
                         )
-                    ),)
+                    ),
                 )
-                is ExerciseSetSlot.Stub -> {
-                    val newSet = ExerciseSetSlot.ExerciseSetModel(
-                        tempId = set.tempId,
-                        reps = when (group.separated) {
-                            true -> RepetitionsModel.Double(null, null)
-                            false -> RepetitionsModel.Single(null)
-                        },
-                        weight = Kg(kg)
-                    )
-                    val newSets = group.sets.toMutableList()
-                        .apply {
-                            removeAt(lastIndex)
-                            add(newSet)
-                            add(ExerciseSetSlot.Stub(tempIndexes))
-                        }
-                    it.copy(
-                        groups = it.updateGroupsWithSets(groupIndex, newSets)
-                    )
-                }
+            )
+            is ExerciseSetSlot.Stub -> {
+                val newSet = ExerciseSetSlot.ExerciseSetModel(
+                    tempId = set.tempId,
+                    reps = when (group.separated) {
+                        true -> RepetitionsModel.Double(null, null)
+                        false -> RepetitionsModel.Single(null)
+                    },
+                    weight = Kg(kg)
+                )
+                val newSets = group.sets.toMutableList()
+                    .apply {
+                        removeAt(lastIndex)
+                        add(newSet)
+                        add(ExerciseSetSlot.Stub(tempIndexes))
+                    }
+                copy(
+                    groups = updateGroupsWithSets(groupIndex, newSets)
+                )
             }
-        }.also {
-            workoutSaver.update(it.mapToParams())
         }
     }
 
-    fun editReps(groupIndex: Int, setIndex: Int, side: Side?, reps: Float){
-        update {
-            val group = it.groups[groupIndex]
-            val set = group.sets[setIndex]
+    private fun WorkoutState.reduceEditReps(groupIndex: Int, setIndex: Int, side: Side?, reps: Float): WorkoutState {
+        val group = groups[groupIndex]
+        val set = group.sets[setIndex]
 
-            when (set){
-                is ExerciseSetSlot.ExerciseSetModel -> {
-                    val newReps = when(set.reps){
-                        is RepetitionsModel.Double -> when(side){
-                            Side.Left -> RepetitionsModel.Double(reps, set.reps.right)
-                            Side.Right -> RepetitionsModel.Double(set.reps.left, reps)
-                            null -> RepetitionsModel.Double(reps, set.reps.right)
-                        }
-                        is RepetitionsModel.Single -> RepetitionsModel.Single(reps)
+        return when (set) {
+            is ExerciseSetSlot.ExerciseSetModel -> {
+                val newReps = when (set.reps) {
+                    is RepetitionsModel.Double -> when (side) {
+                        Side.Left -> RepetitionsModel.Double(reps, set.reps.right)
+                        Side.Right -> RepetitionsModel.Double(set.reps.left, reps)
+                        null -> RepetitionsModel.Double(reps, set.reps.right)
                     }
-                    it.copy(
-                        groups = it.groups.replace(groupIndex, group.copy(
-                            sets = group.sets.replace(setIndex, set.copy(
-                                reps = newReps
-                            ))
-                        ))
-                    )
+                    is RepetitionsModel.Single -> RepetitionsModel.Single(reps)
                 }
-                is ExerciseSetSlot.Stub -> {
-                    val newReps = when(group.separated){
-                        true -> when(side){
-                            Side.Left -> RepetitionsModel.Double(reps, null)
-                            Side.Right -> RepetitionsModel.Double(null, reps)
-                            null -> RepetitionsModel.Double(reps, null)
-                        }
-                        false -> RepetitionsModel.Single(reps)
-                    }
-                    val newSet = ExerciseSetSlot.ExerciseSetModel(
-                        tempId = set.tempId,
-                        reps = newReps,
-                        weight = null
+                copy(
+                    groups = groups.replace(
+                        groupIndex, group.copy(
+                            sets = group.sets.replace(
+                                setIndex, set.copy(
+                                    reps = newReps
+                                )
+                            )
+                        )
                     )
-                    val newSets = group.sets.toMutableList()
-                        .apply {
-                            removeAt(lastIndex)
-                            add(newSet)
-                            add(ExerciseSetSlot.Stub(tempIndexes))
-                        }
-                    it.copy(
-                        groups = it.updateGroupsWithSets(groupIndex, newSets)
-                    )
-                }
+                )
             }
-        }.also {
-            workoutSaver.update(it.mapToParams())
+            is ExerciseSetSlot.Stub -> {
+                val newReps = when (group.separated) {
+                    true -> when (side) {
+                        Side.Left -> RepetitionsModel.Double(reps, null)
+                        Side.Right -> RepetitionsModel.Double(null, reps)
+                        null -> RepetitionsModel.Double(reps, null)
+                    }
+                    false -> RepetitionsModel.Single(reps)
+                }
+                val newSet = ExerciseSetSlot.ExerciseSetModel(
+                    tempId = set.tempId,
+                    reps = newReps,
+                    weight = null
+                )
+                val newSets = group.sets.toMutableList()
+                    .apply {
+                        removeAt(lastIndex)
+                        add(newSet)
+                        add(ExerciseSetSlot.Stub(tempIndexes))
+                    }
+                copy(
+                    groups = updateGroupsWithSets(groupIndex, newSets)
+                )
+            }
         }
     }
 
-    private fun WorkoutState.updateGroupsWithSets(groupIndex: Int, sets: List<ExerciseSetSlot>): List<ExerciseGroup>{
+    private fun WorkoutState.updateGroupsWithSets(groupIndex: Int, sets: List<ExerciseSetSlot>): List<ExerciseGroup> {
         val group = groups[groupIndex]
         return groups.replace(groupIndex, group.copy(sets = sets))
     }
 
-    fun onSetMove(groupIndex: Int, from: Int, to: Int){
-        update {
-            val group = it.groups[groupIndex]
-            if(to < group.sets.size-1){
-                it.copy(
-                    groups = it.groups.replace(groupIndex, group.copy(
+    private fun WorkoutState.reduceSetMove(groupIndex: Int, from: Int, to: Int): WorkoutState {
+        val group = groups[groupIndex]
+        return if (to < group.sets.size - 1) {
+            copy(
+                groups = groups.replace(
+                    groupIndex, group.copy(
                         sets = group.sets.toMutableList().apply { move(from, to) }.toList()
-                    ))
+                    )
                 )
-            }else it
-        }.also {
-            workoutSaver.update(it.mapToParams())
-        }
-    }
-
-    fun onGroupMove(from: Int, to: Int) = update {
-        it.copy(
-            groups = it.groups.toMutableList().apply { move(from, to) }.toList()
-        )
-    }.also {
-        workoutSaver.update(it.mapToParams())
-    }
-
-    private val pendingDeletingSetMap = mutableMapOf<Long, Job>()
-
-    fun deleteSet(groupIndex: Int, setIndex: Int){
-        update {
-            val group = it.groups[groupIndex]
-            val id = group.sets[setIndex].tempId
-            pendingDeletingSetMap[id] = viewModelScope.launch {
-                delay(SET_DELETE_DELAY)
-                commitSetDelete(id)
-            }
-            it.copy(pendingDelete = it.pendingDelete + id)
-        }
-    }
-
-    fun deleteGroup(groupIndex: Int){
-        update {
-            it.copy(
-                groups = it.groups.filterIndexed { index, exerciseGroup -> index != groupIndex }
             )
-        }.also {
-            workoutSaver.update(it.mapToParams())
-        }
+        } else this
     }
 
-    private fun commitSetDelete(setId: Long){
-        pendingDeletingSetMap.remove(setId)
-        update {
-            val groups = it.groups.map { group ->
-                group.copy(
-                    sets = group.sets.filterNot { it.tempId == setId }
-                )
-            }
-            it.copy(groups = groups, pendingDelete = it.pendingDelete - setId)
-        }.also {
-            workoutSaver.update(it.mapToParams())
-        }
+    private fun WorkoutState.reduceGroupMove(from: Int, to: Int): WorkoutState {
+        return copy(
+            groups = groups.toMutableList().apply { move(from, to) }.toList()
+        )
     }
 
-    fun returnDeletedSet(groupIndex: Int, setIndex: Int){
-        update {
-            val setId = it.groups[groupIndex].sets[setIndex].tempId
-            pendingDeletingSetMap[setId]?.cancel()
-            pendingDeletingSetMap.remove(setId)
-            it.copy(pendingDelete = it.pendingDelete - setId)
-        }
-    }
-
-    fun deleteWorkout(){
+    private fun deleteWorkout() {
         viewModelScope.launch {
             _state.value.initialWorkout?.id?.let { id ->
                 archiveWorkoutUseCase(id).onSuccess {
@@ -297,10 +320,6 @@ class WorkoutViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun saveWorkout(){
-
     }
 
     override fun onCleared() {

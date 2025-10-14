@@ -26,7 +26,7 @@ data class ExerciseGroup(
 
 sealed class ExerciseSetSlot(
     open val tempId: Long
-){
+) {
     data class ExerciseSetModel(
         override val tempId: Long,
         val reps: RepetitionsModel,
@@ -36,6 +36,18 @@ sealed class ExerciseSetSlot(
     class Stub(override val tempId: Long) : ExerciseSetSlot(tempId)
 }
 
+// todo: fix, if field is empty, null no passed
+val ExerciseSetSlot.isNotEmpty: Boolean
+    get() = when (this) {
+        is ExerciseSetSlot.ExerciseSetModel -> {
+            val repsNotEmpty = when(reps) {
+                is RepetitionsModel.Double -> reps.right != null || reps.left != null
+                is RepetitionsModel.Single -> reps.reps != null
+            }
+            repsNotEmpty || weight != null
+        }
+        is ExerciseSetSlot.Stub -> false
+    }
 
 const val SET_DELETE_DELAY = 5000L //ms
 
@@ -43,19 +55,21 @@ enum class Side { Left, Right }
 
 inline fun Workout.toModel(
     idProvider: () -> Long,
-) : WorkoutModel{
+): WorkoutModel {
     val groups = mutableListOf<ExerciseGroup>()
 
     var lastExerciseId: Long? = null
     val lastGroupSets = mutableListOf<ExerciseSetSlot>()
     var lastGroup: ExerciseGroup? = null
     steps.forEach { step ->
-        if(step.exerciseData.id != lastExerciseId){
+        if (step.exerciseData.id != lastExerciseId) {
             lastGroup?.let { group ->
                 lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
-                groups.add(group.copy(
-                    sets = lastGroupSets.toList()
-                ))
+                groups.add(
+                    group.copy(
+                        sets = lastGroupSets.toList()
+                    )
+                )
             }
             lastGroup = ExerciseGroup(
                 groupTempId = idProvider(),
@@ -78,9 +92,11 @@ inline fun Workout.toModel(
     }
     lastGroup?.let { group ->
         lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
-        groups.add(group.copy(
-            sets = lastGroupSets.toList()
-        ))
+        groups.add(
+            group.copy(
+                sets = lastGroupSets.toList()
+            )
+        )
     }
 
     return WorkoutModel(

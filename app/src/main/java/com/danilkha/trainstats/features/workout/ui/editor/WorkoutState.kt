@@ -1,10 +1,12 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.compose.runtime.Immutable
+import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.model.SetParams
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
+import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.toDomain
 import korlibs.time.Date
@@ -42,6 +44,61 @@ data class WorkoutState(
 }
 
 enum class WorkoutEditorInitialization { NEW, EDIT }
+
+sealed interface WorkoutEvent {
+    data class RequestInit(val editingId: Long?) : WorkoutEvent
+    data class InitState(val state: WorkoutState) : WorkoutEvent
+
+    data class ChangeDate(val date: Date) : WorkoutEvent
+
+    data class ToggleGroup(val groupIndex: Int) : WorkoutEvent
+
+    data class AddExercise(val exercise: ExerciseModel) : WorkoutEvent
+
+    data class EditWeight(
+        val groupIndex: Int,
+        val setIndex: Int,
+        val kg: Float
+    ) : WorkoutEvent
+
+    data class EditReps(
+        val groupIndex: Int,
+        val setIndex: Int,
+        val side: Side?,
+        val reps: Float
+    ) : WorkoutEvent
+
+    data class OnSetMove(
+        val groupIndex: Int,
+        val from: Int,
+        val to: Int
+    ) : WorkoutEvent
+
+    data class OnGroupMove(
+        val from: Int,
+        val to: Int
+    ) : WorkoutEvent
+
+    data class DeleteSet(
+        val groupIndex: Int,
+        val setIndex: Int
+    ) : WorkoutEvent
+
+    data class CommitDeleteSet(
+        val setId: Long
+    ) : WorkoutEvent
+
+    data class ReturnDeletedSet(
+        val groupIndex: Int,
+        val setIndex: Int
+    ) : WorkoutEvent
+
+    data class DeleteGroup(val groupIndex: Int) : WorkoutEvent
+
+    object DeleteWorkout : WorkoutEvent
+
+    object SaveWorkout : WorkoutEvent
+}
 
 sealed interface WorkoutSideEffect{
 
