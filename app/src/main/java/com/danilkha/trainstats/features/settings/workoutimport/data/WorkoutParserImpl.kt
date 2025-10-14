@@ -117,7 +117,7 @@ class WorkoutParserImpl @Inject constructor(): WorkoutParser {
         private val ENTRY_SEPARATOR = Regex("\n+---+\n\n+")
 
         private val dateRegex = Regex("[0-9]+\\.[0-9]+\\.[0-9]+")
-        private val exerciseNameRegex = Regex("[A-zА-яё ]+")
+        private val exerciseNameRegex = Regex("[A-zА-яё() ]+")
         private val setRegex = Regex("[0-9][0-9A-zА-я,. ]*")
 
         private val setSeparatorRegex = Regex(" *([ек]г)? *[xх] *")
