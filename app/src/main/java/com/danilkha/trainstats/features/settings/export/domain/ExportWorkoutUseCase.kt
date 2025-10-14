@@ -58,6 +58,7 @@ class ExportWorkoutUseCase @Inject constructor(
                         appendLine()
                     }
                     appendLine()
+                    append("---")
                     appendLine()
                 }
             }
