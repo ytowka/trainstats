@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,10 +19,8 @@ import com.danilkha.trainstats.features.home.ui.HomeScreen
 import com.danilkha.trainstats.features.home.ui.NavigationItem
 import com.danilkha.trainstats.features.profile.ui.ProfileScreen
 import com.danilkha.trainstats.features.settings.SettingsHostScreen
-import com.danilkha.trainstats.features.settings.SettingsScreen
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutScreenRoute
 import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
-import com.danilkha.uikit.theme.insetPaddings
 
 @Composable
 fun RootScreen() {
@@ -32,7 +31,7 @@ fun RootScreen() {
     NavHost(
         modifier = Modifier
             .background(color = MaterialTheme.colors.background)
-            .insetPaddings()
+            .safeDrawingPadding()
         ,
         navController = navController,
         startDestination = Navigation.root

@@ -27,7 +27,7 @@ class WorkoutSaver @Inject constructor(
             currentState
                 .debounce(FLUSH_DEBOUNCE)
                 .filterNotNull()
-                .collect{
+                .collect {
                     commitInternal(it)
                 }
         }
