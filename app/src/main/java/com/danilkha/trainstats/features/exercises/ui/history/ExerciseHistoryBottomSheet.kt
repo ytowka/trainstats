@@ -113,14 +113,9 @@ fun ExerciseHistoryBottomSheet(
             append(state.exerciseName)
 
         },
+        subtitle = stringResource(id = R.string.total_entries) +": "+state.list.size,
         onCloseClicked = { onDismiss() }
     ) {
-
-        Text(
-            modifier = Modifier.padding(start = 20.dp),
-            text = stringResource(id = R.string.total_entries) +": "+state.list.size,
-            style = ThemeTypography.body1.copy(fontWeight = FontWeight.Normal)
-        )
         val pagerState = rememberPagerState(pageCount = { state.list.size })
 
         val coroutineScope = rememberCoroutineScope()
@@ -138,7 +133,7 @@ fun ExerciseHistoryBottomSheet(
             val sets = state.list[it]
             ExerciseSetsHistoryCard(
                 date = sets.date,
-                index = it + 1,
+                index = state.list.size - it,
                 sets = sets.sets
             )
         }

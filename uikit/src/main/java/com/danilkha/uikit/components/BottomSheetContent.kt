@@ -35,6 +35,7 @@ val bottomSheetShape = RoundedCornerShape(
 fun BottomSheetContent(
     modifier: Modifier = Modifier,
     title: String,
+    subtitle: String? = null,
     onCloseClicked: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -48,11 +49,20 @@ fun BottomSheetContent(
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 26.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = title,
+            Column(
                 modifier = Modifier.weight(1f),
-                style = ThemeTypography.title
-            )
+            ) {
+                Text(
+                    text = title,
+                    style = ThemeTypography.title
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = ThemeTypography.body1.copy(fontWeight = FontWeight.Normal)
+                    )
+                }
+            }
             Icon(
                 modifier = Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
