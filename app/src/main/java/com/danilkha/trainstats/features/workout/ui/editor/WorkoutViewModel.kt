@@ -99,7 +99,7 @@ class WorkoutViewModel @Inject constructor(
         event: WorkoutEvent
     ) {
         when (event) {
-            is WorkoutEvent.RequestInit -> init(event.editingId)
+            is WorkoutEvent.RequestInit -> init(newState,event.editingId)
             is WorkoutEvent.DeleteSet -> {
                 val group = newState.groups[event.groupIndex]
                 val set = group.sets[event.setIndex]
@@ -134,7 +134,8 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 
-    private fun init(editingId: Long?) {
+    private fun init(currentState: WorkoutState, editingId: Long?) {
+        if(currentState.initialization != null) return
         viewModelScope.launch {
             if (editingId != null) {
                 getWorkoutByIdUseCase(editingId).onSuccess { workout ->
@@ -143,7 +144,6 @@ class WorkoutViewModel @Inject constructor(
                         initialWorkout = workoutModel,
                         date = workoutModel.dateTime.date,
                         groups = workoutModel.groups,
-                        initialized = true,
                         initialization = WorkoutEditorInitialization.EDIT
                     )
                     processEvent(WorkoutEvent.InitState(state))
@@ -163,10 +163,10 @@ class WorkoutViewModel @Inject constructor(
                         groups = emptyList(),
                         saved = false
                     ),
-                    initialized = true,
                     initialization = WorkoutEditorInitialization.NEW
                 )
                 processEvent(WorkoutEvent.InitState(state))
+                showSideEffect(WorkoutSideEffect.OpenExerciseSelector)
             }
         }
     }

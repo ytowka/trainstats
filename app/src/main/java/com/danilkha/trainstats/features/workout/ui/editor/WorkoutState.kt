@@ -15,7 +15,6 @@ import korlibs.time.DateTime
 @Immutable
 data class WorkoutState(
     val initialWorkout: WorkoutModel? = null,
-    val initialized: Boolean = false,
     val date: Date = DateTime.now().date,
     val groups: List<ExerciseGroup> = emptyList(),
     val collapsedGroupIds: Set<Long> = emptySet(),
@@ -103,4 +102,5 @@ sealed interface WorkoutEvent {
 sealed interface WorkoutSideEffect{
 
     object Deleted : WorkoutSideEffect
+    object OpenExerciseSelector : WorkoutSideEffect
 }

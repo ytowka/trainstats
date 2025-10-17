@@ -53,4 +53,4 @@ class WorkoutSaver @Inject constructor(
     }
 }
 
-private const val FLUSH_DEBOUNCE = 10_000L //ms
+private const val FLUSH_DEBOUNCE = 5_000L //ms

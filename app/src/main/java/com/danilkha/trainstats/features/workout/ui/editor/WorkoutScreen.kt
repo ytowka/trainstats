@@ -67,9 +67,15 @@ fun WorkoutScreenRoute(
         viewModel.processEvent(WorkoutEvent.RequestInit(workoutId))
     }
 
+    val exerciseSelectorViewModel = getCurrentViewModel { it.exerciseListViewModel }
+    val exerciseSelector = rememberBottomSheetController(
+        bottomSheetClass = ExerciseSelectorBottomSheet::class.java
+    )
+
     viewModel.LaunchCollectEffects { event ->
         when (event) {
             WorkoutSideEffect.Deleted -> onSaved()
+            WorkoutSideEffect.OpenExerciseSelector -> exerciseSelector.show()
         }
     }
 
@@ -83,16 +89,6 @@ fun WorkoutScreenRoute(
             viewModel.processEvent(WorkoutEvent.DeleteWorkout)
         },
         onCancel = { })
-
-    val exerciseSelectorViewModel = getCurrentViewModel { it.exerciseListViewModel }
-    val exerciseSelector = rememberBottomSheetController(
-        bottomSheetClass = ExerciseSelectorBottomSheet::class.java
-    )
-    LaunchedEffect(state.initialWorkout) {
-        if (state.initialization == WorkoutEditorInitialization.NEW) {
-            exerciseSelector.show()
-        }
-    }
 
     val exerciseHistory = rememberBottomSheetController(
         bottomSheetClass = ExerciseHistoryBottomSheet::class.java
