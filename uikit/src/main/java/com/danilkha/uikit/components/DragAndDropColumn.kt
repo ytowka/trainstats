@@ -61,8 +61,6 @@ fun <T> DragAndDropColumn(
 
     val height = remember(items.size) { mutableStateListOf(*Array(items.size){0f}) }
 
-
-
     LaunchedEffect(dragDispatcher, items.size) {
         dragDispatcher.setObserver(object : DragObserver {
             override fun onDragStart(index: Int) {
@@ -188,14 +186,13 @@ private fun calculateTargetIndex(
 
 @Stable
 class DragDispatcher(){
-    private var dragObserver by mutableStateOf<DragObserver>(object : DragObserver {
+    private var dragObserver: DragObserver = object : DragObserver {
         override fun onDragStart(index: Int) {}
 
         override fun onDrag(dragAmount: Float) {}
 
         override fun onDragEnd() {}
-    })
-        private set
+    }
 
     fun setObserver(dragObserver: DragObserver){
         this.dragObserver = dragObserver
