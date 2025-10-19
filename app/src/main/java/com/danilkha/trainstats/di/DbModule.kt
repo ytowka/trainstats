@@ -15,7 +15,7 @@ class DbModule {
     @Singleton
     fun getDatabase(@ApplicationContext context: Context): TrainStatsDb{
         return Room.databaseBuilder(context, TrainStatsDb::class.java, "trainstatsDb")
-            .createFromAsset("trainstatsDb.db")
+            //.createFromAsset("trainstatsDb.db")
             .fallbackToDestructiveMigration()
             .build()
     }
