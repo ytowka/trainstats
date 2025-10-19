@@ -35,6 +35,7 @@ import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.PreviewContent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun <T> DragAndDropColumnV2(
@@ -51,60 +52,36 @@ fun <T> DragAndDropColumnV2(
 
     var targetIndex by remember { mutableStateOf<Int?>(null) }
 
-    var inited by remember { mutableStateOf(true) }
-    var animateItemMove by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-    var targetPositions by remember { mutableStateOf<List<Int>>(listOf()) }
-    val animatedPositions = remember { items.map { Animatable(0f) } }
+    var inited by remember { mutableStateOf(false) }
+    var lastDraggedItemKey by remember { mutableStateOf<Any?>(null) }
+    var targetPositions by remember { mutableStateOf<Map<Any, Int>>(mapOf()) }
 
-    var localItems by remember { mutableStateOf(items) }
-    LaunchedEffect(items, animateItemMove) {
-        localItems = items
-        val currentAnimateItemMove = animateItemMove
-        if(currentAnimateItemMove != null) {
-            val (from, to) = currentAnimateItemMove
-            if(to > from) {
-                for(i in (from+1)..to) {
-                    animatedPositions[i-1].snapTo(animatedPositions[i].value)
-                }
-            } else {
-                for(i in (from-1) downTo to) {
-                    animatedPositions[i+1].snapTo(animatedPositions[i].value)
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(animateItemMove) {
-        val currentAnimateItemMove = animateItemMove
-        val localDragOffset = dragOffset
-        if (currentAnimateItemMove != null) {
-            val (from, to) = currentAnimateItemMove
-            if(from == to) {
-                animatedPositions[from].animateTo(targetPositions[from].toFloat(), animationSpec = tween(5000))
-            } else {
-                animatedPositions[to].snapTo(targetPositions[from].toFloat() + localDragOffset)
-            }
-        }
-        animateItemMove = null
-        dragOffset = 0f
-    }
 
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(targetPositions) {
-        targetPositions.forEachIndexed { index, y ->
-            launch {
-                animatedPositions[index].animateTo(y.toFloat(), animationSpec = tween(5000))
+    val animatedPositions = remember(items.size) {
+        buildMap {
+            items.forEachIndexed { index, t ->
+                val key = keyProvider(index, t)
+                put(key, Animatable((targetPositions[key] ?: 0).toFloat()))
             }
         }
     }
 
-    LaunchedEffect(dragDispatcher) {
+    LaunchedEffect(targetPositions, draggedItemIndex) {
+        targetPositions.forEach { (key, value) ->
+            launch {
+                animatedPositions[key]?.animateTo(value.toFloat(), animationSpec = tween())
+            }
+        }
+        inited = true
+    }
+
+    LaunchedEffect(items, dragDispatcher) {
         dragDispatcher.setObserver(object : DragObserver {
             override fun onDragStart(index: Int) {
-                animateItemMove = null
-                dragOffset = 0f
                 targetIndex = index
+                lastDraggedItemKey = keyProvider(index, items[index])
                 draggedItemIndex = index
             }
 
@@ -116,10 +93,12 @@ fun <T> DragAndDropColumnV2(
                 val finalDragIndex = draggedItemIndex
                 val finalTargetIndex = targetIndex
                 if(finalDragIndex != null && finalTargetIndex != null){
-                    onItemMoved(finalDragIndex, finalTargetIndex)
-                    animateItemMove = finalDragIndex to finalTargetIndex
                     coroutineScope.launch {
-                        animatedPositions[finalDragIndex].snapTo(targetPositions[finalDragIndex] + dragOffset)
+                        val key = keyProvider(finalDragIndex, items[finalDragIndex])
+                        val movedItemTargetPos = targetPositions[key]!! + dragOffset
+                        animatedPositions[key]!!.snapTo(movedItemTargetPos)
+                        dragOffset = 0f
+                        onItemMoved(finalDragIndex, finalTargetIndex)
                     }
                 }
                 draggedItemIndex = null
@@ -131,7 +110,7 @@ fun <T> DragAndDropColumnV2(
     Layout(
         modifier = modifier,
         content = {
-            localItems.forEachIndexed { index, t ->
+            items.forEachIndexed { index, t ->
                 val key = keyProvider(index, t)
                 key(key) {
                     content(index, t)
@@ -139,7 +118,9 @@ fun <T> DragAndDropColumnV2(
             }
         }
     ) { measurables, constraints ->
-        val placeables = measurables.map { it.measure(constraints) }
+        val placeables = measurables.map {
+            it.measure(constraints)
+        }
         val height = placeables.sumOf { it.height }
 
         val draggedItemIndex = draggedItemIndex
@@ -161,15 +142,21 @@ fun <T> DragAndDropColumnV2(
         }
 
         ys = calculateYs(targetIndex, draggedItemIndex, draggedItemHeight, placeables)
-        targetPositions = ys
+        targetPositions = buildMap {
+            ys.forEachIndexed { index, y ->
+                val key = keyProvider(index, items[index])
+                put(key, y)
+            }
+        }
 
         layout(
             width = constraints.minWidth,
             height = height
         ) {
             placeables.forEachIndexed { index, placeable ->
-                val y = if(inited) animatedPositions[index].value.fastRoundToInt() else ys[index]
-                val zIndex = if(index == draggedItemIndex) 1f else 0f
+                val key = keyProvider(index, items[index])
+                val y = if(inited) animatedPositions[key]!!.value.fastRoundToInt() else ys[index]
+                val zIndex = if(key == lastDraggedItemKey) 1f else 0f
                 val offset = if(index == draggedItemIndex) dragOffset.fastRoundToInt() else 0
                 placeable.place(0, y + offset, zIndex)
             }
@@ -258,9 +245,13 @@ private fun DragAndDropColumnV2Preview() {
                 keyProvider = { index, item -> item }
             ) { index, item ->
                 var dragged by remember { mutableStateOf(false) }
+                var cords by remember { mutableStateOf(0 to 0) }
                 Text(
                     modifier = Modifier
                         //.alpha(if (dragged) 0.5f else 1f)
+                        .onPlaced {
+                            cords = it.positionInParent().y.roundToInt() to it.positionInParent().y.roundToInt() + it.size.height
+                        }
                         .padding(10.dp)
                         .fillMaxWidth()
                         .border(width = 1.dp, color = Colors.primary)
@@ -280,7 +271,7 @@ private fun DragAndDropColumnV2Preview() {
                         .background(color = Colors.surface)
                         .padding(30.dp)
                     ,
-                    text = "$item"
+                    text = "$cords $item"
                 )
             }
         }
