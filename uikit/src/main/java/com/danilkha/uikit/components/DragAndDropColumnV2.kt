@@ -107,62 +107,63 @@ fun <T> DragAndDropColumnV2(
         })
     }
 
-    Layout(
-        modifier = modifier,
-        content = {
-            items.forEachIndexed { index, t ->
-                val key = keyProvider(index, t)
-                key(key) {
-                    content(index, t)
+    Box(modifier = modifier) {
+        Layout(
+            modifier = Modifier,
+            content = {
+                items.forEachIndexed { index, t ->
+                    val key = keyProvider(index, t)
+                    key(key) {
+                        content(index, t)
+                    }
+                }
+            }
+        ) { measurables, constraints ->
+            val placeables = measurables.map {
+                it.measure(constraints)
+            }
+            val height = placeables.sumOf { it.height }
+
+            val draggedItemIndex = draggedItemIndex
+            val draggedItemHeight = if(draggedItemIndex != null) {
+                placeables[draggedItemIndex].height
+            } else 0
+
+            var ys = calculateYs(targetIndex, draggedItemIndex, draggedItemHeight, placeables)
+
+            val localTargetIndex = targetIndex
+            if(draggedItemIndex != null && localTargetIndex != null) {
+                targetIndex = calculateTargetPos(
+                    ys = ys,
+                    placeables = placeables,
+                    draggedItemIndex = draggedItemIndex,
+                    dragOffset = dragOffset,
+                    currentTargetIndex = localTargetIndex
+                )
+            }
+
+            ys = calculateYs(targetIndex, draggedItemIndex, draggedItemHeight, placeables)
+            targetPositions = buildMap {
+                ys.forEachIndexed { index, y ->
+                    val key = keyProvider(index, items[index])
+                    put(key, y)
+                }
+            }
+
+            layout(
+                width = constraints.minWidth,
+                height = height
+            ) {
+                placeables.forEachIndexed { index, placeable ->
+                    val key = keyProvider(index, items[index])
+                    val y = if(inited) animatedPositions[key]!!.value.fastRoundToInt() else ys[index]
+                    val zIndex = if(key == lastDraggedItemKey) 1f else 0f
+                    val offset = if(index == draggedItemIndex) dragOffset.fastRoundToInt() else 0
+                    placeable.place(0, y + offset, zIndex)
                 }
             }
         }
-    ) { measurables, constraints ->
-        val placeables = measurables.map {
-            it.measure(constraints)
-        }
-        val height = placeables.sumOf { it.height }
-
-        val draggedItemIndex = draggedItemIndex
-        val draggedItemHeight = if(draggedItemIndex != null) {
-            placeables[draggedItemIndex].height
-        } else 0
-
-        var ys = calculateYs(targetIndex, draggedItemIndex, draggedItemHeight, placeables)
-
-        val localTargetIndex = targetIndex
-        if(draggedItemIndex != null && localTargetIndex != null) {
-            targetIndex = calculateTargetPos(
-                ys = ys,
-                placeables = placeables,
-                draggedItemIndex = draggedItemIndex,
-                dragOffset = dragOffset,
-                currentTargetIndex = localTargetIndex
-            )
-        }
-
-        ys = calculateYs(targetIndex, draggedItemIndex, draggedItemHeight, placeables)
-        targetPositions = buildMap {
-            ys.forEachIndexed { index, y ->
-                val key = keyProvider(index, items[index])
-                put(key, y)
-            }
-        }
-
-        layout(
-            width = constraints.minWidth,
-            height = height
-        ) {
-            placeables.forEachIndexed { index, placeable ->
-                val key = keyProvider(index, items[index])
-                val y = if(inited) animatedPositions[key]!!.value.fastRoundToInt() else ys[index]
-                val zIndex = if(key == lastDraggedItemKey) 1f else 0f
-                val offset = if(index == draggedItemIndex) dragOffset.fastRoundToInt() else 0
-                placeable.place(0, y + offset, zIndex)
-            }
-        }
     }
-
 }
 
 private fun calculateTargetPos(ys: List<Int>, placeables: List<Placeable>, draggedItemIndex: Int, dragOffset: Float, currentTargetIndex: Int): Int {
