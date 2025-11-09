@@ -1,6 +1,9 @@
 package com.danilkha.uikit.components
 
 import android.util.Log
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.SurfaceCoroutineScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -19,13 +22,12 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -34,15 +36,21 @@ import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.zIndex
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.PreviewContent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Stable
 class DragAndDropState<T>(
     items: List<T>,
+    val coroutineScope: CoroutineScope,
     val onItemMove: (from: Int, to: Int) -> Unit
 ) : DragObserver{
 
     val offsets = MutableList(items.size) { mutableFloatStateOf(0f) }
+    val animatedOffsets = MutableList(items.size) { Animatable(0f) }
 
     var items by mutableStateOf(items)
         private set
@@ -58,10 +66,11 @@ class DragAndDropState<T>(
         for (i in offsets.size until items.size) {
             offsets.add(mutableFloatStateOf(0f))
         }
-
+        // todo add animatedOffsets resize
         for (i in items.indices) {
             offsets[i].floatValue = 0f
         }
+        coroutineScope.launch { animatedOffsets.forEach { it.snapTo(0f) } }
         this.items = items
     }
 
@@ -97,6 +106,12 @@ class DragAndDropState<T>(
                 .apply { set(draggedItemIndex, draggedItemOffset) }
 
             offsets.forEachIndexed { index, state ->
+                if (!(state.floatValue effectiveEquals newOffsets[index])) {
+                    coroutineScope.launch { animatedOffsets[index].animateTo(newOffsets[index]) }
+                }
+                if (index == draggedItemIndex) {
+                    coroutineScope.launch { animatedOffsets[index].snapTo(newOffsets[index]) }
+                }
                 state.floatValue = newOffsets[index]
             }
         }
@@ -111,6 +126,7 @@ class DragAndDropState<T>(
             onItemMove(localDraggedItemIndex, localTargetIndex)
             if(localDraggedItemIndex == localTargetIndex) {
                 offsets[localDraggedItemIndex].floatValue = 0f
+                coroutineScope.launch { animatedOffsets.forEach { it.snapTo(0f) } }
             }
         }
     }
@@ -180,15 +196,18 @@ fun <T> Modifier.dragAndDropModifier(
             )
         }
         .offset {
-            IntOffset(0, state.offsets[index].floatValue.roundToInt())
+            IntOffset(0, state.animatedOffsets[index].value.roundToInt())
         }
 
+
+infix fun Float.effectiveEquals(other: Float): Boolean {
+    return abs(other - this) < 0.01f
+}
 
 @Composable
 @Preview
 private fun DragAndDropColumnV3Preview() {
     PreviewContent {
-        //val dragDispatcher = remember { DragDispatcher() }
         var items by remember {
             mutableStateOf(
                 listOf(
@@ -200,12 +219,14 @@ private fun DragAndDropColumnV3Preview() {
                 )
             )
         }
+        val coroutineScope = rememberCoroutineScope()
 
         val dragAndDropState = remember { DragAndDropState(
             onItemMove = { from, to ->
                 items = items.toMutableList().apply { move(from, to) }.toList()
                 Log.i("debuggg", "DragAndDropColumnV3Preview: $from $to")
             },
+            coroutineScope = coroutineScope,
             items = items
         ) }
         LaunchedEffect(items) {
