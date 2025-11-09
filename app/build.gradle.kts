@@ -18,13 +18,22 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,LOW-BATTERY"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
 
+    testBuildType = "benchmark"
+
     buildTypes {
+        register("benchmark") {
+            isDebuggable = false
+            matchingFallbacks += "release"
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -95,6 +104,7 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    implementation(libs.benchmark.junit)
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)
