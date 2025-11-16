@@ -16,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -55,7 +56,7 @@ class DragAndDropState<T>(
     var items by mutableStateOf(items)
         private set
 
-    var draggedItemIndex: Int? = null
+    var draggedItemIndex by mutableStateOf<Int?>(null)
     var targetIndex: Int? = null
     private var entries = MutableList(items.size) { DragEntry(0, 0, 0) }
 
@@ -66,7 +67,9 @@ class DragAndDropState<T>(
         for (i in offsets.size until items.size) {
             offsets.add(mutableFloatStateOf(0f))
         }
-        // todo add animatedOffsets resize
+        for (i in animatedOffsets.size until items.size) {
+            animatedOffsets.add(Animatable(0f))
+        }
         for (i in items.indices) {
             offsets[i].floatValue = 0f
         }
@@ -182,6 +185,18 @@ fun calculateOffsets(draggedItemIndex: Int, targetIndex: Int, entries: List<Drag
 data class DragEntry(
     val index: Int, val position: Int, val height: Int
 )
+
+@Composable
+fun <T> rememberDragAndDropState(items: List<T>, onItemMove: (Int, Int) -> Unit): DragAndDropState<T> {
+    val coroutineScope = rememberCoroutineScope()
+    val dragDispatcher = remember {
+        DragAndDropState(items, coroutineScope, onItemMove)
+    }
+    SideEffect {
+        dragDispatcher.setInternalItems(items)
+    }
+    return dragDispatcher
+}
 
 fun <T> Modifier.dragAndDropModifier(
     state: DragAndDropState<T>,

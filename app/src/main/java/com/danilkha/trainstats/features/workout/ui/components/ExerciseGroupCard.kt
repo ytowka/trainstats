@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -63,9 +64,12 @@ import com.danilkha.trainstats.features.workout.ui.SET_DELETE_DELAY
 import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.DragAndDropColumn
+import com.danilkha.uikit.components.DragAndDropState
 import com.danilkha.uikit.components.DragDispatcher
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.components.Icon
+import com.danilkha.uikit.components.dragAndDropModifier
+import com.danilkha.uikit.components.rememberDragAndDropState
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
 import com.danilkha.uikit.theme.TrainingStatsTheme
@@ -121,6 +125,8 @@ fun ExerciseGroupCard(
                 onClick = onExpandClick
             )
         }
+        val dragDispatcher = rememberDragAndDropState(sets, onSetMoved)
+
         AnimatedVisibility(visible = expanded) {
             Spacer(modifier = Modifier.size(10.dp))
             Card(
@@ -130,40 +136,39 @@ fun ExerciseGroupCard(
                 contentPadding = PaddingValues(vertical = 10.dp, horizontal = 5.dp),
                 backgroundColor = Colors.background
             ){
-                val dragDispatcher = remember { DragDispatcher() }
-                DragAndDropColumn(
-                    items = sets,
-                    onItemMoved = onSetMoved,
-                    dragDispatcher = dragDispatcher,
-                    keyProvider = { index, it -> it.tempId }
-                ) { index, item ->
-                    val updatedIndex by rememberUpdatedState(newValue = index)
-                    val asModel = item as? ExerciseSetSlot.ExerciseSetModel
-                    val isStub = item is ExerciseSetSlot.Stub
-                    ExerciseSet(
-                        reps = asModel?.reps ?: when(separated){
-                            true -> RepetitionsModel.Double(null, null)
-                            false -> RepetitionsModel.Single(null)
-                        },
-                        hasWeight = hasWeight,
-                        isStub = isStub,
-                        isOnlyStub = isStub && sets.size == 1,
-                        weight = asModel?.weight,
-                        deleted = asModel?.tempId in deleted,
-                        onWeightChange = { onWeightChange(index, it) },
-                        onRepsChange = { side, fl -> onRepsChange(index, side, fl) },
-                        onDelete = {
-                            if(isStub){
-                                onDeleteGroup()
-                            }else{
-                                onDelete(index)
-                            }
-                        },
-                        onReturnDeleted = { onReturnDeleted(index) },
-                        onDragStart = { dragDispatcher.onDragStart(updatedIndex) },
-                        onDragEnd = { dragDispatcher.onDragEnd() },
-                        onVerticalDrag = { dragDispatcher.onDrag(it) }
-                    )
+                Column {
+                    dragDispatcher.items.forEachIndexed { index, item ->
+                        key(item.tempId) {
+                            val asModel = item as? ExerciseSetSlot.ExerciseSetModel
+                            val isStub = item is ExerciseSetSlot.Stub
+                            val updatedIndex by rememberUpdatedState(index)
+                            ExerciseSet(
+                                modifier = Modifier.dragAndDropModifier(dragDispatcher, index),
+                                reps = asModel?.reps ?: when(separated){
+                                    true -> RepetitionsModel.Double(null, null)
+                                    false -> RepetitionsModel.Single(null)
+                                },
+                                hasWeight = hasWeight,
+                                isStub = isStub,
+                                isOnlyStub = isStub && sets.size == 1,
+                                weight = asModel?.weight,
+                                deleted = asModel?.tempId in deleted,
+                                onWeightChange = { onWeightChange(index, it) },
+                                onRepsChange = { side, fl -> onRepsChange(index, side, fl) },
+                                onDelete = {
+                                    if(isStub){
+                                        onDeleteGroup()
+                                    }else{
+                                        onDelete(index)
+                                    }
+                                },
+                                onReturnDeleted = { onReturnDeleted(index) },
+                                onDragStart = { dragDispatcher.onDragStart(updatedIndex) },
+                                onDragEnd = { dragDispatcher.onDragEnd() },
+                                onVerticalDrag = { dragDispatcher.onDrag(it) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -201,6 +206,7 @@ private val REPS_FIELD_WIDTH = 50.dp
 
 @Composable
 fun ExerciseSet(
+    modifier: Modifier = Modifier,
     reps: RepetitionsModel,
     hasWeight: Boolean,
     weight: Kg?,
@@ -237,7 +243,7 @@ fun ExerciseSet(
     )
     
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = backgroundColor.value,
                 shape = RoundedCornerShape(10.dp)

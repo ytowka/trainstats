@@ -22,10 +22,13 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -48,10 +51,13 @@ import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.DateSelector
 import com.danilkha.uikit.components.DragAndDropColumn
+import com.danilkha.uikit.components.DragAndDropState
 import com.danilkha.uikit.components.DragDispatcher
 import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.Icon
 import com.danilkha.uikit.components.TextToolbar
+import com.danilkha.uikit.components.dragAndDropModifier
+import com.danilkha.uikit.components.rememberDragAndDropState
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
 
@@ -172,55 +178,57 @@ fun WorkoutScreen(
                 color = Colors.primary
             )
 
-            val dragDispatcher = remember { DragDispatcher() }
+            val dragDispatcher = rememberDragAndDropState(state.groups) { from, to ->
+                eventConsumer(WorkoutEvent.OnGroupMove(from, to))
+            }
 
-            DragAndDropColumn(
-                items = state.groups,
-                onItemMoved = { from, to ->
-                    eventConsumer(WorkoutEvent.OnGroupMove(from, to))
-                },
-                dragDispatcher = dragDispatcher,
-                keyProvider = { index, it -> it.groupTempId }
-            ) { groupIndex, item ->
-                val groupIndexUpdated by rememberUpdatedState(newValue = groupIndex)
-                Box(modifier = Modifier.padding(vertical = 5.dp)) {
-                    ExerciseGroupCard(
-                        title = item.name,
-                        expanded = item.groupTempId !in state.collapsedGroupIds,
-                        sets = item.sets,
-                        deleted = state.pendingDelete,
-                        onWeightChange = { index, value ->
-                            eventConsumer(
-                                WorkoutEvent.EditWeight(
-                                    groupIndex,
-                                    index,
-                                    value
-                                )
-                            )
-                        },
-                        onRepsChange = { index, side, value ->
-                            eventConsumer(
-                                WorkoutEvent.EditReps(
-                                    groupIndex,
-                                    index,
-                                    side,
-                                    value
-                                )
-                            )
-                        },
-                        onDelete = { eventConsumer(WorkoutEvent.DeleteSet(groupIndex, it)) },
-                        onReturnDeleted = { eventConsumer(WorkoutEvent.ReturnDeletedSet(groupIndex, it)) },
-                        onSetMoved = { from, to -> eventConsumer(WorkoutEvent.OnSetMove(groupIndex, from, to)) },
-                        onExpandClick = { eventConsumer(WorkoutEvent.ToggleGroup(groupIndex)) },
-                        separated = item.separated,
-                        hasWeight = item.hasWeight,
+            Column {
+                dragDispatcher.items.forEachIndexed { groupIndex, item ->
+                    key(item.groupTempId) {
+                        Box(
+                            modifier = Modifier
+                                .dragAndDropModifier(dragDispatcher, groupIndex)
+                                .padding(vertical = 5.dp)
+                        ) {
+                            ExerciseGroupCard(
+                                title = item.name,
+                                expanded = item.groupTempId !in state.collapsedGroupIds,
+                                sets = item.sets,
+                                deleted = state.pendingDelete,
+                                onWeightChange = { index, value ->
+                                    eventConsumer(
+                                        WorkoutEvent.EditWeight(
+                                            groupIndex,
+                                            index,
+                                            value
+                                        )
+                                    )
+                                },
+                                onRepsChange = { index, side, value ->
+                                    eventConsumer(
+                                        WorkoutEvent.EditReps(
+                                            groupIndex,
+                                            index,
+                                            side,
+                                            value
+                                        )
+                                    )
+                                },
+                                onDelete = { eventConsumer(WorkoutEvent.DeleteSet(groupIndex, it)) },
+                                onReturnDeleted = { eventConsumer(WorkoutEvent.ReturnDeletedSet(groupIndex, it)) },
+                                onSetMoved = { from, to -> eventConsumer(WorkoutEvent.OnSetMove(groupIndex, from, to)) },
+                                onExpandClick = { eventConsumer(WorkoutEvent.ToggleGroup(groupIndex)) },
+                                separated = item.separated,
+                                hasWeight = item.hasWeight,
 
-                        onDragStart = { dragDispatcher.onDragStart(groupIndexUpdated) },
-                        onDragEnd = dragDispatcher::onDragEnd,
-                        onVerticalDrag = dragDispatcher::onDrag,
-                        onDeleteGroup = { eventConsumer(WorkoutEvent.DeleteGroup(groupIndex)) },
-                        onHistoryClick = { onHistoryClick(item.exerciseId) }
-                    )
+                                onDragStart = { dragDispatcher.onDragStart(groupIndex) },
+                                onDragEnd = dragDispatcher::onDragEnd,
+                                onVerticalDrag = dragDispatcher::onDrag,
+                                onDeleteGroup = { eventConsumer(WorkoutEvent.DeleteGroup(groupIndex)) },
+                                onHistoryClick = { onHistoryClick(item.exerciseId) }
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.size(10.dp))

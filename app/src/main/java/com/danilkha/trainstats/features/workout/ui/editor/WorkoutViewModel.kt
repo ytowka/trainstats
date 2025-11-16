@@ -299,7 +299,10 @@ class WorkoutViewModel @Inject constructor(
             copy(
                 groups = groups.replace(
                     groupIndex, group.copy(
-                        sets = group.sets.toMutableList().apply { move(from, to) }.toList()
+                        sets = group.sets
+                            .toMutableList()
+                            .apply { move(from, to) }
+                            .toList()
                     )
                 )
             )
