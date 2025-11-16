@@ -1,57 +1,53 @@
 package com.danilkha.trainstats.features.settings.workoutimport.ui
 
-import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.BaseViewModel
+import com.danilkha.trainstats.core.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.settings.workoutimport.domain.ImportWorkoutsUseCase
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ImportViewModel @Inject constructor(
     private val importWorkoutsUseCase: ImportWorkoutsUseCase
-) : BaseViewModel<ProfileState, ProfileSingleEvent>(){
-    override val startState: ProfileState = ProfileState()
+) : MviViewModel<ImportState, ImportEvent, ImportSideEffect>(){
+    override val startState: ImportState = ImportState()
 
-    fun onExportTextChange(text: String){
-        update {
-            it.copy(exportText = text)
+
+    override fun reduce(
+        state: ImportState,
+        event: ImportEvent
+    ): ImportState {
+        return when(event) {
+            is ImportEvent.ChangeImportText -> state.copy(exportText = event.text)
+            is ImportEvent.ImportFromFile -> state.copy(isLoading = true)
+            ImportEvent.ImportFromText -> state.copy(isLoading = true)
+            is ImportEvent.ImportComplete -> state.copy(
+                isLoading = false,
+                exportText = if(event.success) "" else state.exportText
+            )
         }
     }
 
-
-    fun onExportClicked(){
-        update {
-            it.copy(isLoading = true)
+    override suspend fun afterReduce(
+        newState: ImportState,
+        event: ImportEvent
+    ) {
+        when(event) {
+            is ImportEvent.ImportFromFile -> event.uri?.let { uri ->
+                export(ImportWorkoutsUseCase.Params.File(uri))
+            }
+            ImportEvent.ImportFromText -> export(ImportWorkoutsUseCase.Params.Text(newState.exportText))
+            else -> {}
         }
-        viewModelScope.launch {
-            importWorkoutsUseCase(ImportWorkoutsUseCase.Params(_state.value.exportText)).onSuccess { result ->
-                when(result){
-                    is ImportWorkoutsUseCase.Result.Error -> {
-                        showSideEffect(ProfileSingleEvent.Error)
-                        update { state ->
-                           /* var startIndex = 0
-                            var endIndex = 0
+    }
 
-                            var currentLine = 0
-                            while (currentLine <= result.invalidLine){
-                                startIndex = endIndex
-                                endIndex = state.exportText.indexOf('\n', startIndex + 1)
-                                currentLine++
-                            }*/
-                            state.copy(
-                                //errorLine = TextRange(startIndex, endIndex),
-                                isLoading = false
-                            )
-                        }
-                    }
-                    is ImportWorkoutsUseCase.Result.Success ->{
-                        showSideEffect(ProfileSingleEvent.ImportSuccess(result.exercises, result.workouts))
-                        update {
-                            it.copy(
-                                exportText = "",
-                                isLoading = false
-                            )
-                        }
-                    }
+    private suspend fun export(params: ImportWorkoutsUseCase.Params){
+        importWorkoutsUseCase(params).onSuccess { result ->
+            when(result){
+                is ImportWorkoutsUseCase.Result.Error -> {
+                    showSideEffect(ImportSideEffect.Error)
+                    processEvent(ImportEvent.ImportComplete(false))
+                }
+                is ImportWorkoutsUseCase.Result.Success ->{
+                    showSideEffect(ImportSideEffect.ImportSuccess(result.exercises, result.workouts))
+                    processEvent(ImportEvent.ImportComplete(true))
                 }
             }
         }

@@ -1,11 +1,17 @@
 package com.danilkha.trainstats.features.settings.workoutimport.ui
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
@@ -13,9 +19,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,34 +31,44 @@ import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
-import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.components.TextToolbar
 import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.ThemeTypography
 
 @Composable
-fun ImportScreen(
+fun ImportScreenRoute(
     viewModel: ImportViewModel = getCurrentViewModel { it.profileViewModel },
     onBack: () -> Unit,
 ){
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    viewModel.LaunchCollectEffects{ event ->
+    viewModel.LaunchCollectEffects { event ->
         when(event){
-            is ProfileSingleEvent.ImportSuccess -> {
+            is ImportSideEffect.ImportSuccess -> {
                 Toast.makeText(context, "import ok exercises: ${event.exercises}, workouts: ${event.workouts}", Toast.LENGTH_SHORT).show()
             }
 
-            ProfileSingleEvent.Error -> {
+            ImportSideEffect.Error -> {
                 Toast.makeText(context, "error parsing", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    ImportScreen(
+        state = state,
+        eventConsumer = viewModel::processEvent,
+        onBack = onBack
+    )
+}
 
+@Composable
+fun ImportScreen(
+    state: ImportState,
+    eventConsumer: (ImportEvent) -> Unit,
+    onBack: () -> Unit,
+) {
     val errorColor = Colors.error
 
     Column(
@@ -66,7 +79,6 @@ fun ImportScreen(
             onBack = onBack,
         )
 
-        var textHeight by remember { mutableIntStateOf(0) }
         val textScrollState = rememberScrollState()
 
         GenericTextFiled(
@@ -76,10 +88,7 @@ fun ImportScreen(
                 .fillMaxWidth()
                 .weight(1f),
             value = state.exportText,
-            onValueChange = viewModel::onExportTextChange,
-            onTextLayout = {
-                textHeight = it.size.height
-            },
+            onValueChange = { eventConsumer(ImportEvent.ChangeImportText(it)) },
             visualTransformation = {
                 TransformedText(
                     text = AnnotatedString(
@@ -106,14 +115,43 @@ fun ImportScreen(
             if(state.isLoading){
                 CircularProgressIndicator()
             }else{
-                GenericButton(
-                    onClick = viewModel::onExportClicked
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.to_import)
-                    )
+                    GenericButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = { eventConsumer(ImportEvent.ImportFromText) }
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.to_import)
+                        )
+                    }
+                    Spacer(Modifier.size(12.dp))
+                    FilePickerButton { eventConsumer(ImportEvent.ImportFromFile(it)) }
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun RowScope.FilePickerButton(
+    onFilePicked: (Uri?) -> Unit
+) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            onFilePicked(uri)
+        }
+    )
+
+    GenericButton(
+        modifier = Modifier.weight(1f),
+        onClick = { launcher.launch(arrayOf("text/plain")) }
+    ) {
+        Text(
+            text = stringResource(id = R.string.from_file)
+        )
     }
 }

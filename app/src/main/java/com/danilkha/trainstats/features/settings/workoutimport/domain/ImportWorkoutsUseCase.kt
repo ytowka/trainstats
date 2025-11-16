@@ -1,9 +1,11 @@
 package com.danilkha.trainstats.features.settings.workoutimport.domain
 
+import android.net.Uri
 import android.util.Log
 import com.danilkha.trainstats.core.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
+import com.danilkha.trainstats.features.settings.workoutimport.data.FileReader
 import com.danilkha.trainstats.features.settings.workoutimport.data.ParserException
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
@@ -14,12 +16,18 @@ import javax.inject.Inject
 class ImportWorkoutsUseCase @Inject constructor(
     private val workoutParser: WorkoutParser,
     private val workoutRepository: WorkoutRepository,
-    private val exerciseRepository: ExerciseRepository
+    private val exerciseRepository: ExerciseRepository,
+    private val fileReader: FileReader,
 ): UseCase<ImportWorkoutsUseCase.Params, ImportWorkoutsUseCase.Result>(){
 
     override suspend fun execute(params: Params): Result {
+        val textToParse = when(params) {
+            is Params.File -> fileReader.readFile(params.uri)
+            is Params.Text -> params.text
+        }
+
         val (exercises, workouts) = try{
-            workoutParser.parse(params.text)
+            workoutParser.parse(textToParse)
         }catch (e: ParserException){
             Log.d("debugg", "execute() called with: params = ${e.invalidLineIndex}")
             return Result.Error(e.invalidLineIndex)
@@ -79,7 +87,12 @@ class ImportWorkoutsUseCase @Inject constructor(
         return Result.Success(newExercises.size, workouts.size)
     }
 
-    class Params(val text: String)
+    sealed interface Params {
+
+        class Text(val text: String) : Params
+
+        class File(val uri: Uri) : Params
+    }
     sealed interface Result{
         class Success(val exercises: Int, val workouts: Int): Result
         class Error(val invalidLine: Int): Result
