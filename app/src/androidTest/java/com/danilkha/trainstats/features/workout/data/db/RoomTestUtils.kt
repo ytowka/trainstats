@@ -7,25 +7,25 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
 import java.io.InputStreamReader
 
-suspend fun createPrepopulatedDb(context: Context): TrainStatsDb{
+fun createTestDb(context: Context): TrainStatsDb {
     val db = Room.inMemoryDatabaseBuilder(context, TrainStatsDb::class.java)
         .allowMainThreadQueries()
         .build()
 
-    val assets = InstrumentationRegistry.getInstrumentation().context.assets;
+    return db
+}
 
-    println( assets.list("")?.joinToString())
+suspend fun TrainStatsDb.populateDb() {
+    val assets = InstrumentationRegistry.getInstrumentation().context.assets;
 
     val path = "trainstatsDb.sql"
     val inputStream = assets.open(path)
 
     val reader = InputStreamReader(inputStream)
 
-    db.withTransaction {
+    withTransaction {
         reader.readLines().forEach {
-            db.openHelper.writableDatabase.execSQL(it)
+            openHelper.writableDatabase.execSQL(it)
         }
     }
-
-    return db
 }

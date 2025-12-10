@@ -11,13 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,8 +41,10 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.format
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
@@ -236,21 +236,24 @@ private fun WorkoutCard(
             .fillMaxWidth(),
         onClick = onClick,
         contentPadding = PaddingValues(
-            horizontal = 16.dp,
+            horizontal = 10.dp,
             vertical = 10.dp
         )
     ) {
         Text(
+            modifier = Modifier.padding(horizontal = 6.dp),
             text = workout.date.date.format(),
             style = ThemeTypography.subtitle.copy(
-                color = Colors.primary
+                color = Colors.primary,
+                fontSize = 20.sp
             )
         )
         Spacer(modifier = Modifier.size(10.dp))
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+
         ) {
             workout.exercises.forEach {
                 ExerciseChip(it)
@@ -269,9 +272,11 @@ fun ExerciseChip(
                 color = Colors.secondary,
                 shape = RoundedCornerShape(50)
             )
-            .padding(vertical = 5.dp, horizontal = 16.dp),
+            .padding(vertical = 5.dp, horizontal = 12.dp),
         text = label,
-        color = Colors.textInverse
+        color = Colors.textInverse,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold
     )
 }
 

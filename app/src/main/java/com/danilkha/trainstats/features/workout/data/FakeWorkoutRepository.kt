@@ -34,7 +34,7 @@ class FakeWorkoutRepository @Inject constructor(
 
     private val workouts = MutableStateFlow(mapOf<Long, Workout>())
 
-    init {
+    fun prepopulate() {
         val id = idSequence
         val exerciseData1 = runBlocking{ fakeExerciseRepository.getAllExercises().firstOrNull() }
         val steps = exerciseData1?.let {

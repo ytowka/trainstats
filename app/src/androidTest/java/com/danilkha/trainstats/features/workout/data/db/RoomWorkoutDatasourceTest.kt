@@ -3,8 +3,6 @@ package com.danilkha.trainstats.features.workout.data.db
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.danilkha.trainstats.core.utils.format
-import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -19,7 +17,8 @@ class RoomWorkoutDatasourceTest {
     fun setup() = runTest{
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val db = createPrepopulatedDb(context)
+        val db = createTestDb(context)
+        db.populateDb()
 
         roomWorkoutDatasource = RoomWorkoutDatasource(db.workoutDao())
     }

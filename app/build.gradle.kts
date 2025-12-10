@@ -65,6 +65,14 @@ android {
             it.useJUnitPlatform()
         }
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            merges += "META-INF/LICENSE.md"
+            merges += "META-INF/LICENSE-notice.md"
+        }
+    }
 }
 
 dependencies {
@@ -99,6 +107,9 @@ dependencies {
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)
     testImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.kotest.assert)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))

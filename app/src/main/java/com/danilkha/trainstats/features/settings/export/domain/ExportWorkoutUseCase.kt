@@ -1,12 +1,9 @@
 package com.danilkha.trainstats.features.settings.export.domain
 
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.os.Build
-import android.provider.MediaStore
 import com.danilkha.trainstats.core.usecase.SimpleUseCase
 import com.danilkha.trainstats.core.utils.format1
 import com.danilkha.trainstats.core.utils.format2
+import com.danilkha.trainstats.features.settings.export.data.FileWriter
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import kotlinx.coroutines.Dispatchers
@@ -18,14 +15,10 @@ import javax.inject.Inject
 
 class ExportWorkoutUseCase @Inject constructor(
     private val workoutRepository: WorkoutRepository,
-    private val contentResolver: ContentResolver,
+    private val fileWriter: FileWriter,
 ) : SimpleUseCase<String>() {
 
     override suspend fun execute(): String {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            throw Exception("supports only android 10 and above")
-        }
-
         val nameFormatter = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
         val fileName = "workout_export_${nameFormatter.format(Date())}.txt"
 
@@ -61,24 +54,7 @@ class ExportWorkoutUseCase @Inject constructor(
                 }
             }
 
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                put(MediaStore.Downloads.MIME_TYPE, "text/plain")
-                put(MediaStore.Downloads.IS_PENDING, 1)
-            }
-
-            val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-            val itemUri = contentResolver.insert(collection, contentValues)
-
-            itemUri?.let { uri ->
-                contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    outputStream.write(content.toByteArray())
-                }
-
-                contentValues.clear()
-                contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
-                contentResolver.update(uri, contentValues, null, null)
-            }
+            fileWriter.writeFile(fileName, content)
         }
 
         return fileName

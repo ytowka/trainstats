@@ -3,7 +3,6 @@ package com.danilkha.trainstats.features.workout.data.db
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -26,7 +25,8 @@ class WorkoutDaoTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         try {
-            db = createPrepopulatedDb(context)
+            db = createTestDb(context)
+            db.populateDb()
 
             workoutDao = db.workoutDao()
         }catch (e: Exception){

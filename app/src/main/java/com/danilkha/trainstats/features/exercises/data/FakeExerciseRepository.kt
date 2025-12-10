@@ -10,15 +10,17 @@ class FakeExerciseRepository @Inject constructor(): ExerciseRepository{
 
     var idSequence = 1L
 
-    private val exercises = mutableListOf(
-        ExerciseData(
+    private val exercises = mutableListOf<ExerciseData>()
+
+    fun prepopulate() {
+        exercises.add(ExerciseData(
             id = 1,
             name = "жим лежа",
             imageUrl = null,
             separated = false,
             hasWeight = true
-        )
-    )
+        ))
+    }
 
     override suspend fun getAllExercises(): List<ExerciseData> {
        return exercises
