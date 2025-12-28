@@ -9,6 +9,7 @@ import com.danilkha.trainstats.features.workout.domain.usecase.CommitWorkoutSave
 import com.danilkha.trainstats.features.workout.domain.usecase.GetWorkoutByIdUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
+import com.danilkha.trainstats.features.workout.domain.model.kg
 import com.danilkha.trainstats.features.workout.domain.usecase.GetExerciseHistoryUseCase
 import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
@@ -198,7 +199,7 @@ class WorkoutViewModel @Inject constructor(
         )
     }
 
-    private fun WorkoutState.reduceEditWeight(groupIndex: Int, setIndex: Int, kg: Float): WorkoutState {
+    private fun WorkoutState.reduceEditWeight(groupIndex: Int, setIndex: Int, kg: Float?): WorkoutState {
         val group = groups[groupIndex]
         val set = group.sets[setIndex]
 
@@ -208,7 +209,7 @@ class WorkoutViewModel @Inject constructor(
                     groupIndex,
                     group.sets.replace(
                         setIndex, set.copy(
-                            weight = Kg(kg)
+                            weight = kg?.kg
                         )
                     ),
                 )
@@ -220,7 +221,7 @@ class WorkoutViewModel @Inject constructor(
                         true -> RepetitionsModel.Double(null, null)
                         false -> RepetitionsModel.Single(null)
                     },
-                    weight = Kg(kg)
+                    weight = kg?.kg
                 )
                 val newSets = group.sets.toMutableList()
                     .apply {
@@ -235,7 +236,7 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 
-    private fun WorkoutState.reduceEditReps(groupIndex: Int, setIndex: Int, side: Side?, reps: Float): WorkoutState {
+    private fun WorkoutState.reduceEditReps(groupIndex: Int, setIndex: Int, side: Side?, reps: Float?): WorkoutState {
         val group = groups[groupIndex]
         val set = group.sets[setIndex]
 

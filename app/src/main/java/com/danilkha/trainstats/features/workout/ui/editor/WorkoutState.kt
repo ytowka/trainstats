@@ -22,7 +22,7 @@ data class WorkoutState(
     val initialization: WorkoutEditorInitialization? = null,
 ){
 
-    fun mapToParams() =  WorkoutParams(
+    fun mapToParams() = WorkoutParams(
         id = initialWorkout?.id,
         date = date,
         steps = groups.flatMap { group ->
@@ -57,14 +57,14 @@ sealed interface WorkoutEvent {
     data class EditWeight(
         val groupIndex: Int,
         val setIndex: Int,
-        val kg: Float
+        val kg: Float?
     ) : WorkoutEvent
 
     data class EditReps(
         val groupIndex: Int,
         val setIndex: Int,
         val side: Side?,
-        val reps: Float
+        val reps: Float?
     ) : WorkoutEvent
 
     data class OnSetMove(

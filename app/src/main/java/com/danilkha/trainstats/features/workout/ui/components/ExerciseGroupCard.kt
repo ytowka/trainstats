@@ -80,8 +80,8 @@ fun ExerciseGroupCard(
     separated: Boolean,
     hasWeight: Boolean,
 
-    onWeightChange: (index: Int, Float) -> Unit,
-    onRepsChange: (index: Int, Side?, value: Float) -> Unit,
+    onWeightChange: (index: Int, Float?) -> Unit,
+    onRepsChange: (index: Int, Side?, value: Float?) -> Unit,
     onDelete: (index: Int) -> Unit,
     onReturnDeleted: (index: Int) -> Unit,
     onSetMoved: (from: Int, to: Int) -> Unit,
@@ -207,8 +207,8 @@ fun ExerciseSet(
     deleted: Boolean,
     isStub: Boolean,
     isOnlyStub: Boolean,
-    onWeightChange: (Float) -> Unit,
-    onRepsChange: (Side?, Float) -> Unit,
+    onWeightChange: (Float?) -> Unit,
+    onRepsChange: (Side?, Float?) -> Unit,
     onDelete: () -> Unit,
     onReturnDeleted: () -> Unit,
     onDragStart: () -> Unit = { },
@@ -276,7 +276,7 @@ fun ExerciseSet(
                                 .trimDots()
                                 .floatPrecision(2)
                             val value = weightText.toFloatOrNull()
-                            value?.let(onWeightChange)
+                            onWeightChange(value)
                         }
                     }
                 )
@@ -308,7 +308,7 @@ fun ExerciseSet(
                                     .trimDots()
                                     .floatPrecision(2)
                                 val value = repsTextL.toFloatOrNull()
-                                value?.let{ onRepsChange(Side.Left, value) }
+                                onRepsChange(Side.Left, value)
                             }
                         }
                     )
@@ -329,7 +329,7 @@ fun ExerciseSet(
                                     .trimDots()
                                     .floatPrecision(2)
                                 val value = repsTextR.toFloatOrNull()
-                                value?.let{ onRepsChange(Side.Right, value) }
+                                onRepsChange(Side.Right, value)
                             }
                         }
                     )
@@ -353,7 +353,7 @@ fun ExerciseSet(
                                     .trimDots()
                                     .floatPrecision(2)
                                 val value = repsText.toFloatOrNull()
-                                value?.let{ onRepsChange(null, value) }
+                                onRepsChange(null, value)
                             }
                         }
                     )
@@ -417,8 +417,8 @@ private fun ExerciseSetPreview(){
                 hasWeight = true,
                 sets = sets,
                 deleted = emptySet(),
-                onWeightChange = { i: Int, fl: Float -> },
-                onRepsChange = { i: Int, side: Side?, fl: Float -> },
+                onWeightChange = { i: Int, fl: Float? -> },
+                onRepsChange = { i: Int, side: Side?, fl: Float? -> },
                 onDelete = {},
                 onReturnDeleted = {},
                 onExpandClick = {},
@@ -436,8 +436,8 @@ private fun ExerciseSetPreview(){
                 hasWeight = true,
                 sets = emptyList(),
                 deleted = emptySet(),
-                onWeightChange = { i: Int, fl: Float -> },
-                onRepsChange = { i: Int, side: Side?, fl: Float -> },
+                onWeightChange = { i: Int, fl: Float? -> },
+                onRepsChange = { i: Int, side: Side?, fl: Float? -> },
                 onDelete = {},
                 onReturnDeleted = {},
                 onExpandClick = {},
@@ -468,8 +468,8 @@ private fun ExerciseSetPreview(){
                 separated = true,
                 sets = sets2,
                 deleted = emptySet(),
-                onWeightChange = { i: Int, fl: Float -> },
-                onRepsChange = { i: Int, side: Side?, fl: Float -> },
+                onWeightChange = { i: Int, fl: Float? -> },
+                onRepsChange = { i: Int, side: Side?, fl: Float? -> },
                 onDelete = {},
                 onReturnDeleted = {},
                 onExpandClick = {},
