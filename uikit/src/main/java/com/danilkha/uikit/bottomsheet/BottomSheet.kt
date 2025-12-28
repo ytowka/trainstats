@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 @Composable
 internal fun BottomSheet(
     closeThreshold: Float = 1 / 3f,
-    velocityThreshold: Dp = 10000.dp, // SwipeableDefaults.VelocityThreshold
+    velocityThreshold: Dp = 100000.dp, // SwipeableDefaults.VelocityThreshold
     content: @Composable () -> Unit,
     onHide: () -> Boolean,
     expanded: Boolean = true,

@@ -39,6 +39,7 @@ import com.danilkha.trainstats.core.utils.format
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
+import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
 import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheet
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
@@ -69,7 +70,10 @@ fun WorkoutScreenRoute(
 
     val exerciseSelectorViewModel = getCurrentViewModel { it.exerciseListViewModel }
     val exerciseSelector = rememberBottomSheetController(
-        bottomSheetClass = ExerciseSelectorBottomSheet::class.java
+        bottomSheetClass = ExerciseSelectorBottomSheet::class.java,
+        onDismiss = {
+            exerciseSelectorViewModel.processEvent(ExerciseListEvent.OnSelectorClosed)
+        }
     )
 
     viewModel.LaunchCollectEffects { event ->

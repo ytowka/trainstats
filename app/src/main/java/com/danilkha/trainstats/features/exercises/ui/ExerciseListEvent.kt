@@ -6,4 +6,5 @@ sealed interface ExerciseListEvent {
     data class ChangeSearchQuery(val text: String) : ExerciseListEvent
     data object UpdateList : ExerciseListEvent
     data class OnExerciseClicked(val exerciseModel: ExerciseModel): ExerciseListEvent
+    data object OnSelectorClosed : ExerciseListEvent
 }

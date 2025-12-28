@@ -34,7 +34,7 @@ class ExerciseListViewModel @Inject constructor(
         return when(event) {
             is ExerciseListEvent.ChangeSearchQuery -> state.copy(searchQuery = event.text)
             is ExerciseListEvent.UpdateExerciseList -> state.copy(exerciseList = event.exercises)
-            is ExerciseListEvent.OnExerciseClicked -> state.copy(searchQuery = "")
+            is ExerciseListEvent.OnSelectorClosed -> state.copy(searchQuery = "")
             else -> state
         }
     }
