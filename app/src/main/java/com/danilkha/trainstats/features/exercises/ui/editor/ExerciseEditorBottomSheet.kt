@@ -33,6 +33,7 @@ import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
+import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.uikit.theme.LocalDesignColors
 import com.danilkha.uikit.theme.PreviewContent
 import com.danilkha.uikit.theme.ThemeTypography
@@ -61,7 +62,7 @@ class ExerciseEditorBottomSheet : ComposeContextBottomDialog(){
         viewModel.collectSingleEvents {
             when(it){
                 ExerciseEditorSingleEvent.Saved -> {
-                    listViewModel.updateList()
+                    listViewModel.processEvent(ExerciseListEvent.UpdateList)
                     dismiss()
                 }
             }

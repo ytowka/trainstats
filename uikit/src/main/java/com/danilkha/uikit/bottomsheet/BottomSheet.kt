@@ -22,13 +22,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 internal fun BottomSheet(
-    closeThreshold: Float = 1 / 4f,
-    velocityThreshold: Dp = SwipeableDefaults.VelocityThreshold,
+    closeThreshold: Float = 1 / 3f,
+    velocityThreshold: Dp = 10000.dp, // SwipeableDefaults.VelocityThreshold
     content: @Composable () -> Unit,
     onHide: () -> Boolean,
     expanded: Boolean = true,

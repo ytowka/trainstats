@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.danilkha.uikit.theme.PreviewContent
 import com.danilkha.uikit.theme.TrainingStatsTheme
 
 private class ExerciseListScreenPreviewProvider : PreviewParameterProvider<ExerciseListState> {
@@ -27,7 +28,7 @@ private class ExerciseListScreenPreviewProvider : PreviewParameterProvider<Exerc
 @Composable
 @Preview
 private fun ExerciseListScreenPreview(@PreviewParameter(ExerciseListScreenPreviewProvider::class) state: ExerciseListState){
-    TrainingStatsTheme {
+    PreviewContent {
         ExerciseListScreen(
             state = state,
             onAddClicked = {  },

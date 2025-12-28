@@ -22,9 +22,7 @@ class RoomExerciseDatasource @Inject constructor(
     }
 
     override suspend fun findExercise(query: String): List<ExerciseData> {
-        return exerciseDao.findExercise(query).map {
-            it.toDomain()
-        }
+        return exerciseDao.getAllExercises(query).map(ExerciseEntity::toDomain)
     }
 
     override suspend fun createExercise(exerciseData: ExerciseData): Long {

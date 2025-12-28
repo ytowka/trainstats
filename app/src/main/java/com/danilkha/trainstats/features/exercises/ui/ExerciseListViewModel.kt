@@ -1,25 +1,19 @@
 package com.danilkha.trainstats.features.exercises.ui
 
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.BaseViewModel
+import com.danilkha.trainstats.core.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import com.danilkha.trainstats.features.exercises.domain.usecase.FindExercisesUseCase
 import com.danilkha.trainstats.features.exercises.domain.usecase.GetAllExercisesUseCase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ExerciseListViewModel @Inject constructor(
     private val getAllExercisesUseCase: GetAllExercisesUseCase,
-    private val findExercisesUseCase: FindExercisesUseCase,
-): BaseViewModel<ExerciseListState, ExerciseListSideEffect>(){
+): MviViewModel<ExerciseListState, ExerciseListEvent, ExerciseListSideEffect>(){
     override val startState: ExerciseListState = ExerciseListState()
-
-
 
     init {
         viewModelScope.launch {
@@ -32,33 +26,31 @@ class ExerciseListViewModel @Inject constructor(
         }
     }
 
+
+    override fun reduce(
+        state: ExerciseListState,
+        event: ExerciseListEvent
+    ): ExerciseListState {
+        return when(event) {
+            is ExerciseListEvent.ChangeSearchQuery -> state.copy(searchQuery = event.text)
+            is ExerciseListEvent.UpdateExerciseList -> state.copy(exerciseList = event.exercises)
+            is ExerciseListEvent.OnExerciseClicked -> state.copy(searchQuery = "")
+            else -> state
+        }
+    }
+
+    override suspend fun beforeReduce(prevState: ExerciseListState, event: ExerciseListEvent) {
+        when(event) {
+            ExerciseListEvent.UpdateList -> updateList(prevState.searchQuery)
+            is ExerciseListEvent.OnExerciseClicked -> {
+                showSideEffect(ExerciseListSideEffect.ExerciseClicked(event.exerciseModel))
+            }
+            else -> {}
+        }
+    }
+
     private suspend fun updateList(query: String){
-        if(query.isBlank()){
-            val exercises = getAllExercisesUseCase().getOrNull() ?: return
-            _state.update {
-                it.copy(exerciseList = exercises.map(ExerciseData::toModel))
-            }
-        }else{
-            val exercises = findExercisesUseCase(query).getOrNull() ?: return
-            _state.update {
-                it.copy(exerciseList = exercises.map(ExerciseData::toModel))
-            }
-        }
-    }
-
-    fun updateList(){
-        viewModelScope.launch {
-            updateList(state.value.searchQuery)
-        }
-    }
-
-    fun queryUpdated(text: String){
-        _state.update {
-            it.copy(searchQuery = text)
-        }
-    }
-
-    fun onExerciseClicked(exerciseModel: ExerciseModel){
-        showSideEffect(ExerciseListSideEffect.ExerciseClicked(exerciseModel))
+        val exercises = getAllExercisesUseCase(query).getOrNull() ?: return
+        processEvent(ExerciseListEvent.UpdateExerciseList(exercises.map(ExerciseData::toModel)))
     }
 }

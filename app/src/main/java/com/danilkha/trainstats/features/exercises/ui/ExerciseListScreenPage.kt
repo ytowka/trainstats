@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -60,7 +62,7 @@ fun ExerciseListScreenPage(
         onExerciseClicked = {
             exerciseEditor.show(ExerciseEditorBottomSheet.buildArgs(it.id))
         },
-        onQueryChange = viewModel::queryUpdated
+        onQueryChange = { viewModel.processEvent(ExerciseListEvent.ChangeSearchQuery(it)) }
     )
 }
 
@@ -92,8 +94,14 @@ fun ExerciseList(
     items: List<ExerciseModel>,
     onClick: (ExerciseModel) -> Unit
 ){
+    val state = rememberLazyListState()
+    LaunchedEffect(items.size) {
+        state.scrollToItem(0)
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
+        state = state,
         contentPadding = PaddingValues(
             start = 10.dp,
             end = 10.dp,

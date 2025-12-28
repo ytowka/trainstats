@@ -19,11 +19,16 @@ order by stats.inWorkouts desc
         """)
     suspend fun getAllExercises(): List<ExerciseEntity>
 
+    @Query("""
+select * from ExerciseEntity as e
+left join ExerciseCountView as stats on stats.exerciseId = e.id 
+where name like '%' || :query || '%' and archived = 0
+order by stats.inWorkouts desc
+        """)
+    suspend fun getAllExercises(query: String): List<ExerciseEntity>
+
     @Query("select * from ExerciseEntity where id = :id")
     suspend fun getExercise(id: Long): ExerciseEntity
-
-    @Query("select * from ExerciseEntity where name like '%' || :query || '%' and archived = 0")
-    suspend fun findExercise(query: String): List<ExerciseEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun createExercise(exercise: ExerciseEntity): Long

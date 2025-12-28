@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseList
+import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseSearchBar
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
@@ -49,7 +50,7 @@ class ExerciseSelectorBottomSheet : ComposeContextBottomDialog() {
                 ) {
                 ExerciseSearchBar(
                     query = state.searchQuery,
-                    onQueryChange = viewModel::queryUpdated,
+                    onQueryChange = { viewModel.processEvent(ExerciseListEvent.ChangeSearchQuery(it)) },
                     focusRequester = focusRequester,
                     onAddClicked = {
                         exerciseEditor.show()
@@ -57,7 +58,7 @@ class ExerciseSelectorBottomSheet : ComposeContextBottomDialog() {
                 )
                 ExerciseList(
                     items = state.exerciseList,
-                    onClick =  viewModel::onExerciseClicked,
+                    onClick = { viewModel.processEvent(ExerciseListEvent.OnExerciseClicked(it)) },
                 )
             }
         }
