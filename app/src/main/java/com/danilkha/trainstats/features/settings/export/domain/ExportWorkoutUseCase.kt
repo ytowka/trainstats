@@ -35,7 +35,7 @@ class ExportWorkoutUseCase @Inject constructor(
                             appendLine(currentExerciseName)
                         }
                         if(step.weight != null) {
-                            append(step.weight.value.format2())
+                            append(step.weight.value.format2().replace(".", ","))
                             append("кг x ")
                         }
                         when(step.reps) {
