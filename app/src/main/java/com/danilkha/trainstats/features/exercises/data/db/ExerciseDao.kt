@@ -12,7 +12,7 @@ interface ExerciseDao {
 
     @Query("""
 select * from ExerciseEntity as e
-inner join ExerciseCountView as stats on stats.exerciseId = e.id 
+left join ExerciseCountView as stats on stats.exerciseId = e.id 
 where archived = 0
 order by stats.inWorkouts desc
         
