@@ -20,6 +20,7 @@ data class WorkoutState(
     val collapsedGroupIds: Set<Long> = emptySet(),
     val pendingDelete: Set<Long> = emptySet(),
     val initialization: WorkoutEditorInitialization? = null,
+    val lastEdited: DateTime? = null,
 ){
 
     fun mapToParams() = WorkoutParams(
@@ -97,6 +98,7 @@ sealed interface WorkoutEvent {
     object DeleteWorkout : WorkoutEvent
 
     object SaveWorkout : WorkoutEvent
+    object UpdateDateTime : WorkoutEvent
 }
 
 sealed interface WorkoutSideEffect{

@@ -8,4 +8,5 @@ data class WorkoutPreview(
     val exercises: List<String>,
     val saved: Boolean,
     val archived: Boolean,
+    val lastEdited: DateTime? = null,
 )

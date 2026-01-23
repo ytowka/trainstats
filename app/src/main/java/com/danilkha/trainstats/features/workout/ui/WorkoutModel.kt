@@ -12,6 +12,7 @@ data class WorkoutModel(
     val dateTime: DateTime,
     val groups: List<ExerciseGroup>,
     val saved: Boolean,
+    val lastEdited: DateTime? = null,
 )
 
 data class ExerciseGroup(
@@ -103,6 +104,7 @@ inline fun Workout.toModel(
         id = id,
         dateTime = dateTime,
         groups = groups.toList(),
-        saved = saved
+        saved = saved,
+        lastEdited = lastEdited
     )
 }

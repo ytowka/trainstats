@@ -91,6 +91,7 @@ class WorkoutViewModel @Inject constructor(
                 state.copy(pendingDelete = state.pendingDelete - setId)
             }
             is WorkoutEvent.ToggleGroup -> state.reduceToggleGroup(event.groupIndex)
+            is WorkoutEvent.UpdateDateTime -> state.copy(lastEdited = DateTime.now())
             else -> state
         }
     }
@@ -130,7 +131,10 @@ class WorkoutViewModel @Inject constructor(
             is WorkoutEvent.EditReps,
             is WorkoutEvent.EditWeight,
             is WorkoutEvent.AddExercise,
-            is WorkoutEvent.ChangeDate -> workoutSaver.update(newState.mapToParams())
+            is WorkoutEvent.ChangeDate -> {
+                workoutSaver.update(newState.mapToParams())
+                processEvent(WorkoutEvent.UpdateDateTime)
+            }
             else -> Unit
         }
     }
@@ -145,7 +149,8 @@ class WorkoutViewModel @Inject constructor(
                         initialWorkout = workoutModel,
                         date = workoutModel.dateTime.date,
                         groups = workoutModel.groups,
-                        initialization = WorkoutEditorInitialization.EDIT
+                        initialization = WorkoutEditorInitialization.EDIT,
+                        lastEdited = workoutModel.lastEdited
                     )
                     processEvent(WorkoutEvent.InitState(state))
                 }
@@ -157,14 +162,17 @@ class WorkoutViewModel @Inject constructor(
                         steps = emptyList()
                     )
                 ).getOrThrow()
+                val now = DateTime.now()
                 val state = startState.copy(
                     initialWorkout = WorkoutModel(
                         id = id,
-                        dateTime = DateTime.now(),
+                        dateTime = now,
                         groups = emptyList(),
-                        saved = false
+                        saved = false,
+                        lastEdited = now
                     ),
-                    initialization = WorkoutEditorInitialization.NEW
+                    initialization = WorkoutEditorInitialization.NEW,
+                    lastEdited = now
                 )
                 processEvent(WorkoutEvent.InitState(state))
                 showSideEffect(WorkoutSideEffect.OpenExerciseSelector)

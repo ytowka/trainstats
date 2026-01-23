@@ -34,7 +34,8 @@ class SaveWorkoutUseCase @Inject constructor(
             ),
             steps = steps,
             saved = false,
-            archived = false
+            archived = false,
+            lastEdited = params.lastEdited
         )
         return workoutRepository.saveWorkout(workout)
     }

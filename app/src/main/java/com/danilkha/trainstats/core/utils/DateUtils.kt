@@ -23,6 +23,12 @@ fun Date.format(): String{
     }
 }
 
+fun DateTime.formatWithTime(): String{
+    val dateStr = date.format()
+    val timeStr = format("HH:mm")
+    return "$dateStr • $timeStr"
+}
+
 
 
 fun Date.asJavaDate() = java.util.Date(

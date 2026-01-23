@@ -36,4 +36,5 @@
     <string name="search">Поиск</string>
     <string name="empty_search">Ничего не найдено</string>
     <string name="success_export">"Экспортировано в загрзуки %s</string>
+    <string name="last_edited">Отредактировано:</string>
 </resources>

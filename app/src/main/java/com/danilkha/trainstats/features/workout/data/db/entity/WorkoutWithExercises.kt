@@ -24,5 +24,6 @@ fun WorkoutWithExercises.toDomain() = Workout(
         it.toDomain()
     },
     saved = workout.saved,
-    archived = workout.archived
+    archived = workout.archived,
+    lastEdited = workout.lastEdited
 )

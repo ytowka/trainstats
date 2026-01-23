@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.format
+import com.danilkha.trainstats.core.utils.formatWithTime
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
@@ -247,6 +249,14 @@ fun WorkoutScreen(
                 )
             }
             Spacer(modifier = Modifier.size(20.dp))
+            if (state.lastEdited != null) {
+                Text(
+                    text = "${stringResource(id = R.string.last_edited)} ${state.lastEdited.formatWithTime()}",
+                    style = MaterialTheme.typography.caption,
+                    color = Colors.text.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {

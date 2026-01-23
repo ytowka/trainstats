@@ -8,4 +8,5 @@ data class Workout(
     val steps: List<ExerciseSet>,
     val saved: Boolean,
     val archived: Boolean,
+    val lastEdited: DateTime? = null,
 )

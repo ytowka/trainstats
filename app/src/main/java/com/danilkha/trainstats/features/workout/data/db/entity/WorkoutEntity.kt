@@ -14,6 +14,7 @@ data class WorkoutEntity(
     val saved: Boolean,
     val exercises: List<String>,
     val archived: Boolean,
+    val lastEdited: DateTime? = null,
 )
 
 fun WorkoutEntity.toPreview() =  WorkoutPreview(
@@ -21,7 +22,8 @@ fun WorkoutEntity.toPreview() =  WorkoutPreview(
     dateTime = dateTime,
     exercises = exercises,
     saved = saved,
-    archived = archived
+    archived = archived,
+    lastEdited = lastEdited
 )
 
 fun Workout.toEntity() = WorkoutEntity(
@@ -31,5 +33,6 @@ fun Workout.toEntity() = WorkoutEntity(
     exercises = steps.map {
         it.exerciseData.name
     }.toSet().toList(),
-    archived = archived
+    archived = archived,
+    lastEdited = lastEdited
 )
