@@ -2,6 +2,7 @@ package com.danilkha.trainstats.core.utils
 
 import korlibs.time.Date
 import korlibs.time.DateTime
+import korlibs.time.DateTimeTz
 import korlibs.time.KlockLocale
 import korlibs.time.PatternDateFormat
 import korlibs.time.format
@@ -24,8 +25,9 @@ fun Date.format(): String{
 }
 
 fun DateTime.formatWithTime(): String{
-    val dateStr = date.format()
-    val timeStr = format("HH:mm")
+    val localDt = DateTimeTz.fromUnix(this.unixMillisLong).local
+    val dateStr = localDt.date.format()
+    val timeStr = localDt.format("HH:mm")
     return "$dateStr • $timeStr"
 }
 
