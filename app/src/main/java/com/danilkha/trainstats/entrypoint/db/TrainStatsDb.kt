@@ -21,7 +21,7 @@ import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutEntity
         ExerciseCountView::class,
         ExerciseLastUsedView::class
             ],
-    version = 3, exportSchema = true)
+    version = 1, exportSchema = true)
 @TypeConverters(DateTimeConverter::class, StringListConverter::class)
 abstract class TrainStatsDb : RoomDatabase(){
 
