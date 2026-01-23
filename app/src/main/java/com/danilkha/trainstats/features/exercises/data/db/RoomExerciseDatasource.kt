@@ -8,7 +8,7 @@ class RoomExerciseDatasource @Inject constructor(
     private val exerciseDao: ExerciseDao
 ): ExerciseLocalDatasource{
     override suspend fun getAllExercises(): List<ExerciseData> {
-        return exerciseDao.getAllExercises().map(ExerciseEntity::toDomain)
+        return exerciseDao.getAllExercises().map { it.toDomain() }
     }
 
     override suspend fun getExercise(id: Long): ExerciseData {
@@ -22,7 +22,7 @@ class RoomExerciseDatasource @Inject constructor(
     }
 
     override suspend fun findExercise(query: String): List<ExerciseData> {
-        return exerciseDao.getAllExercises(query).map(ExerciseEntity::toDomain)
+        return exerciseDao.getAllExercises(query).map { it.toDomain() }
     }
 
     override suspend fun createExercise(exerciseData: ExerciseData): Long {

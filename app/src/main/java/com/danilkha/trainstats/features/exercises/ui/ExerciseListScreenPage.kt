@@ -38,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
+import com.danilkha.trainstats.core.utils.format
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
@@ -206,6 +207,14 @@ fun ExerciseCard(
                 }else stringResource(id = R.string.with_body_weight),
                 style = MaterialTheme.typography.body2,
                 color = Colors.text,
+            )
+        }
+        if(exerciseModel.lastUsedDate != null) {
+            Text(
+                text = exerciseModel.lastUsedDate.date.format(),
+                style = MaterialTheme.typography.caption,
+                color = Colors.text.copy(alpha = 0.6f),
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

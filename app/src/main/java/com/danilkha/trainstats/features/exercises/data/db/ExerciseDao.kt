@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.Transaction
 import androidx.room.Update
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 
@@ -11,21 +13,25 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 interface ExerciseDao {
 
     @Query("""
-select * from ExerciseEntity as e
-left join ExerciseCountView as stats on stats.exerciseId = e.id 
-where archived = 0
-order by stats.inWorkouts desc
-        
+ select * from ExerciseEntity as e
+ left join ExerciseCountView as stats on stats.exerciseId = e.id
+ where archived = 0
+ order by stats.inWorkouts desc
+
         """)
-    suspend fun getAllExercises(): List<ExerciseEntity>
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
+    suspend fun getAllExercises(): List<ExerciseWithLastUsed>
 
     @Query("""
-select * from ExerciseEntity as e
-left join ExerciseCountView as stats on stats.exerciseId = e.id 
-where name like '%' || :query || '%' and archived = 0
-order by stats.inWorkouts desc
+ select * from ExerciseEntity as e
+ left join ExerciseCountView as stats on stats.exerciseId = e.id
+ where name like '%' || :query || '%' and archived = 0
+ order by stats.inWorkouts desc
         """)
-    suspend fun getAllExercises(query: String): List<ExerciseEntity>
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
+    suspend fun getAllExercises(query: String): List<ExerciseWithLastUsed>
 
     @Query("select * from ExerciseEntity where id = :id")
     suspend fun getExercise(id: Long): ExerciseEntity
