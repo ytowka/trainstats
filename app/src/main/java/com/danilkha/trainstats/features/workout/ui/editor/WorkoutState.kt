@@ -39,7 +39,8 @@ data class WorkoutState(
                 weight = set.weight,
                 exerciseName = group.name
             )
-        }
+        },
+        lastEdited = lastEdited
     )
 }
 
