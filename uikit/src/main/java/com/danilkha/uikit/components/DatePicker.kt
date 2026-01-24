@@ -24,9 +24,10 @@ import com.danilkha.commoncore.utils.Instant
 import com.danilkha.commoncore.utils.asLocal
 import com.danilkha.commoncore.utils.millisecondsLong
 import com.danilkha.commoncore.utils.toLocal
+import com.danilkha.commonds.components.GenericButton
 import com.danilkha.uikit.R
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.TrainingStatsTheme
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.TrainingStatsTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 

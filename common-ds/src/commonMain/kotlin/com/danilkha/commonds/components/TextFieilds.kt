@@ -1,4 +1,4 @@
-package com.danilkha.uikit.components
+package com.danilkha.commonds.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +19,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.ThemeTypography
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.ThemeTypography
 
 @Composable
 fun GenericTextFiled(

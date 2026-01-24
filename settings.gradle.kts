@@ -13,7 +13,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Training stats"
+rootProject.name = "Training-stats"
 include(":app")
 include(":uikit")
 include(":common-core")
+include(":common-ds")

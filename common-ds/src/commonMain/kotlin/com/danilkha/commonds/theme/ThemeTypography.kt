@@ -1,4 +1,4 @@
-package com.danilkha.uikit.theme
+package com.danilkha.commonds.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable

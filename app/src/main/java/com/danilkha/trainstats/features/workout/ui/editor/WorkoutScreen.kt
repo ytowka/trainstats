@@ -44,13 +44,13 @@ import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBo
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.uikit.components.DateSelector
-import com.danilkha.uikit.components.DragAndDropColumn
-import com.danilkha.uikit.components.DragDispatcher
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.components.Icon
-import com.danilkha.uikit.components.TextToolbar
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.ThemeTypography
+import com.danilkha.commonds.components.DragAndDropColumn
+import com.danilkha.commonds.components.DragDispatcher
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.components.Icon
+import com.danilkha.commonds.components.TextToolbar
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.ThemeTypography
 
 @Composable
 fun WorkoutScreenRoute(

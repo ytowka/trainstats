@@ -4,8 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.danilkha.uikit.theme.PreviewContent
-import com.danilkha.uikit.theme.TrainingStatsTheme
+import com.danilkha.commonds.theme.PreviewContent
 
 private class ExerciseListScreenPreviewProvider : PreviewParameterProvider<ExerciseListState> {
     override val values: Sequence<ExerciseListState> = sequenceOf(

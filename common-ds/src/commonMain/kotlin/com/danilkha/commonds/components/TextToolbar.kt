@@ -1,4 +1,4 @@
-package com.danilkha.uikit.components
+package com.danilkha.commonds.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,7 +13,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.danilkha.uikit.theme.ThemeTypography
+import com.danilkha.commonds.theme.ThemeTypography
 
 @Composable
 fun TextToolbar(

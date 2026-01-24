@@ -22,8 +22,8 @@ import com.danilkha.trainstats.features.exercises.ui.ExerciseSearchBar
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
-import com.danilkha.uikit.components.BottomSheetContent
-import com.danilkha.uikit.theme.Colors
+import com.danilkha.commonds.components.BottomSheetContent
+import com.danilkha.commonds.theme.Colors
 
 class ExerciseSelectorBottomSheet : ComposeContextBottomDialog() {
 

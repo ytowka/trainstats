@@ -14,9 +14,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.ThemeTypography
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.ThemeTypography
+import com.danilkha.trainstats.R
 
 
 class AlertDialogFragment : ComposeContextBottomDialog(){
@@ -76,7 +77,7 @@ class AlertDialogFragment : ComposeContextBottomDialog(){
                     color = Colors.error
                 ) {
                     Text(
-                        text = stringResource(id = com.danilkha.trainstats.R.string.delete),
+                        text = stringResource(id = R.string.delete),
                         color = Colors.surface,
                         style = ThemeTypography.body1
                     )
@@ -95,7 +96,7 @@ class AlertDialogFragment : ComposeContextBottomDialog(){
                     color = Colors.surface
                 ) {
                     Text(
-                        text = stringResource(id = com.danilkha.trainstats.R.string.cancel),
+                        text = stringResource(id = R.string.cancel),
                         color = Colors.text,
                         style = ThemeTypography.body1
                     )

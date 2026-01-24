@@ -1,12 +1,10 @@
-package com.danilkha.uikit.components
+package com.danilkha.commonds.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -17,9 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.Paddings
-import com.danilkha.uikit.theme.ThemeTypography
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.ThemeTypography
 
 @Composable
 fun GenericButton(

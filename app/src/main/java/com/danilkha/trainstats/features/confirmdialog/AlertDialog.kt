@@ -26,12 +26,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.danilkha.uikit.components.Card
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.components.bottomSheetShape
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.ThemeTypography
-import com.danilkha.uikit.theme.TrainingStatsTheme
+import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.components.bottomSheetShape
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.ThemeTypography
+import com.danilkha.commonds.theme.TrainingStatsTheme
+import com.danilkha.trainstats.R
 
 
 @Composable
@@ -155,7 +157,7 @@ fun BaseAlertBottomSheetDialogDeletePreview(){
                         color = Colors.error
                     ) {
                         Text(
-                            text = stringResource(id = com.danilkha.trainstats.R.string.delete),
+                            text = stringResource(id = R.string.delete),
                             color = Colors.surface,
                             style = ThemeTypography.body1
                         )
@@ -170,7 +172,7 @@ fun BaseAlertBottomSheetDialogDeletePreview(){
                         color = Colors.surface
                     ) {
                         Text(
-                            text = stringResource(id = com.danilkha.trainstats.R.string.cancel),
+                            text = stringResource(id = R.string.cancel),
                             color = Colors.text,
                             style = ThemeTypography.body1
                         )

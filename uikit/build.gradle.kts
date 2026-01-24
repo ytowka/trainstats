@@ -39,6 +39,7 @@ android {
 
 dependencies {
     implementation(project(":common-core"))
+    implementation(project(":common-ds"))
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

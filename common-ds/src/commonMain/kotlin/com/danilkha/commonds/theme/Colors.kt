@@ -1,7 +1,5 @@
-package com.danilkha.uikit.theme
+package com.danilkha.commonds.theme
 
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf

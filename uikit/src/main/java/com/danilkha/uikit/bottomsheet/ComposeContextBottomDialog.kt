@@ -16,11 +16,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.view.WindowCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.danilkha.uikit.R
-import com.danilkha.uikit.theme.insetPaddings
 
 abstract class ComposeContextBottomDialog : DialogFragment() {
 

@@ -1,7 +1,6 @@
 package com.danilkha.trainstats.features.exercises.ui.editor
 
 import android.os.Bundle
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,15 +26,15 @@ import com.danilkha.trainstats.core.viewmodel.collectSingleEvents
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.core.viewmodel.viewModel
 import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
-import com.danilkha.uikit.components.BottomSheetContent
-import com.danilkha.uikit.components.Card
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.components.GenericTextFiled
-import com.danilkha.uikit.theme.Colors
+import com.danilkha.commonds.components.BottomSheetContent
+import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.components.GenericTextFiled
+import com.danilkha.commonds.theme.Colors
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
-import com.danilkha.uikit.theme.PreviewContent
-import com.danilkha.uikit.theme.ThemeTypography
+import com.danilkha.commonds.theme.PreviewContent
+import com.danilkha.commonds.theme.ThemeTypography
 
 class ExerciseEditorBottomSheet : ComposeContextBottomDialog(){
 

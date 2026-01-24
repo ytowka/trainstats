@@ -60,14 +60,14 @@ import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import com.danilkha.trainstats.features.workout.ui.SET_DELETE_DELAY
 import com.danilkha.trainstats.features.workout.ui.Side
-import com.danilkha.uikit.components.Card
-import com.danilkha.uikit.components.DragAndDropColumn
-import com.danilkha.uikit.components.DragDispatcher
-import com.danilkha.uikit.components.GenericTextFiled
-import com.danilkha.uikit.components.Icon
-import com.danilkha.uikit.theme.Colors
-import com.danilkha.uikit.theme.ThemeTypography
-import com.danilkha.uikit.theme.TrainingStatsTheme
+import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.components.DragAndDropColumn
+import com.danilkha.commonds.components.DragDispatcher
+import com.danilkha.commonds.components.GenericTextFiled
+import com.danilkha.commonds.components.Icon
+import com.danilkha.commonds.theme.Colors
+import com.danilkha.commonds.theme.ThemeTypography
+import com.danilkha.commonds.theme.TrainingStatsTheme
 
 @Composable
 fun ExerciseGroupCard(

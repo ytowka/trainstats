@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.components.GenericTextFiled
-import com.danilkha.uikit.components.TextToolbar
-import com.danilkha.uikit.theme.Colors
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.components.GenericTextFiled
+import com.danilkha.commonds.components.TextToolbar
+import com.danilkha.commonds.theme.Colors
 
 @Composable
 fun ImportScreenRoute(

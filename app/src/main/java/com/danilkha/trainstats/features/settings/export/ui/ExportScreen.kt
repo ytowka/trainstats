@@ -1,6 +1,5 @@
 package com.danilkha.trainstats.features.settings.export.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,9 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.components.Icon
-import com.danilkha.uikit.components.TextToolbar
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.components.Icon
+import com.danilkha.commonds.components.TextToolbar
 
 @Composable
 fun ExportScreenPage(

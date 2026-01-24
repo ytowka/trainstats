@@ -22,8 +22,8 @@ import androidx.navigation.compose.rememberNavController
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.features.settings.export.ui.ExportScreenPage
 import com.danilkha.trainstats.features.settings.workoutimport.ui.ImportScreenRoute
-import com.danilkha.uikit.components.Card
-import com.danilkha.uikit.components.TextToolbar
+import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.components.TextToolbar
 
 object SettingsDestinations {
     const val SETTINGS = "Settings"

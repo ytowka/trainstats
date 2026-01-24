@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
-import com.danilkha.uikit.components.Icon
-import com.danilkha.uikit.components.TextToolbar
-import com.danilkha.uikit.theme.Colors
+import com.danilkha.commonds.components.Icon
+import com.danilkha.commonds.components.TextToolbar
+import com.danilkha.commonds.theme.Colors
 
 @Composable
 fun ProfileScreen(

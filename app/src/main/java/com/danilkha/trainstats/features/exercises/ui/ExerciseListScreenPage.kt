@@ -40,11 +40,11 @@ import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
-import com.danilkha.uikit.components.Card
-import com.danilkha.uikit.components.GenericButton
-import com.danilkha.uikit.components.GenericTextFiled
-import com.danilkha.uikit.components.Icon
-import com.danilkha.uikit.theme.Colors
+import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.components.GenericButton
+import com.danilkha.commonds.components.GenericTextFiled
+import com.danilkha.commonds.components.Icon
+import com.danilkha.commonds.theme.Colors
 
 @Composable
 fun ExerciseListScreenPage(

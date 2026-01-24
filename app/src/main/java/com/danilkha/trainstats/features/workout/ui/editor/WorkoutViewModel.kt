@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.lifecycle.viewModelScope
+import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.usecase.ArchiveWorkoutUseCase
@@ -16,8 +17,7 @@ import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.isNotEmpty
 import com.danilkha.trainstats.features.workout.ui.toModel
-import com.danilkha.uikit.components.move
-import com.danilkha.uikit.components.toLocal
+import com.danilkha.commonds.components.move
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
