@@ -46,7 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilkha.trainstats.R
-import com.danilkha.trainstats.core.utils.format
+import com.danilkha.trainstats.core.utils.LocalDateFormat
+import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.Fab
@@ -55,8 +56,10 @@ import com.danilkha.uikit.components.Icon
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.PreviewContent
 import com.danilkha.uikit.theme.ThemeTypography
-import korlibs.time.DateTime
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun HistoryScreenPage(
@@ -231,6 +234,8 @@ private fun WorkoutCard(
     workout: WorkoutHistoryModel,
     onClick: () -> Unit,
 ) {
+    val dateFormat = LocalDateFormat.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -242,7 +247,7 @@ private fun WorkoutCard(
     ) {
         Text(
             modifier = Modifier.padding(horizontal = 6.dp),
-            text = workout.date.date.format(),
+            text = dateFormat.format(workout.date.toLocal().date),
             style = ThemeTypography.subtitle.copy(
                 color = Colors.primary,
                 fontSize = 20.sp
@@ -289,7 +294,7 @@ fun HistoryPagePreview() {
                 allWorkouts = listOf(
                     WorkoutHistoryModel(
                         id = 0,
-                        date = DateTime.now(),
+                        date = Clock.System.now(),
                         exercises = listOf("becnh press")
                     )
                 ),

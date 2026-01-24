@@ -44,7 +44,7 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose.android)
     implementation(libs.androidx.fragment.ktx)
-    implementation(libs.klock.android)
+    implementation(libs.kotlinx.datetime)
     testImplementation(libs.junit)
     implementation(libs.coroutines.android)
     implementation(platform(libs.compose.bom))

@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import com.danilkha.trainstats.R
-import com.danilkha.trainstats.core.utils.format
+import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.core.utils.format2
 import com.danilkha.trainstats.core.viewmodel.viewModel
 import com.danilkha.trainstats.features.workout.domain.model.Kg
@@ -64,10 +64,15 @@ import com.danilkha.uikit.components.bottomSheetShape
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
 import com.danilkha.uikit.theme.TrainingStatsTheme
-import korlibs.time.Date
-import korlibs.time.DateTime
-import korlibs.time.DateTimeTz
-import korlibs.time.days
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimePeriod
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.coroutines.launch
 
 class ExerciseHistoryBottomSheet : ComposeContextBottomDialog(){
@@ -181,10 +186,12 @@ fun ExerciseHistoryBottomSheet(
 
 @Composable
 fun ExerciseSetsHistoryCard(
-    date: Date,
+    date: LocalDate,
     index: Int,
     sets: List<ExerciseSetHistoryModel>,
 ){
+    val dateFormat = LocalDateFormat.current
+
     Card(
         modifier = Modifier
             .padding(horizontal = 5.dp)
@@ -197,7 +204,7 @@ fun ExerciseSetsHistoryCard(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 10.dp),
-                text = date.format(),
+                text = dateFormat.format(date),
                 color = Colors.primary,
                 style = ThemeTypography.title
             )
@@ -297,7 +304,7 @@ fun ExerciseHistoryBottomSheetPreview(){
             exerciseName = "Жим лежа",
             list = listOf(
                 ExerciseHistoryModel(
-                    date = DateTimeTz.nowLocal().local.date,
+                    date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
                     sets = listOf(
                         ExerciseSetHistoryModel(
                             id = 0,
@@ -320,7 +327,7 @@ fun ExerciseHistoryBottomSheetPreview(){
                     )
                 ),
                 ExerciseHistoryModel(
-                    date = (DateTimeTz.nowLocal().local - 2.days).date,
+                    date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
                     sets = listOf(
                         ExerciseSetHistoryModel(
                             id = 0,

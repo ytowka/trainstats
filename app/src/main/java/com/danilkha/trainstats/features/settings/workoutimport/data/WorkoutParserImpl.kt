@@ -1,13 +1,12 @@
 package com.danilkha.trainstats.features.settings.workoutimport.data
 
-import android.util.Log
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.settings.workoutimport.domain.WorkoutParser
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.SetParams
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
-import korlibs.time.Date
+import kotlinx.datetime.LocalDate
 import javax.inject.Inject
 
 class WorkoutParserImpl @Inject constructor(): WorkoutParser {
@@ -101,10 +100,10 @@ class WorkoutParserImpl @Inject constructor(): WorkoutParser {
             }
             return WorkoutParams(
                 id = null,
-                date = Date(
-                    day = day,
+                date = LocalDate(
                     year = year,
-                    month = month
+                    monthNumber = month,
+                    dayOfMonth = day
                 ),
                 steps = exerciseSets.toList()
             ) to lines.size

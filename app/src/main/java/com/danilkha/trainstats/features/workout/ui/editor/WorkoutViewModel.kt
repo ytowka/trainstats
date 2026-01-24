@@ -20,19 +20,20 @@ import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.isNotEmpty
 import com.danilkha.trainstats.features.workout.ui.toModel
 import com.danilkha.uikit.components.move
-import korlibs.time.DateTime
+import com.danilkha.uikit.components.toLocal
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class WorkoutViewModel @Inject constructor(
     private val workoutSaver: WorkoutSaver,
     private val saveWorkoutUseCase: SaveWorkoutUseCase,
-    private val commitWorkoutSaveUseCase: CommitWorkoutSaveUseCase,
     private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,
     private val archiveWorkoutUseCase: ArchiveWorkoutUseCase,
-    private val getExerciseHistoryUseCase: GetExerciseHistoryUseCase,
 ) : MviViewModel<WorkoutState, WorkoutEvent, WorkoutSideEffect>() {
 
     override val startState: WorkoutState = WorkoutState()
@@ -91,7 +92,7 @@ class WorkoutViewModel @Inject constructor(
                 state.copy(pendingDelete = state.pendingDelete - setId)
             }
             is WorkoutEvent.ToggleGroup -> state.reduceToggleGroup(event.groupIndex)
-            is WorkoutEvent.UpdateDateTime -> state.copy(lastEdited = DateTime.now())
+            is WorkoutEvent.UpdateDateTime -> state.copy(lastEdited = Clock.System.now())
             else -> state
         }
     }
@@ -147,7 +148,7 @@ class WorkoutViewModel @Inject constructor(
                     val workoutModel = workout.toModel { tempIndexes }
                     val state = startState.copy(
                         initialWorkout = workoutModel,
-                        date = workoutModel.dateTime.date,
+                        date = workoutModel.dateTime.toLocal().date,
                         groups = workoutModel.groups,
                         initialization = WorkoutEditorInitialization.EDIT,
                         lastEdited = workoutModel.lastEdited
@@ -155,14 +156,14 @@ class WorkoutViewModel @Inject constructor(
                     processEvent(WorkoutEvent.InitState(state))
                 }
             } else {
+                val now = Clock.System.now()
                 val id = saveWorkoutUseCase(
                     WorkoutParams(
                         id = null,
-                        date = DateTime.now().date,
+                        date = now.toLocal().date,
                         steps = emptyList()
                     )
                 ).getOrThrow()
-                val now = DateTime.now()
                 val state = startState.copy(
                     initialWorkout = WorkoutModel(
                         id = id,

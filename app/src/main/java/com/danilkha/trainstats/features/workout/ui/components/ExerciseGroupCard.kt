@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
@@ -69,7 +68,6 @@ import com.danilkha.uikit.components.Icon
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.ThemeTypography
 import com.danilkha.uikit.theme.TrainingStatsTheme
-import korlibs.time.DateTime
 
 @Composable
 fun ExerciseGroupCard(

@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.compose.runtime.Immutable
+import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.model.SetParams
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
@@ -9,18 +10,22 @@ import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.toDomain
-import korlibs.time.Date
-import korlibs.time.DateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 @Immutable
 data class WorkoutState(
     val initialWorkout: WorkoutModel? = null,
-    val date: Date = DateTime.now().date,
+    val date: LocalDate = Clock.System.now().toLocal().date,
     val groups: List<ExerciseGroup> = emptyList(),
     val collapsedGroupIds: Set<Long> = emptySet(),
     val pendingDelete: Set<Long> = emptySet(),
     val initialization: WorkoutEditorInitialization? = null,
-    val lastEdited: DateTime? = null,
+    val lastEdited: Instant? = null,
 ){
 
     fun mapToParams() = WorkoutParams(
@@ -50,7 +55,7 @@ sealed interface WorkoutEvent {
     data class RequestInit(val editingId: Long?) : WorkoutEvent
     data class InitState(val state: WorkoutState) : WorkoutEvent
 
-    data class ChangeDate(val date: Date) : WorkoutEvent
+    data class ChangeDate(val date: LocalDate) : WorkoutEvent
 
     data class ToggleGroup(val groupIndex: Int) : WorkoutEvent
 

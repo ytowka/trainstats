@@ -1,9 +1,9 @@
 package com.danilkha.trainstats.features.workout.ui.history
 
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
 
 data class WorkoutHistoryModel(
     val id: Long,
-    val date: DateTime,
+    val date: Instant,
     val exercises: List<String>
 )

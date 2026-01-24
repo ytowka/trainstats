@@ -1,6 +1,6 @@
 package com.danilkha.trainstats.features.exercises.domain.model
 
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
 
 data class ExerciseData(
     val id: Long = 0,
@@ -8,7 +8,7 @@ data class ExerciseData(
     val imageUrl: String?,
     val separated: Boolean,
     val hasWeight: Boolean,
-    val lastUsedDate: DateTime? = null,
+    val lastUsedDate: Instant? = null,
 ){
 
     companion object{

@@ -1,17 +1,17 @@
 package com.danilkha.trainstats.entrypoint.db
 
 import androidx.room.TypeConverter
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
 
 class DateTimeConverter {
 
     @TypeConverter
-    fun toDb(dateTime: DateTime?): Long?{
-        return dateTime?.unixMillisLong
+    fun toDb(instant: Instant?): Long?{
+        return instant?.toEpochMilliseconds()
     }
 
     @TypeConverter
-    fun toModel(unixMillis: Long?): DateTime?{
-        return unixMillis?.let { DateTime(unixMillis) }
+    fun toModel(unixMillis: Long?): Instant?{
+        return unixMillis?.let { Instant.fromEpochMilliseconds(it) }
     }
 }

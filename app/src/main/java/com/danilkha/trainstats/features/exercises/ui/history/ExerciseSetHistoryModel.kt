@@ -1,10 +1,8 @@
 package com.danilkha.trainstats.features.exercises.ui.history
 
-import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.model.Kg
-import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
-import korlibs.time.Date
+import kotlinx.datetime.LocalDate
 
 data class ExerciseSetHistoryModel(
     val id: Long = 0,
@@ -14,6 +12,6 @@ data class ExerciseSetHistoryModel(
 )
 
 data class ExerciseHistoryModel(
-    val date: Date,
+    val date: LocalDate,
     val sets: List<ExerciseSetHistoryModel>
 )

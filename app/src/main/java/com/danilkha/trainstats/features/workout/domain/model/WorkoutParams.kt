@@ -1,11 +1,11 @@
 package com.danilkha.trainstats.features.workout.domain.model
 
-import korlibs.time.Date
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 
 data class WorkoutParams(
     val id: Long?,
-    val date: Date,
+    val date: LocalDate,
     val steps: List<SetParams>,
-    val lastEdited: DateTime? = null,
+    val lastEdited: Instant? = null,
 )

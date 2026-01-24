@@ -60,7 +60,5 @@ class ExportImportTest {
             .invoke()
 
         actualExportText.trim() shouldBe importText.trim()
-
-
     }
 }

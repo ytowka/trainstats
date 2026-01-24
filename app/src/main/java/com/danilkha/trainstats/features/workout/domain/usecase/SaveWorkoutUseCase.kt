@@ -1,12 +1,20 @@
 package com.danilkha.trainstats.features.workout.domain.usecase
 
+import android.util.Log
 import com.danilkha.trainstats.core.usecase.UseCase
+import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
-import korlibs.time.DateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class SaveWorkoutUseCase @Inject constructor(
@@ -25,13 +33,14 @@ class SaveWorkoutUseCase @Inject constructor(
                 orderPosition = index
             )
         }
-        val now =  DateTime.now()
+        val now = Clock.System.now().toLocal().time
+        val dateTime = LocalDateTime(
+            date = params.date,
+            time = now
+        )
         val workout = Workout(
             id = params.id ?: 0,
-            dateTime = DateTime(
-                date = params.date,
-                time = now.time
-            ),
+            dateTime = dateTime.toInstant(TimeZone.currentSystemDefault()),
             steps = steps,
             saved = false,
             archived = false,

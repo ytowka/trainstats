@@ -86,7 +86,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
-    implementation(libs.klock.android)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material)
     implementation(libs.compose.material.icons)

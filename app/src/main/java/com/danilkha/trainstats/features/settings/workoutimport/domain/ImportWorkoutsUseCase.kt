@@ -10,7 +10,17 @@ import com.danilkha.trainstats.features.settings.workoutimport.data.ParserExcept
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Workout
-import korlibs.time.DateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class ImportWorkoutsUseCase @Inject constructor(
@@ -56,6 +66,7 @@ class ImportWorkoutsUseCase @Inject constructor(
             }
         }
 
+        val timeZone = TimeZone.currentSystemDefault()
         workouts.map { workout ->
             val steps = workout.steps.mapIndexed { index, item ->
                 val validName = item.exerciseName.lowercase().trim()
@@ -69,13 +80,14 @@ class ImportWorkoutsUseCase @Inject constructor(
                     orderPosition = index
                 )
             }
-            val now =  DateTime.now()
+            val now = Clock.System.now().toLocalDateTime(timeZone).time
+            val dateTime = LocalDateTime(
+                date = workout.date,
+                time = now
+            )
             Workout(
                 id = 0,
-                dateTime = DateTime(
-                    date = workout.date,
-                    time = now.time
-                ),
+                dateTime = dateTime.toInstant(timeZone),
                 steps = steps,
                 saved = false,
                 archived = false

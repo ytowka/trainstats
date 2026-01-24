@@ -1,18 +1,15 @@
 package com.danilkha.trainstats.features.workout.ui
 
-import androidx.compose.runtime.Immutable
-import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Workout
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
 
 data class WorkoutModel(
     val id: Long,
-    val dateTime: DateTime,
+    val dateTime: Instant,
     val groups: List<ExerciseGroup>,
     val saved: Boolean,
-    val lastEdited: DateTime? = null,
+    val lastEdited: Instant? = null,
 )
 
 data class ExerciseGroup(
@@ -37,7 +34,6 @@ sealed class ExerciseSetSlot(
     class Stub(override val tempId: Long) : ExerciseSetSlot(tempId)
 }
 
-// todo: fix, if field is empty, null no passed
 val ExerciseSetSlot.isNotEmpty: Boolean
     get() = when (this) {
         is ExerciseSetSlot.ExerciseSetModel -> {

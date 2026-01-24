@@ -1,8 +1,8 @@
 package com.danilkha.trainstats.features.workout.domain.model
 
-import korlibs.time.Date
+import kotlinx.datetime.Instant
 
 class ExerciseWorkout(
-    val date: Date,
+    val date: Instant,
     val sets: List<ExerciseSet>
 )

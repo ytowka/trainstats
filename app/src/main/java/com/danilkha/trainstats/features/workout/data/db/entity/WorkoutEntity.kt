@@ -4,17 +4,17 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
 
 @Entity
 data class WorkoutEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val dateTime: DateTime,
+    val dateTime: Instant,
     val saved: Boolean,
     val exercises: List<String>,
     val archived: Boolean,
-    val lastEdited: DateTime? = null,
+    val lastEdited: Instant? = null,
 )
 
 fun WorkoutEntity.toPreview() =  WorkoutPreview(

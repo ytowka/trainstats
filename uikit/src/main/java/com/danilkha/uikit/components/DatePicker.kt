@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerColors
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,27 +17,32 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.danilkha.uikit.R
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.TrainingStatsTheme
-import korlibs.time.Date
-import korlibs.time.DateTime
-import kotlin.time.Duration.Companion.days
-import kotlin.time.DurationUnit
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateSelector(
     onDismiss: () -> Unit,
-    onDateSelected: (Date) -> Unit,
+    onDateSelected: (LocalDate) -> Unit,
 ) {
 
-    val today = DateTime.nowLocal().local
-    val state = rememberDatePickerState(today.unixMillisLong)
+    val todayLocal = Clock.System.now().toLocal()
+    val state = rememberDatePickerState(
+        initialSelectedDateMillis = todayLocal.millisecondsLong
+    )
 
     val colors = DatePickerDefaults.colors(
         selectedDayContentColor = Colors.textInverse,
@@ -90,8 +94,8 @@ fun DateSelector(
                     color = Colors.primaryVariant,
                     onClick = {
                         state.selectedDateMillis?.let {
-                            val date = DateTime(it).date
-                            onDateSelected(date)
+                            val datetime = Instant(it).asLocal()
+                            onDateSelected(datetime.date)
                         }
                     }) {
                     Text(
@@ -103,6 +107,24 @@ fun DateSelector(
         }
     }
 }
+
+fun Instant(millisecondsLong: Long): Instant {
+    return Instant.fromEpochMilliseconds(millisecondsLong)
+}
+
+fun Instant.toLocal(): LocalDateTime {
+    val timeZone = TimeZone.currentSystemDefault()
+    return toLocalDateTime(timeZone)
+}
+
+fun Instant.asLocal(): LocalDateTime {
+    return toLocalDateTime(TimeZone.UTC)
+}
+
+
+val LocalDateTime.millisecondsLong
+    get() = this.toInstant(UtcOffset.ZERO).toEpochMilliseconds()
+
 
 @Composable
 @Preview

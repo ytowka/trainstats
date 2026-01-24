@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.exercises.ui.history
 
 import androidx.lifecycle.viewModelScope
+import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.core.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.workout.domain.usecase.GetExerciseHistoryUseCase
 import com.danilkha.trainstats.features.workout.ui.toModel
@@ -21,7 +22,7 @@ class ExerciseHistoryViewModel @Inject constructor(
                         exerciseName = workouts.exerciseName,
                         list = workouts.exercises.map { set ->
                             ExerciseHistoryModel(
-                                date = set.date,
+                                date = set.date.toLocal().date,
                                 sets = set.sets.map {
                                     ExerciseSetHistoryModel(
                                         id = it.id,

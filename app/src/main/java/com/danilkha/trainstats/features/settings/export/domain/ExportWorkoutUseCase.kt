@@ -3,14 +3,17 @@ package com.danilkha.trainstats.features.settings.export.domain
 import com.danilkha.trainstats.core.usecase.SimpleUseCase
 import com.danilkha.trainstats.core.utils.format1
 import com.danilkha.trainstats.core.utils.format2
+import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.features.settings.export.data.FileWriter
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.byUnicodePattern
 import javax.inject.Inject
 
 class ExportWorkoutUseCase @Inject constructor(
@@ -19,13 +22,16 @@ class ExportWorkoutUseCase @Inject constructor(
 ) : SimpleUseCase<String>() {
 
     override suspend fun execute(): String {
-        val nameFormatter = SimpleDateFormat("dd-MM-yyyy_HH-mm", Locale.getDefault())
-        val fileName = "workout_export_${nameFormatter.format(Date())}.txt"
+        val fileName = getExportFileName()
 
+        val dateFormatter = LocalDate.Format {
+            byUnicodePattern("dd.MM.yyyy")
+        }
+        
         withContext(Dispatchers.IO) {
             val content = buildString {
                 workoutRepository.getAll().forEach {
-                    appendLine(it.dateTime.format("dd.MM.yyyy"))
+                    appendLine(it.dateTime.toLocal().date.format(dateFormatter))
                     var lastExercise: String? = null
                     it.steps.forEach { step ->
                         val currentExerciseName = step.exerciseData.name
@@ -58,5 +64,13 @@ class ExportWorkoutUseCase @Inject constructor(
         }
 
         return fileName
+    }
+
+    private fun getExportFileName(): String {
+        val date = Clock.System.now().toLocal()
+        val formattedDateTime = date.format(LocalDateTime.Format{
+            byUnicodePattern("dd-MM-yyyy_HH-mm")
+        })
+        return "workout_export_$formattedDateTime.txt"
     }
 }

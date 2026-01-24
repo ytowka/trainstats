@@ -15,11 +15,15 @@ import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class RoomWorkoutDatasource @Inject constructor(
     private val workoutDao: WorkoutDao
 ): WorkoutLocalDatasource {
+    private val timeZone = TimeZone.currentSystemDefault()
+    
     override fun getWorkoutHistory(): Flow<List<WorkoutPreview>> {
         return workoutDao.getWorkoutHistory().map {
             it.map(WorkoutEntity::toPreview)
@@ -57,7 +61,7 @@ class RoomWorkoutDatasource @Inject constructor(
         val rawResult = workoutDao.getHistoryByExercise(exerciseId)
         val grouped = rawResult.groupBy { it.workoutId }
         return grouped.values.map { group ->
-            val date = group.first().dateTime.date
+            val date = group.first().dateTime
             val sets = group.map { set ->
                 val exerciseData = ExerciseData(
                     id = set.exerciseId,

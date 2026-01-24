@@ -1,41 +1,32 @@
 package com.danilkha.trainstats.core.utils
 
-import korlibs.time.Date
-import korlibs.time.DateTime
-import korlibs.time.DateTimeTz
-import korlibs.time.KlockLocale
-import korlibs.time.PatternDateFormat
-import korlibs.time.format
-import korlibs.time.locale.russian
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 
-private val dateFormat = PatternDateFormat("EEEE, d MMMM", locale = KlockLocale.russian)
-private val dateFormatYear = PatternDateFormat("EEEE, d MMMM yyyy", locale = KlockLocale.russian)
-
-
-
-fun Date.format(): String{
-    val today = DateTime.now().date
-
-    return if (year != today.year){
-        dateFormatYear.format(this)
-    }else{
-        dateFormat.format(this)
-    }
+fun Instant(millisecondsLong: Long): Instant {
+    return Instant.fromEpochMilliseconds(millisecondsLong)
 }
 
-fun DateTime.formatWithTime(): String{
-    val localDt = DateTimeTz.fromUnix(this.unixMillisLong).local
-    val dateStr = localDt.date.format()
-    val timeStr = localDt.format("HH:mm")
-    return "$dateStr • $timeStr"
+fun Instant.toLocal(): LocalDateTime {
+    val timeZone = TimeZone.currentSystemDefault()
+    return toLocalDateTime(timeZone)
+}
+
+fun Instant.asLocal(): LocalDateTime {
+    return toLocalDateTime(TimeZone.UTC)
+}
+
+fun Instant.toLocalDate(): LocalDate {
+    val timeZone = TimeZone.currentSystemDefault()
+    return toLocalDateTime(timeZone).date
 }
 
 
-
-fun Date.asJavaDate() = java.util.Date(
-    DateTime(
-        date = this,
-        time = DateTime.now().time
-    ).unixMillisLong
-)
+val LocalDateTime.millisecondsLong
+    get() = this.toInstant(UtcOffset.ZERO).toEpochMilliseconds()

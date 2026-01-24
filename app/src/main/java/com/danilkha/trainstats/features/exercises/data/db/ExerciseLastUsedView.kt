@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.exercises.data.db
 
 import androidx.room.DatabaseView
-import korlibs.time.DateTime
+import kotlinx.datetime.Instant
 
 @DatabaseView("""
     SELECT s.exerciseId as exerciseId, MAX(w.dateTime) as lastUsed 
@@ -11,5 +11,5 @@ import korlibs.time.DateTime
 """, viewName = "ExerciseLastUsedView")
 data class ExerciseLastUsedView(
     val exerciseId: Long,
-    val lastUsed: DateTime
+    val lastUsed: Instant
 )

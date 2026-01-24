@@ -19,7 +19,6 @@ coroutines = "1.10.1"
 room = "2.7.2"
 navigation = "2.9.3"
 dagger = '2.55'
-klock = "4.0.2"
 datetime = "0.6.0"
 lifecycle-viewmodel-compose-android = "2.9.2"
 fragment-ktx = "1.8.9"
@@ -57,8 +56,6 @@ room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
-klock-jvm = { group = "com.soywiz.korlibs.klock", name = "klock-jvm", version.ref = "klock"}
-klock-android = { group = "com.soywiz.korlibs.klock", name = "klock-android", version.ref = "klock" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 androidx-lifecycle-viewmodel-compose-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose-android", version.ref = "lifecycle-viewmodel-compose-android" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment-ktx" }

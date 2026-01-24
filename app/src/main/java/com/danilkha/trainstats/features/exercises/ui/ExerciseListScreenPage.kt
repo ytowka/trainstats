@@ -1,7 +1,6 @@
 package com.danilkha.trainstats.features.exercises.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -29,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -38,12 +35,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
-import com.danilkha.trainstats.core.utils.format
+import com.danilkha.trainstats.core.utils.LocalDateFormat
+import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.uikit.components.Card
-import com.danilkha.uikit.components.Fab
 import com.danilkha.uikit.components.GenericButton
 import com.danilkha.uikit.components.GenericTextFiled
 import com.danilkha.uikit.components.Icon
@@ -210,8 +207,9 @@ fun ExerciseCard(
             )
         }
         if(exerciseModel.lastUsedDate != null) {
+            val dateFormat = LocalDateFormat.current
             Text(
-                text = exerciseModel.lastUsedDate.date.format(),
+                text = dateFormat.format(exerciseModel.lastUsedDate.toLocal()),
                 style = MaterialTheme.typography.caption,
                 color = Colors.text.copy(alpha = 0.6f),
                 modifier = Modifier.padding(top = 4.dp)
