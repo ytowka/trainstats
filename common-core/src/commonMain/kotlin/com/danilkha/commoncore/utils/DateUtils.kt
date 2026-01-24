@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.core.utils
+package com.danilkha.commoncore.utils
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate

@@ -1,20 +1,16 @@
 package com.danilkha.trainstats.features.workout.domain.usecase
 
-import android.util.Log
-import com.danilkha.trainstats.core.usecase.UseCase
-import com.danilkha.trainstats.core.utils.toLocal
+import com.danilkha.commoncore.usecase.UseCase
+import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class SaveWorkoutUseCase @Inject constructor(

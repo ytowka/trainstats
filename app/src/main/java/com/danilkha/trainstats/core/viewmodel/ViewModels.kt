@@ -8,12 +8,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.danilkha.trainstats.core.usecase.UseCase
+import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.core.utils.findActivity
 import com.danilkha.trainstats.di.AppComponent
 import com.danilkha.trainstats.entrypoint.App
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collectLatest
 
 
@@ -78,5 +78,13 @@ fun <S, E> BaseViewModel<S, E>.collectSingleEvents(onEvent: (event: E) -> Unit){
         }
     }
 }
+
+@Composable
+fun <State, SideEffect> BaseViewModel<State, SideEffect>.LaunchCollectEffects(collector: (FlowCollector<SideEffect>)) {
+    LaunchedEffect(Unit) {
+        sideEffects.collect(collector)
+    }
+}
+
 
 

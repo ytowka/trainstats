@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.exercises.ui
 
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.MviViewModel
+import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.exercises.domain.usecase.GetAllExercisesUseCase
 import kotlinx.coroutines.flow.collectLatest

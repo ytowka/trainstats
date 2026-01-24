@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.settings.export.ui
 
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.BaseViewModel
+import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.settings.export.domain.ExportWorkoutUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject

@@ -1,6 +1,6 @@
-package com.danilkha.trainstats.core.usecase
+package com.danilkha.commoncore.usecase
 
-import android.util.Log
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -13,8 +13,7 @@ abstract class SimpleFlowUseCase<R> {
                 Result.success(it)
             }
             .catch {
-                Log.w("usecase", "usecase ${this::class.simpleName} fails")
-                Log.w("usecase", it)
+                Napier.w("usecase ${this::class.simpleName} fails", it)
                 emit(Result.failure(it))
             }
     }

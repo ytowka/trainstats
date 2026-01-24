@@ -45,9 +45,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
-import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.uikit.components.Card
 import com.danilkha.uikit.components.Fab

@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "Training stats"
 include(":app")
 include(":uikit")
+include(":common-core")

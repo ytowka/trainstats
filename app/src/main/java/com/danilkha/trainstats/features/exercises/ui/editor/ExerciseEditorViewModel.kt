@@ -2,7 +2,7 @@ package com.danilkha.trainstats.features.exercises.ui.editor
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.BaseViewModel
+import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.exercises.domain.usecase.CreateExercisesUseCase
 import com.danilkha.trainstats.features.exercises.domain.usecase.DeleteExercisesUseCase

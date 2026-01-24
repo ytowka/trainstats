@@ -20,17 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.danilkha.commoncore.utils.Instant
+import com.danilkha.commoncore.utils.asLocal
+import com.danilkha.commoncore.utils.millisecondsLong
+import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.uikit.R
 import com.danilkha.uikit.theme.Colors
 import com.danilkha.uikit.theme.TrainingStatsTheme
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,23 +105,6 @@ fun DateSelector(
         }
     }
 }
-
-fun Instant(millisecondsLong: Long): Instant {
-    return Instant.fromEpochMilliseconds(millisecondsLong)
-}
-
-fun Instant.toLocal(): LocalDateTime {
-    val timeZone = TimeZone.currentSystemDefault()
-    return toLocalDateTime(timeZone)
-}
-
-fun Instant.asLocal(): LocalDateTime {
-    return toLocalDateTime(TimeZone.UTC)
-}
-
-
-val LocalDateTime.millisecondsLong
-    get() = this.toInstant(UtcOffset.ZERO).toEpochMilliseconds()
 
 
 @Composable

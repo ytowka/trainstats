@@ -77,6 +77,7 @@ android {
 
 dependencies {
     implementation(project(":uikit"))
+    implementation(project(":common-core"))
 
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)

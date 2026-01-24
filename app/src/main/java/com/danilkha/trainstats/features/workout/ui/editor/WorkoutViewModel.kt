@@ -1,16 +1,13 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.viewmodel.MviViewModel
+import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
-import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.usecase.ArchiveWorkoutUseCase
-import com.danilkha.trainstats.features.workout.domain.usecase.CommitWorkoutSaveUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.GetWorkoutByIdUseCase
 import com.danilkha.trainstats.features.workout.domain.usecase.SaveWorkoutUseCase
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import com.danilkha.trainstats.features.workout.domain.model.kg
-import com.danilkha.trainstats.features.workout.domain.usecase.GetExerciseHistoryUseCase
 import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
@@ -25,8 +22,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 class WorkoutViewModel @Inject constructor(

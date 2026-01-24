@@ -1,8 +1,7 @@
-package com.danilkha.trainstats.core.viewmodel
+package com.danilkha.commoncore.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

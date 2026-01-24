@@ -1,7 +1,5 @@
-package com.danilkha.trainstats.core.viewmodel
+package com.danilkha.commoncore.viewmodel
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -46,12 +44,5 @@ abstract class BaseViewModel<State, SideEffect> : ViewModel() {
                 }.onFailure(onFailure)
             }
         }
-    }
-}
-
-@Composable
-fun <State, SideEffect> BaseViewModel<State, SideEffect>.LaunchCollectEffects(collector: (FlowCollector<SideEffect>)) {
-    LaunchedEffect(Unit) {
-        sideEffects.collect(collector)
     }
 }

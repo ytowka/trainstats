@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
 import androidx.compose.runtime.Immutable
-import com.danilkha.trainstats.core.utils.toLocal
+import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.model.SetParams
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
@@ -13,9 +13,6 @@ import com.danilkha.trainstats.features.workout.ui.toDomain
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 
 @Immutable
 data class WorkoutState(

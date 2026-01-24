@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.workout.domain.usecase
 
-import com.danilkha.trainstats.core.usecase.SimpleFlowUseCase
-import com.danilkha.trainstats.core.usecase.SimpleUseCase
+import com.danilkha.commoncore.usecase.SimpleFlowUseCase
+import com.danilkha.commoncore.usecase.SimpleUseCase
 import com.danilkha.trainstats.features.workout.data.FakeWorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.Workout

@@ -1,6 +1,6 @@
 package com.danilkha.trainstats.features.exercises.domain.usecase
 
-import com.danilkha.trainstats.core.usecase.UseCase
+import com.danilkha.commoncore.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import javax.inject.Inject
 

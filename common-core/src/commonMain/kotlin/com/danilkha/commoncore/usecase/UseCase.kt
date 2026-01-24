@@ -1,6 +1,6 @@
-package com.danilkha.trainstats.core.usecase
+package com.danilkha.commoncore.usecase
 
-import android.util.Log
+import io.github.aakira.napier.Napier
 
 abstract class UseCase<P, R> {
 
@@ -8,8 +8,7 @@ abstract class UseCase<P, R> {
         return kotlin.runCatching {
             execute(params)
         }.onFailure {
-            Log.w("usecase", "usecase ${this::class.simpleName} failed with params $params")
-            Log.w("usecase", it)
+            Napier.w("usecase ${this::class.simpleName} failed with params $params", it)
         }
     }
 

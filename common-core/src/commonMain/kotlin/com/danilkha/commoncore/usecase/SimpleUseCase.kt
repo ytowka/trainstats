@@ -1,6 +1,6 @@
-package com.danilkha.trainstats.core.usecase
+package com.danilkha.commoncore.usecase
 
-import android.util.Log
+import io.github.aakira.napier.Napier
 
 abstract class SimpleUseCase<R> {
 
@@ -8,8 +8,7 @@ abstract class SimpleUseCase<R> {
         return kotlin.runCatching {
             execute()
         }.onFailure {
-            Log.w("usecase", "usecase ${this::class.simpleName} failed")
-            Log.w("usecase", it)
+            Napier.w("usecase ${this::class.simpleName} failed", it)
         }
     }
 

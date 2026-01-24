@@ -2,7 +2,7 @@ package com.danilkha.trainstats.features.settings.workoutimport.domain
 
 import android.net.Uri
 import android.util.Log
-import com.danilkha.trainstats.core.usecase.UseCase
+import com.danilkha.commoncore.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.settings.workoutimport.data.FileReader

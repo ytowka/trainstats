@@ -1,6 +1,6 @@
 package com.danilkha.trainstats.features.settings.workoutimport.ui
 
-import com.danilkha.trainstats.core.viewmodel.MviViewModel
+import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.settings.workoutimport.domain.ImportWorkoutsUseCase
 import javax.inject.Inject
 

@@ -31,9 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
-import com.danilkha.trainstats.core.utils.toLocal
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog

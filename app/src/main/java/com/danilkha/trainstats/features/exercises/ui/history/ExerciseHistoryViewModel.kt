@@ -1,8 +1,8 @@
 package com.danilkha.trainstats.features.exercises.ui.history
 
 import androidx.lifecycle.viewModelScope
-import com.danilkha.trainstats.core.utils.toLocal
-import com.danilkha.trainstats.core.viewmodel.BaseViewModel
+import com.danilkha.commoncore.utils.toLocal
+import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.workout.domain.usecase.GetExerciseHistoryUseCase
 import com.danilkha.trainstats.features.workout.ui.toModel
 import kotlinx.coroutines.launch

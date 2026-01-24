@@ -3,24 +3,15 @@ package com.danilkha.trainstats.core.utils
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.danilkha.commoncore.utils.DateTimeFormatter
+import com.danilkha.commoncore.utils.toLocalDate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
-import java.text.SimpleDateFormat
 import java.util.Locale
-
-
-interface DateTimeFormatter {
-
-    fun format(date: LocalDate): String
-
-    fun format(dateTime: LocalDateTime): String
-
-    fun is24hourFormat(): Boolean
-}
 
 
 class JvmDateTimeFormatter(private val context: Context) : DateTimeFormatter {
