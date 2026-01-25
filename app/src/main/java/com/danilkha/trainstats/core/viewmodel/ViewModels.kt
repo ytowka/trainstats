@@ -3,6 +3,7 @@ package com.danilkha.trainstats.core.viewmodel
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.core.utils.findActivity
 import com.danilkha.trainstats.di.AppComponent
+import com.danilkha.trainstats.di.ViewModelsProvider
 import com.danilkha.trainstats.entrypoint.App
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.collectLatest
@@ -40,6 +42,8 @@ inline fun<reified T : ViewModel> Fragment.viewModel(crossinline getInstance: (A
             }
         })[T::class.java]
 }
+
+val LocalViewModelsProvider = staticCompositionLocalOf<ViewModelsProvider> { throw IllegalStateException("not initialized") }
 
 @SuppressLint("ComposableNaming")
 @Composable

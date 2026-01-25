@@ -30,6 +30,8 @@ kotlin {
             implementation(libs.activity.compose)
         }
         commonMain.dependencies {
+            implementation(project(":common-core"))
+
             implementation(libs.compose.runtime.kmp)
             implementation(libs.compose.foundation.kmp)
             implementation(libs.compose.ui.kmp)

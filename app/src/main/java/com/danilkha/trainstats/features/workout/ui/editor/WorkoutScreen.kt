@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.utils.toLocal
+import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
@@ -39,7 +40,6 @@ import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
-import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheet
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
@@ -51,6 +51,7 @@ import com.danilkha.commonds.components.TextToolbar
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.datepicker.DateSelector
+import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetScreen
 
 @Composable
 fun WorkoutScreenRoute(
@@ -90,9 +91,7 @@ fun WorkoutScreenRoute(
         },
         onCancel = { })
 
-    val exerciseHistory = rememberBottomSheetController(
-        bottomSheetClass = ExerciseHistoryBottomSheet::class.java
-    )
+    val exerciseHistoryBottomSheet = rememberBottomSheetState()
     exerciseSelectorViewModel.LaunchCollectEffects {
         when (it) {
             is ExerciseListSideEffect.ExerciseClicked -> {
@@ -113,22 +112,25 @@ fun WorkoutScreenRoute(
         )
     }
 
-    WorkoutScreen(
-        state = state,
-        eventConsumer = viewModel::processEvent,
-        onDateClicked = { showDateDialog = true },
-        onSave = {
-            viewModel.processEvent(WorkoutEvent.SaveWorkout)
-            onSaved()
-        },
-        addExercise = {
-            exerciseSelector.show()
-        },
-        onDelete = alertDialog::show,
-        onHistoryClick = {
-            exerciseHistory.show(ExerciseHistoryBottomSheet.buildArgs(it))
-        }
-    )
+    Box {
+        WorkoutScreen(
+            state = state,
+            eventConsumer = viewModel::processEvent,
+            onDateClicked = { showDateDialog = true },
+            onSave = {
+                viewModel.processEvent(WorkoutEvent.SaveWorkout)
+                onSaved()
+            },
+            addExercise = {
+                exerciseSelector.show()
+            },
+            onDelete = alertDialog::show,
+            onHistoryClick = {
+                exerciseHistoryBottomSheet.show(mapOf("exerciseId" to it))
+            }
+        )
+        ExerciseHistoryBottomSheetScreen(exerciseHistoryBottomSheet)
+    }
 }
 
 @Composable

@@ -1,6 +1,5 @@
 package com.danilkha.trainstats.features.exercises.ui.history
 
-import android.os.Bundle
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +25,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,52 +41,51 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.bundleOf
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.commoncore.utils.format2
-import com.danilkha.trainstats.core.viewmodel.viewModel
+import com.danilkha.commonds.bottomsheet.BottomSheetScreen
+import com.danilkha.commonds.bottomsheet.BottomSheetState
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
-import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
 import com.danilkha.commonds.components.BottomSheetContent
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
+import com.danilkha.trainstats.core.viewmodel.LocalViewModelsProvider
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.coroutines.launch
 
-class ExerciseHistoryBottomSheet : ComposeContextBottomDialog(){
 
-    val viewModel by viewModel { it.exerciseHistoryViewModel }
+@Composable
+fun ExerciseHistoryBottomSheetScreen(
+    sheetState: BottomSheetState
+) {
+    val viewModelsProvider = LocalViewModelsProvider.current
+    val viewModel = viewModel { viewModelsProvider.exerciseHistoryViewModel }
+    val state by viewModel.state.collectAsState()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.getLong(EXERCISE_ID_ARG)?.let {
-            viewModel.init(it)
-            arguments?.remove(EXERCISE_ID_ARG)
+    val args = sheetState.args
+    LaunchedEffect(args) {
+        val exerciseId = args?.get("exerciseId") as? Long
+        if(exerciseId != null) {
+            viewModel.init(exerciseId)
         }
+        sheetState.args = null
     }
 
-    override val content: @Composable () -> Unit = {
-
-        val state by viewModel.state.collectAsState()
+    BottomSheetScreen(
+        state = sheetState
+    ) {
         ExerciseHistoryBottomSheet(
             state = state,
-            onDismiss = ::dismiss
-        )
-    }
-
-    companion object{
-        private const val EXERCISE_ID_ARG = "exercise_id_arg"
-
-        fun buildArgs(exerciseId: Long): Bundle = bundleOf(
-            EXERCISE_ID_ARG to exerciseId
+            onDismiss = { sheetState.hide() }
         )
     }
 }
