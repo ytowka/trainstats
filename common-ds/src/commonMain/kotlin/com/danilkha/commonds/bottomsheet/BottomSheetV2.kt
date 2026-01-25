@@ -55,10 +55,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
-import training_stats.common_ds.generated.resources.Res
 
 
-// TODO: fix crash after close after configuratiob change
+
 @Composable
 fun BottomSheetScreen(
     state: BottomSheetState,
@@ -243,7 +242,7 @@ class BottomSheetState(
 
     internal var isShowed by mutableStateOf(anchoredDraggableState.currentValue == BottomSheetExpandState.Expanded)
 
-    internal val needMeasure by derivedStateOf { anchoredDraggableState.anchors.size == 1 }
+    internal val needMeasure by derivedStateOf { anchoredDraggableState.anchors.size < 2 }
 
     internal val isVisible: Boolean by derivedStateOf {
         anchoredDraggableState.settledValue == BottomSheetExpandState.Expanded
@@ -299,6 +298,7 @@ class BottomSheetState(
     }
 
     internal fun emitSize(height: Int) {
+        Napier.d("emitSize $height")
         anchoredDraggableState.updateAnchors(DraggableAnchors {
             BottomSheetExpandState.Collapsed at height.toFloat()
             BottomSheetExpandState.Expanded at 0f
@@ -329,6 +329,9 @@ class BottomSheetState(
                             confirmValueChange = {
                                 if (it == BottomSheetExpandState.Collapsed) canHide()
                                 else true
+                            },
+                            anchors = DraggableAnchors {
+                                BottomSheetExpandState.Expanded at 0f
                             }
                         )
                     )
