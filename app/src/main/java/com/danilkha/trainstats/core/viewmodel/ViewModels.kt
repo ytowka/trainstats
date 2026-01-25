@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.core.utils.findActivity
 import com.danilkha.trainstats.di.AppComponent
@@ -30,6 +31,13 @@ inline fun<reified T : ViewModel> getCurrentViewModel(crossinline getInstance: (
             }
         }
     )[T::class.java]
+}
+
+@Composable
+inline fun<reified T : ViewModel> getViewModel(crossinline getInstance: (ViewModelsProvider) -> T): T {
+    val viewModelsProvider = LocalViewModelsProvider.current
+    val viewModel = viewModel { getInstance(viewModelsProvider) }
+    return viewModel
 }
 
 inline fun<reified T : ViewModel> Fragment.viewModel(crossinline getInstance: (AppComponent) -> T) : Lazy<T> = lazy{

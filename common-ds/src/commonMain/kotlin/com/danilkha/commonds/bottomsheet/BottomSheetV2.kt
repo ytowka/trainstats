@@ -39,12 +39,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import io.github.aakira.napier.Napier
@@ -226,6 +228,7 @@ enum class BottomSheetExpandState {
 @Stable
 class BottomSheetState(
     val coroutineScope: CoroutineScope,
+    val focusManager: FocusManager,
     val canHide: () -> Boolean,
     val anchoredDraggableState: AnchoredDraggableState<BottomSheetExpandState> = AnchoredDraggableState(
         initialValue = BottomSheetExpandState.Collapsed,
@@ -239,6 +242,7 @@ class BottomSheetState(
     )
 ) {
     var args by mutableStateOf<Map<String, Any>?>(null)
+
 
     internal var isShowed by mutableStateOf(anchoredDraggableState.currentValue == BottomSheetExpandState.Expanded)
 
@@ -256,7 +260,6 @@ class BottomSheetState(
             targetState
                 .onSubscription { emit(anchoredDraggableState.currentValue) }
                 .collectLatest {
-                    Napier.d("targetState = $it")
                     when (it) {
                         BottomSheetExpandState.Collapsed -> {
                             anchoredDraggableState.animateTo(BottomSheetExpandState.Collapsed)
@@ -272,41 +275,19 @@ class BottomSheetState(
                     }
                 }
         }
-        coroutineScope.launch {
-            snapshotFlow { isVisible }.collectLatest { isVisible ->
-                //Napier.d("isVisible = $isVisible")
-                /*if(isVisible) {
-                    hide()
-                }*/
-            }
-        }
-        coroutineScope.launch {
-            snapshotFlow { anchoredDraggableState.currentValue }.collectLatest { isVisible ->
-                Napier.d("currentValue = $isVisible")
-            }
-        }
-        coroutineScope.launch {
-            snapshotFlow { anchoredDraggableState.targetValue }.collectLatest { isVisible ->
-                Napier.d("anchoredDraggableState targetValue = $isVisible")
-            }
-        }
-        coroutineScope.launch {
-            snapshotFlow { anchoredDraggableState.settledValue }.collectLatest { isVisible ->
-                Napier.d("settledValue = $isVisible")
-            }
-        }
     }
 
     internal fun emitSize(height: Int) {
-        Napier.d("emitSize $height")
         anchoredDraggableState.updateAnchors(DraggableAnchors {
             BottomSheetExpandState.Collapsed at height.toFloat()
             BottomSheetExpandState.Expanded at 0f
         })
     }
 
+    // todo: save args through configuration change
     fun show(args: Map<String, Any>) {
         this.args = args
+        focusManager.clearFocus()
         targetState.tryEmit(BottomSheetExpandState.Expanded)
     }
 
@@ -315,7 +296,11 @@ class BottomSheetState(
     }
 
     companion object {
-        fun Saver(coroutineScope: CoroutineScope, canHide: () -> Boolean) =
+        fun Saver(
+            coroutineScope: CoroutineScope,
+            focusManager: FocusManager,
+            canHide: () -> Boolean
+        ) =
             androidx.compose.runtime.saveable.Saver<BottomSheetState, BottomSheetExpandState>(
                 save = {
                     it.anchoredDraggableState.currentValue
@@ -323,6 +308,7 @@ class BottomSheetState(
                 restore = { currentValue ->
                     BottomSheetState(
                         coroutineScope = coroutineScope,
+                        focusManager = focusManager,
                         canHide = canHide,
                         anchoredDraggableState = AnchoredDraggableState(
                             initialValue = currentValue,
@@ -341,10 +327,26 @@ class BottomSheetState(
 }
 
 @Composable
+fun BottomSheetState.initOnArgs(onArgs: (Map<String, Any>) -> Unit) {
+    val args = this.args
+    if(args != null) {
+        SideEffect {
+            onArgs(args)
+            this@initOnArgs.args = null
+        }
+    }
+}
+
+@Composable
 fun rememberBottomSheetState(canHide: () -> Boolean = { true }): BottomSheetState {
     val coroutineScope = rememberCoroutineScope()
-    return rememberSaveable(saver = BottomSheetState.Saver(coroutineScope, canHide)) {
-        BottomSheetState(coroutineScope = coroutineScope, canHide = canHide)
+    val focusManager = LocalFocusManager.current
+    return rememberSaveable(saver = BottomSheetState.Saver(coroutineScope, focusManager, canHide)) {
+        BottomSheetState(
+            coroutineScope = coroutineScope,
+            focusManager = focusManager,
+            canHide = canHide
+        )
     }
 }
 

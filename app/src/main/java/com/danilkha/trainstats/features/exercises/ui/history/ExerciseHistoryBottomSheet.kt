@@ -47,6 +47,7 @@ import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.commoncore.utils.format2
 import com.danilkha.commonds.bottomsheet.BottomSheetScreen
 import com.danilkha.commonds.bottomsheet.BottomSheetState
+import com.danilkha.commonds.bottomsheet.initOnArgs
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import com.danilkha.commonds.components.BottomSheetContent
@@ -55,7 +56,8 @@ import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import com.danilkha.trainstats.core.viewmodel.LocalViewModelsProvider
+import com.danilkha.trainstats.core.viewmodel.getViewModel
+import io.github.aakira.napier.Napier
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -67,17 +69,14 @@ import kotlinx.coroutines.launch
 fun ExerciseHistoryBottomSheetScreen(
     sheetState: BottomSheetState
 ) {
-    val viewModelsProvider = LocalViewModelsProvider.current
-    val viewModel = viewModel { viewModelsProvider.exerciseHistoryViewModel }
+
+    val viewModel = getViewModel { it.exerciseHistoryViewModel }
     val state by viewModel.state.collectAsState()
 
-    val args = sheetState.args
-    LaunchedEffect(args) {
-        val exerciseId = args?.get("exerciseId") as? Long
-        if(exerciseId != null) {
-            viewModel.init(exerciseId)
-        }
-        sheetState.args = null
+    sheetState.initOnArgs { args ->
+        Napier.d("sheetState.initOnArgs $args")
+        val exerciseId = args.get("exerciseId") as Long
+        viewModel.init(exerciseId)
     }
 
     BottomSheetScreen(
