@@ -43,7 +43,6 @@ import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBott
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
 import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
-import com.danilkha.uikit.components.DateSelector
 import com.danilkha.commonds.components.DragAndDropColumn
 import com.danilkha.commonds.components.DragDispatcher
 import com.danilkha.commonds.components.GenericButton
@@ -51,6 +50,7 @@ import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.components.TextToolbar
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
+import com.danilkha.datepicker.DateSelector
 
 @Composable
 fun WorkoutScreenRoute(

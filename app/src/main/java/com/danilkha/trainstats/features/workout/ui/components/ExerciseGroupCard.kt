@@ -51,10 +51,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilkha.trainstats.R
-import com.danilkha.trainstats.core.utils.floatPrecision
-import com.danilkha.trainstats.core.utils.format2
-import com.danilkha.trainstats.core.utils.trimDots
-import com.danilkha.trainstats.core.utils.trimFirstZeros
+import com.danilkha.commoncore.utils.floatPrecision
+import com.danilkha.commoncore.utils.format2
+import com.danilkha.commoncore.utils.trimDots
+import com.danilkha.commoncore.utils.trimFirstZeros
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel

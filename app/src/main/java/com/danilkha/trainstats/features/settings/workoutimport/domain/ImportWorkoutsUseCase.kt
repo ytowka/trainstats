@@ -10,7 +10,7 @@ import com.danilkha.trainstats.features.settings.workoutimport.data.ParserExcept
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Workout
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant

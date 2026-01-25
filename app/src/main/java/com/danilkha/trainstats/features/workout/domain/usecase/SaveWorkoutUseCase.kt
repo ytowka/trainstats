@@ -7,7 +7,7 @@ import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant

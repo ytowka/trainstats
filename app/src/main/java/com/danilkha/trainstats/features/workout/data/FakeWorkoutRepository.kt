@@ -10,7 +10,7 @@ import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine

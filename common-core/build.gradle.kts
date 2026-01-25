@@ -6,6 +6,10 @@ plugins {
 
 kotlin {
 
+
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
+    }
     // Target declarations - add or remove as needed below. These define
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
@@ -31,7 +35,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.coroutines.core)
-                implementation(libs.kotlinx.datetime)
+                api(libs.kotlinx.datetime)
                 api(libs.lifecycle.viewmodel)
                 api(libs.napier)
                 // Add KMP dependencies here

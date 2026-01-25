@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+kotlin {
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
+    }
+}
+
 android {
     namespace = "com.danilkha.trainstats"
     compileSdk = 36
@@ -79,6 +85,7 @@ dependencies {
     implementation(project(":uikit"))
     implementation(project(":common-core"))
     implementation(project(":common-ds"))
+    implementation(project(":common-date-picker"))
 
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)

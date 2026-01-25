@@ -1,4 +1,4 @@
-package com.danilkha.uikit.components
+package com.danilkha.datepicker
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.utils.Instant
@@ -25,20 +24,23 @@ import com.danilkha.commoncore.utils.asLocal
 import com.danilkha.commoncore.utils.millisecondsLong
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commonds.components.GenericButton
-import com.danilkha.uikit.R
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
+import training_stats.common_date_picker.generated.resources.Res
+import training_stats.common_date_picker.generated.resources.cancel
+import training_stats.common_date_picker.generated.resources.select
+import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun DateSelector(
     onDismiss: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
 ) {
 
-    val todayLocal = Clock.System.now().toLocal()
+    val todayLocal = kotlin.time.Clock.System.now().toLocal()
     val state = rememberDatePickerState(
         initialSelectedDateMillis = todayLocal.millisecondsLong
     )
@@ -83,7 +85,7 @@ fun DateSelector(
                     color = Colors.primaryVariant
                 ) {
                     Text(
-                        text = stringResource(id = R.string.cancel),
+                        text = stringResource(Res.string.cancel),
                         color = Colors.textInverse
                     )
                 }
@@ -98,7 +100,7 @@ fun DateSelector(
                         }
                     }) {
                     Text(
-                        text = stringResource(id = R.string.select),
+                        text = stringResource(Res.string.select),
                         color = Colors.textInverse
                     )
                 }

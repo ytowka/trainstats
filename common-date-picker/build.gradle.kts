@@ -8,12 +8,18 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.danilkha.commonds"
+        namespace = "com.danilkha.datepicker"
         compileSdk = 36
         minSdk = 26
+        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
     }
 
-    val xcfName = "common-coreKit"
+
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
+    }
+
+    val xcfName = "common-date-pickerKit"
     listOf(
         iosX64(),
         iosArm64(),
@@ -30,15 +36,18 @@ kotlin {
             implementation(libs.activity.compose)
         }
         commonMain.dependencies {
+            implementation(project(":common-core"))
+            implementation(project(":common-ds"))
+
             implementation(libs.compose.runtime.kmp)
             implementation(libs.compose.foundation.kmp)
             implementation(libs.compose.ui.kmp)
-            implementation(libs.compose.components.resources.kmp)
             implementation(libs.compose.uiToolingPreview.kmp)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.material.icons.extended)
             implementation(libs.compose.material.kmp)
+            implementation(libs.compose.material3.kmp)
 
             implementation(libs.compose.components.resources.kmp)
         }
@@ -50,5 +59,4 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
         }
     }
-
 }

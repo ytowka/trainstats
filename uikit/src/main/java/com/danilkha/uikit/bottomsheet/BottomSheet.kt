@@ -33,7 +33,7 @@ internal fun BottomSheet(
     onHide: () -> Boolean,
     expanded: Boolean = true,
 ) {
-    BoxWithConstraints{
+    BoxWithConstraints {
         val bottomSheetState = rememberBottomSheetState(
             confirmStateChange = {
                 if (it == BottomSheetExpandState.Collapsed) {
@@ -41,10 +41,10 @@ internal fun BottomSheet(
                 } else true
             })
 
-        LaunchedEffect(expanded){
-            if(expanded){
+        LaunchedEffect(expanded) {
+            if (expanded) {
                 bottomSheetState.open()
-            }else{
+            } else {
                 bottomSheetState.close()
             }
 
@@ -79,13 +79,13 @@ internal fun BottomSheet(
 internal class BottomSheetState(
     val initialState: BottomSheetExpandState = BottomSheetExpandState.Collapsed,
     val confirmStateChange: (BottomSheetExpandState) -> Boolean = { true },
-) :  SwipeableState<BottomSheetExpandState>(
+) : SwipeableState<BottomSheetExpandState>(
     initialValue = initialState,
     animationSpec = tween(),
     confirmStateChange = {
         confirmStateChange(it)
     },
-){
+) {
 
     val nestedScrollConnection = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -113,7 +113,7 @@ internal class BottomSheetState(
         }
 
         override suspend fun onPreFling(available: Velocity): Velocity {
-            if(offset.value > 0){
+            if (offset.value > 0) {
                 performFling(available.y)
                 return available
             }
@@ -126,11 +126,11 @@ internal class BottomSheetState(
         }
     }
 
-    suspend fun open(){
+    suspend fun open() {
         snapTo(BottomSheetExpandState.Expanded)
     }
 
-    suspend fun close(){
+    suspend fun close() {
         animateTo(BottomSheetExpandState.Collapsed)
     }
 
@@ -154,13 +154,24 @@ internal class BottomSheetState(
 internal fun rememberBottomSheetState(
     initialState: BottomSheetExpandState = BottomSheetExpandState.Collapsed,
     confirmStateChange: (BottomSheetExpandState) -> Boolean = { true },
-): BottomSheetState = rememberSaveable(saver = BottomSheetState.saver(
-    confirmStateChange = confirmStateChange,
-)){
+): BottomSheetState = rememberSaveable(
+    saver = BottomSheetState.saver(
+        confirmStateChange = confirmStateChange,
+    )
+) {
     BottomSheetState(
         initialState = initialState,
         confirmStateChange = confirmStateChange,
     )
 }
 
-enum class BottomSheetExpandState { Collapsed, Expanded }
+enum class BottomSheetExpandState {
+    Collapsed, Expanded;
+
+    operator fun not(): BottomSheetExpandState {
+        return when(this) {
+            Collapsed -> Expanded
+            Expanded -> Collapsed
+        }
+    }
+}

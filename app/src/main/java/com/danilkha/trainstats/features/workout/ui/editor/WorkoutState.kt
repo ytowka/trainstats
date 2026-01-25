@@ -10,7 +10,7 @@ import com.danilkha.trainstats.features.workout.ui.ExerciseSetSlot
 import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.toDomain
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 

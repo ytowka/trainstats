@@ -1,14 +1,7 @@
-package com.danilkha.trainstats.core.utils
+package com.danilkha.commoncore.utils
 
-import java.text.DecimalFormat
-
-private val floatFormat1 = DecimalFormat("###########.#")
-private val floatFormat2 = DecimalFormat("###########.##")
-
-fun Float.formatExact(scale: Int = 2) = "%.${scale}f".format(this)
-
-fun Float.format1() = floatFormat1.format(this)
-fun Float.format2() = floatFormat2.format(this)
+expect fun Float.format1(): String
+expect fun Float.format2(): String
 
 fun CharSequence.trimFirstZeros(): String = buildString {
     var firstZeros = true

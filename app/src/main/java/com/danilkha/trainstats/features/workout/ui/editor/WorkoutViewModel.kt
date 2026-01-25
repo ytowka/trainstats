@@ -21,7 +21,7 @@ import com.danilkha.commonds.components.move
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import javax.inject.Inject
 
 class WorkoutViewModel @Inject constructor(

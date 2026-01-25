@@ -57,7 +57,7 @@ import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.PreviewContent
 import com.danilkha.commonds.theme.ThemeTypography
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 @Composable
 fun HistoryScreenPage(

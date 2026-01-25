@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
-import com.danilkha.trainstats.core.utils.format2
+import com.danilkha.commoncore.utils.format2
 import com.danilkha.trainstats.core.viewmodel.viewModel
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
@@ -55,7 +55,7 @@ import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
