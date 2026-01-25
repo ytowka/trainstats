@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,22 +39,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import com.danilkha.commonds.components.BottomSheetContent
-import com.danilkha.commonds.components.Card
-import com.danilkha.commonds.theme.Colors
-import com.danilkha.commonds.theme.PreviewContent
+import androidx.compose.ui.unit.Velocity
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
+import training_stats.common_ds.generated.resources.Res
 
+
+// TODO: fix crash after close after configuratiob change
 @Composable
 fun BottomSheetScreen(
     state: BottomSheetState,
@@ -64,7 +69,7 @@ fun BottomSheetScreen(
         modifier = Modifier.fillMaxSize(),
         measurePolicy = { constraints ->
             if (state.isShowed) {
-                if(state.needMeasure) {
+                if (state.needMeasure) {
                     val subcomposed = subcompose(SubscomposeSlots.Measure) {
                         Box { content() }
                     }.map {
@@ -84,7 +89,7 @@ fun BottomSheetScreen(
 
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     placeables.forEach {
-                        it.place(0,0)
+                        it.place(0, 0)
                     }
                 }
             } else {
@@ -99,14 +104,15 @@ private fun BottomSheetOverlay(
     state: BottomSheetState,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val targetBackgroundColor = if (state.anchoredDraggableState.targetValue == BottomSheetExpandState.Expanded) {
-        Color.Black.copy(alpha = 0.5f)
-    } else {
-        Color.Transparent
-    }
+    val targetBackgroundColor =
+        if (state.anchoredDraggableState.targetValue == BottomSheetExpandState.Expanded) {
+            Color.Black.copy(alpha = 0.5f)
+        } else {
+            Color.Transparent
+        }
     val backgroundColor by animateColorAsState(targetBackgroundColor)
 
-    if(state.isVisible) {
+    if (state.isVisible) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,7 +133,7 @@ private fun BottomSheetOverlay(
                     .fillMaxWidth()
             )
             BottomSheetV2(
-                anchoredDraggableState = state.anchoredDraggableState,
+                state = state,
                 content = content,
             )
         }
@@ -139,21 +145,66 @@ private enum class SubscomposeSlots { Measure, Place }
 
 @Composable
 internal fun BottomSheetV2(
-    anchoredDraggableState: AnchoredDraggableState<BottomSheetExpandState>,
+    state: BottomSheetState,
     closeThreshold: Float = 2 / 3f,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(
+        state = state.anchoredDraggableState,
+        positionalThreshold = { it * closeThreshold },
+    )
+    val scrollFlingScope = object : ScrollScope {
+        override fun scrollBy(pixels: Float): Float {
+            state.anchoredDraggableState.dispatchRawDelta(pixels)
+            return pixels
+        }
+    }
+    val nestedScrollConnection = object : NestedScrollConnection {
+        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            return if (available.y < 0 && source == NestedScrollSource.Drag) {
+                Offset(0f, state.anchoredDraggableState.dispatchRawDelta(available.y))
+            } else {
+                Offset.Zero
+            }
+        }
+
+        override fun onPostScroll(
+            consumed: Offset,
+            available: Offset,
+            source: NestedScrollSource
+        ): Offset {
+            return if (available.y > 0 && source == NestedScrollSource.Drag) {
+                Offset(0f, state.anchoredDraggableState.dispatchRawDelta(available.y))
+            } else {
+                Offset.Zero
+            }
+        }
+
+        override suspend fun onPreFling(available: Velocity): Velocity {
+            if (state.anchoredDraggableState.offset > 0) {
+                with(flingBehavior) { scrollFlingScope.performFling(available.y) }
+                return available
+            }
+            return Velocity.Zero
+        }
+
+
+        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+            return Velocity.Zero
+        }
+    }
     Box(
         Modifier
+            .nestedScroll(nestedScrollConnection)
             .offset {
-                IntOffset(0, anchoredDraggableState.offset.toInt())
+                IntOffset(0, state.anchoredDraggableState.offset.toInt())
             }
             .anchoredDraggable(
-                state = anchoredDraggableState,
+                state = state.anchoredDraggableState,
                 reverseDirection = false,
                 orientation = Orientation.Vertical,
                 flingBehavior = AnchoredDraggableDefaults.flingBehavior(
-                    state = anchoredDraggableState,
+                    state = state.anchoredDraggableState,
                     positionalThreshold = { it * closeThreshold },
                 ),
             ),
@@ -199,30 +250,50 @@ class BottomSheetState(
                 || anchoredDraggableState.targetValue == BottomSheetExpandState.Expanded
     }
 
-    private val targetState = MutableStateFlow(BottomSheetExpandState.Collapsed)
+    private val targetState = MutableSharedFlow<BottomSheetExpandState>(extraBufferCapacity = 1)
 
     init {
         coroutineScope.launch {
-            targetState.collectLatest {
-                when(it) {
-                    BottomSheetExpandState.Collapsed -> {
-                        anchoredDraggableState.animateTo(BottomSheetExpandState.Collapsed)
-                        isShowed = false
-                    }
-                    BottomSheetExpandState.Expanded -> {
-                        isShowed = true
-                        snapshotFlow { anchoredDraggableState.anchors }
-                            .first { it.size > 1 }
-                        anchoredDraggableState.animateTo(BottomSheetExpandState.Expanded)
+            targetState
+                .onSubscription { emit(anchoredDraggableState.currentValue) }
+                .collectLatest {
+                    Napier.d("targetState = $it")
+                    when (it) {
+                        BottomSheetExpandState.Collapsed -> {
+                            anchoredDraggableState.animateTo(BottomSheetExpandState.Collapsed)
+                            isShowed = false
+                        }
+
+                        BottomSheetExpandState.Expanded -> {
+                            isShowed = true
+                            snapshotFlow { anchoredDraggableState.anchors }
+                                .first { it.size > 1 }
+                            anchoredDraggableState.animateTo(BottomSheetExpandState.Expanded)
+                        }
                     }
                 }
-            }
         }
         coroutineScope.launch {
             snapshotFlow { isVisible }.collectLatest { isVisible ->
-                if(!isVisible) {
+                //Napier.d("isVisible = $isVisible")
+                /*if(isVisible) {
                     hide()
-                }
+                }*/
+            }
+        }
+        coroutineScope.launch {
+            snapshotFlow { anchoredDraggableState.currentValue }.collectLatest { isVisible ->
+                Napier.d("currentValue = $isVisible")
+            }
+        }
+        coroutineScope.launch {
+            snapshotFlow { anchoredDraggableState.targetValue }.collectLatest { isVisible ->
+                Napier.d("anchoredDraggableState targetValue = $isVisible")
+            }
+        }
+        coroutineScope.launch {
+            snapshotFlow { anchoredDraggableState.settledValue }.collectLatest { isVisible ->
+                Napier.d("settledValue = $isVisible")
             }
         }
     }
@@ -236,17 +307,11 @@ class BottomSheetState(
 
     fun show(args: Map<String, Any>) {
         this.args = args
-        targetState.value = BottomSheetExpandState.Expanded
+        targetState.tryEmit(BottomSheetExpandState.Expanded)
     }
 
     fun hide() {
-        targetState.value = BottomSheetExpandState.Collapsed
-    }
-
-    fun popArgs(): Map<String, Any>? {
-        val args = args
-        this.args = null
-        return args
+        targetState.tryEmit(BottomSheetExpandState.Collapsed)
     }
 
     companion object {
