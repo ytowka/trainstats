@@ -6,8 +6,13 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
 }
 
+compose.resources {
+    publicResClass = true
+}
+
 kotlin {
     androidLibrary {
+        experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
         namespace = "com.danilkha.commonds"
         compileSdk = 36
         minSdk = 26

@@ -15,9 +15,7 @@ import androidx.fragment.app.FragmentActivity
 import com.danilkha.trainstats.core.utils.JvmDateTimeFormatter
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.features.navigation.RootScreen
-import com.danilkha.uikit.bottomsheet.LocalFragmentManager
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import com.danilkha.trainstats.core.utils.findActivity
 import com.danilkha.trainstats.core.viewmodel.LocalViewModelsProvider
 
 class MainActivity : FragmentActivity() {
@@ -32,7 +30,6 @@ class MainActivity : FragmentActivity() {
             TrainingStatsTheme {
                 setStatusBarAppearance(!isSystemInDarkTheme())
                 CompositionLocalProvider(
-                    LocalFragmentManager provides supportFragmentManager,
                     LocalDateFormat provides dateFormat,
                     LocalViewModelsProvider provides appComponent
                 ) {

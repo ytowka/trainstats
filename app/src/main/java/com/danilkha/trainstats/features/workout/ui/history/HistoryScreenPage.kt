@@ -57,6 +57,9 @@ import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.PreviewContent
 import com.danilkha.commonds.theme.ThemeTypography
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import training_stats.common_ds.generated.resources.Res
+import training_stats.common_ds.generated.resources.*
 import kotlin.time.Clock
 
 @Composable
@@ -196,11 +199,11 @@ fun TopBar(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             LargeButton(
-                painter = painterResource(com.danilkha.uikit.R.drawable.ic_add),
+                painter = painterResource(Res.drawable.ic_add),
                 onClick = onAddClicked
             )
             LargeButton(
-                painter = painterResource(com.danilkha.uikit.R.drawable.ic_chart),
+                painter = painterResource(Res.drawable.ic_chart),
                 onClick = {}
             )
             LargeButton(

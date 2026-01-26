@@ -100,6 +100,8 @@ fun BottomSheetScreen(
     )
 }
 
+
+// todo make fullscreen
 @Composable
 private fun BottomSheetOverlay(
     state: BottomSheetState,
@@ -230,6 +232,7 @@ class BottomSheetState(
     val coroutineScope: CoroutineScope,
     val focusManager: FocusManager,
     val canHide: () -> Boolean,
+    val onResult: (Map<String, Any>?) -> Unit,
     val anchoredDraggableState: AnchoredDraggableState<BottomSheetExpandState> = AnchoredDraggableState(
         initialValue = BottomSheetExpandState.Collapsed,
         confirmValueChange = {
@@ -275,6 +278,11 @@ class BottomSheetState(
                     }
                 }
         }
+        coroutineScope.launch {
+            snapshotFlow { anchoredDraggableState.settledValue }.collectLatest { isVisible ->
+                Napier.d("settledValue = $isVisible")
+            }
+        }
     }
 
     internal fun emitSize(height: Int) {
@@ -285,7 +293,7 @@ class BottomSheetState(
     }
 
     // todo: save args through configuration change
-    fun show(args: Map<String, Any>) {
+    fun show(args: Map<String, Any>? = null) {
         this.args = args
         focusManager.clearFocus()
         targetState.tryEmit(BottomSheetExpandState.Expanded)
@@ -295,11 +303,18 @@ class BottomSheetState(
         targetState.tryEmit(BottomSheetExpandState.Collapsed)
     }
 
+
+    // todo: make flow
+    fun setResult(result: Map<String, Any>?) {
+        onResult(result)
+    }
+
     companion object {
         fun Saver(
             coroutineScope: CoroutineScope,
             focusManager: FocusManager,
-            canHide: () -> Boolean
+            canHide: () -> Boolean,
+            onResult: (Map<String, Any>?) -> Unit,
         ) =
             androidx.compose.runtime.saveable.Saver<BottomSheetState, BottomSheetExpandState>(
                 save = {
@@ -310,6 +325,7 @@ class BottomSheetState(
                         coroutineScope = coroutineScope,
                         focusManager = focusManager,
                         canHide = canHide,
+                        onResult = onResult,
                         anchoredDraggableState = AnchoredDraggableState(
                             initialValue = currentValue,
                             confirmValueChange = {
@@ -338,14 +354,18 @@ fun BottomSheetState.initOnArgs(onArgs: (Map<String, Any>) -> Unit) {
 }
 
 @Composable
-fun rememberBottomSheetState(canHide: () -> Boolean = { true }): BottomSheetState {
+fun rememberBottomSheetState(
+    canHide: () -> Boolean = { true },
+    onResult: (Map<String, Any>?) -> Unit = {  },
+): BottomSheetState {
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
-    return rememberSaveable(saver = BottomSheetState.Saver(coroutineScope, focusManager, canHide)) {
+    return rememberSaveable(saver = BottomSheetState.Saver(coroutineScope, focusManager, canHide, onResult)) {
         BottomSheetState(
             coroutineScope = coroutineScope,
             focusManager = focusManager,
-            canHide = canHide
+            canHide = canHide,
+            onResult = onResult
         )
     }
 }

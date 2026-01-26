@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.exercises.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,33 +36,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.utils.toLocal
+import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
-import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.GenericTextFiled
 import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.theme.Colors
+import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheetArgs
 
 @Composable
 fun ExerciseListScreenPage(
     viewModel: ExerciseListViewModel = getCurrentViewModel { it.exerciseListViewModel }
 ) {
-    val exerciseEditor = rememberBottomSheetController(bottomSheetClass = ExerciseEditorBottomSheet::class.java)
+    val exerciseEditorBottomSheet = rememberBottomSheetState()
 
     val state by viewModel.state.collectAsState()
 
-    ExerciseListScreen(
-        state = state,
-        onAddClicked = {exerciseEditor.show()},
-        onExerciseClicked = {
-            exerciseEditor.show(ExerciseEditorBottomSheet.buildArgs(it.id))
-        },
-        onQueryChange = { viewModel.processEvent(ExerciseListEvent.ChangeSearchQuery(it)) }
-    )
+    Box {
+        ExerciseListScreen(
+            state = state,
+            onAddClicked = { exerciseEditorBottomSheet.show() },
+            onExerciseClicked = {
+                exerciseEditorBottomSheet.show(ExerciseEditorBottomSheetArgs.buildArgs(it.id))
+            },
+            onQueryChange = { viewModel.processEvent(ExerciseListEvent.ChangeSearchQuery(it)) }
+        )
+        ExerciseEditorBottomSheet(exerciseEditorBottomSheet)
+    }
 }
 
 @Composable

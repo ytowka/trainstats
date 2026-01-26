@@ -36,13 +36,10 @@ import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
-import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
-import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.commonds.components.DragAndDropColumn
 import com.danilkha.commonds.components.DragDispatcher
 import com.danilkha.commonds.components.GenericButton
@@ -51,12 +48,16 @@ import com.danilkha.commonds.components.TextToolbar
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.datepicker.DateSelector
-import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetScreen
+import com.danilkha.trainstats.core.viewmodel.getViewModel
+import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
+import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheetArgs
+import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheet
+import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetArgs
 
 @Composable
 fun WorkoutScreenRoute(
     workoutId: Long? = null,
-    viewModel: WorkoutViewModel = getCurrentViewModel { it.workoutViewModel },
+    viewModel: WorkoutViewModel = getViewModel { it.workoutViewModel },
     onSaved: () -> Unit
 ) {
     val state by viewModel.state.collectAsState(viewModel.startState)
@@ -65,38 +66,43 @@ fun WorkoutScreenRoute(
         viewModel.processEvent(WorkoutEvent.RequestInit(workoutId))
     }
 
-    val exerciseSelectorViewModel = getCurrentViewModel { it.exerciseListViewModel }
-    val exerciseSelector = rememberBottomSheetController(
-        bottomSheetClass = ExerciseSelectorBottomSheet::class.java,
-        onDismiss = {
+    val exerciseSelectorViewModel = getViewModel { it.exerciseListViewModel }
+
+    val exerciseSelectorBottomSheet = rememberBottomSheetState(
+        canHide = {
             exerciseSelectorViewModel.processEvent(ExerciseListEvent.OnSelectorClosed)
+            true
+        }
+    )
+
+    val exerciseEditorBottomSheet = rememberBottomSheetState(
+        canHide = {
+            exerciseSelectorViewModel.processEvent(ExerciseListEvent.OnSelectorClosed)
+            true
+        },
+        onResult = {
+            val result = it?.get(ExerciseEditorBottomSheetArgs.result)
+            if(result is ExerciseListEvent.UpdateList) {
+                exerciseSelectorViewModel.processEvent(result)
+            }
         }
     )
 
     viewModel.LaunchCollectEffects { event ->
         when (event) {
             WorkoutSideEffect.Deleted -> onSaved()
-            WorkoutSideEffect.OpenExerciseSelector -> exerciseSelector.show()
+            WorkoutSideEffect.OpenExerciseSelector -> exerciseSelectorBottomSheet.show()
         }
     }
 
     var showDateDialog by rememberSaveable { mutableStateOf(false) }
-
-    val alertDialog = rememberAlertDialog(
-        titleRes = R.string.delete_workout_title,
-        textRes = R.string.delete_exercise_subtitle,
-        dialogKey = "delete",
-        onConfirm = {
-            viewModel.processEvent(WorkoutEvent.DeleteWorkout)
-        },
-        onCancel = { })
 
     val exerciseHistoryBottomSheet = rememberBottomSheetState()
     exerciseSelectorViewModel.LaunchCollectEffects {
         when (it) {
             is ExerciseListSideEffect.ExerciseClicked -> {
                 viewModel.processEvent(WorkoutEvent.AddExercise(it.exerciseModel))
-                exerciseSelector.hide()
+                exerciseSelectorBottomSheet.hide()
             }
         }
     }
@@ -122,14 +128,21 @@ fun WorkoutScreenRoute(
                 onSaved()
             },
             addExercise = {
-                exerciseSelector.show()
+                exerciseSelectorBottomSheet.show()
             },
-            onDelete = alertDialog::show,
+            onDelete = { },
             onHistoryClick = {
-                exerciseHistoryBottomSheet.show(mapOf("exerciseId" to it))
+                exerciseHistoryBottomSheet.show(ExerciseHistoryBottomSheetArgs.buildArgs(it))
             }
         )
-        ExerciseHistoryBottomSheetScreen(exerciseHistoryBottomSheet)
+        ExerciseHistoryBottomSheet(exerciseHistoryBottomSheet)
+        ExerciseSelectorBottomSheet(
+            sheetState = exerciseSelectorBottomSheet,
+            openExerciseEditor = {
+                exerciseEditorBottomSheet.show()
+            }
+        )
+        ExerciseEditorBottomSheet(exerciseEditorBottomSheet)
     }
 }
 
@@ -148,11 +161,13 @@ fun WorkoutScreen(
 
     Column {
         TextToolbar(
-            title = stringResource(id = when(state.initialization){
-                WorkoutEditorInitialization.NEW -> R.string.new_workout
-                WorkoutEditorInitialization.EDIT -> R.string.edit_workout
-                null -> R.string.new_workout
-            }),
+            title = stringResource(
+                id = when (state.initialization) {
+                    WorkoutEditorInitialization.NEW -> R.string.new_workout
+                    WorkoutEditorInitialization.EDIT -> R.string.edit_workout
+                    null -> R.string.new_workout
+                }
+            ),
             onBack = onSave
         )
         Column(
@@ -213,8 +228,23 @@ fun WorkoutScreen(
                             )
                         },
                         onDelete = { eventConsumer(WorkoutEvent.DeleteSet(groupIndex, it)) },
-                        onReturnDeleted = { eventConsumer(WorkoutEvent.ReturnDeletedSet(groupIndex, it)) },
-                        onSetMoved = { from, to -> eventConsumer(WorkoutEvent.OnSetMove(groupIndex, from, to)) },
+                        onReturnDeleted = {
+                            eventConsumer(
+                                WorkoutEvent.ReturnDeletedSet(
+                                    groupIndex,
+                                    it
+                                )
+                            )
+                        },
+                        onSetMoved = { from, to ->
+                            eventConsumer(
+                                WorkoutEvent.OnSetMove(
+                                    groupIndex,
+                                    from,
+                                    to
+                                )
+                            )
+                        },
                         onExpandClick = { eventConsumer(WorkoutEvent.ToggleGroup(groupIndex)) },
                         separated = item.separated,
                         hasWeight = item.hasWeight,

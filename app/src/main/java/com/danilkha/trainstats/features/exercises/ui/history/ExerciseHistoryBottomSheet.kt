@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +40,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.commoncore.utils.format2
@@ -57,7 +55,7 @@ import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
 import com.danilkha.trainstats.core.viewmodel.getViewModel
-import io.github.aakira.napier.Napier
+import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetArgs.exerciseIdArg
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -65,17 +63,24 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.coroutines.launch
 
 
+object ExerciseHistoryBottomSheetArgs {
+
+    const val exerciseIdArg = "exerciseId"
+
+    fun buildArgs(exerciseId: Long): Map<String, Any> {
+        return mapOf(exerciseIdArg to exerciseId)
+    }
+}
+
 @Composable
-fun ExerciseHistoryBottomSheetScreen(
+fun ExerciseHistoryBottomSheet(
     sheetState: BottomSheetState
 ) {
-
     val viewModel = getViewModel { it.exerciseHistoryViewModel }
     val state by viewModel.state.collectAsState()
 
     sheetState.initOnArgs { args ->
-        Napier.d("sheetState.initOnArgs $args")
-        val exerciseId = args.get("exerciseId") as Long
+        val exerciseId = args[exerciseIdArg] as Long
         viewModel.init(exerciseId)
     }
 
@@ -91,7 +96,7 @@ fun ExerciseHistoryBottomSheetScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ExerciseHistoryBottomSheet(
+private fun ExerciseHistoryBottomSheet(
     state: ExerciseHistoryState,
     onDismiss: () -> Unit,
 ){

@@ -13,30 +13,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
+import com.danilkha.commonds.bottomsheet.BottomSheetScreen
+import com.danilkha.commonds.bottomsheet.BottomSheetState
 import com.danilkha.trainstats.R
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseList
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseSearchBar
-import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
-import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
-import com.danilkha.uikit.bottomsheet.rememberBottomSheetController
 import com.danilkha.commonds.components.BottomSheetContent
 import com.danilkha.commonds.theme.Colors
+import com.danilkha.trainstats.core.viewmodel.getViewModel
 
-class ExerciseSelectorBottomSheet : ComposeContextBottomDialog() {
+@Composable
+fun ExerciseSelectorBottomSheet(
+    sheetState: BottomSheetState,
+    openExerciseEditor: () -> Unit,
+) {
+    val viewModel: ExerciseListViewModel = getViewModel { it.exerciseListViewModel }
+    val state by viewModel.state.collectAsState()
 
-    override val content: @Composable () -> Unit = {
-
-        val viewModel: ExerciseListViewModel = getCurrentViewModel { it.exerciseListViewModel }
-
-        val exerciseEditor = rememberBottomSheetController(bottomSheetClass = ExerciseEditorBottomSheet::class.java)
-
-        val state by viewModel.state.collectAsState()
+    BottomSheetScreen(
+        state = sheetState
+    ) {
         BottomSheetContent(
             title = stringResource(id = R.string.add_exercise),
-            onCloseClicked = { dismiss() }
+            onCloseClicked = { sheetState.hide() }
         ) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(Unit) {
@@ -47,13 +48,13 @@ class ExerciseSelectorBottomSheet : ComposeContextBottomDialog() {
                     .clip(MaterialTheme.shapes.medium)
                     .background(color = Colors.background)
                     .fillMaxSize()
-                ) {
+            ) {
                 ExerciseSearchBar(
                     query = state.searchQuery,
                     onQueryChange = { viewModel.processEvent(ExerciseListEvent.ChangeSearchQuery(it)) },
                     focusRequester = focusRequester,
                     onAddClicked = {
-                        exerciseEditor.show()
+                        openExerciseEditor()
                     }
                 )
                 ExerciseList(
@@ -63,5 +64,4 @@ class ExerciseSelectorBottomSheet : ComposeContextBottomDialog() {
             }
         }
     }
-
 }

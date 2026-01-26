@@ -1,6 +1,5 @@
 package com.danilkha.trainstats.features.confirmdialog
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,16 +16,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.danilkha.commonds.components.Card
+import com.danilkha.commonds.bottomsheet.BottomSheetScreen
+import com.danilkha.commonds.bottomsheet.BottomSheetState
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.bottomSheetShape
@@ -34,45 +32,77 @@ import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
 import com.danilkha.trainstats.R
+import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs.CANCEL_ID
+import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs.CONFIRM_ID
+import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs.RESULT_BUTTON_ID
 
+
+object AlertDialogArgs {
+
+    const val RESULT_BUTTON_ID = "result"
+
+    const val DISMISS_ID = "dismiss"
+    const val CONFIRM_ID = "confirm"
+    const val CANCEL_ID= "cancel"
+}
 
 @Composable
-fun BaseAlertBottomSheetDialog(
-    image: Painter?,
+fun AlertBottomSheetDialog(
+    sheetState: BottomSheetState,
     title: String,
     text: String,
-    vararg buttons: AlertBottomSheetButton
 ){
-    AbstractAlertBottomSheetDialog(
-        content = {
-            if(image != null){
-                Image(painter = image, contentDescription = null)
+    BottomSheetScreen(
+        state = sheetState
+    ) {
+        AbstractAlertBottomSheetDialog(
+            content = {
                 Spacer(modifier = Modifier.size(15.dp))
-            }
-            AlertBottomSheetText(
-                title = title,
-                text = text
-            )
-        },
-        buttons = {
-            buttons.forEach { button ->
+                AlertBottomSheetText(
+                    title = title,
+                    text = text
+                )
+            },
+            buttons = {
                 GenericButton(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(1f)
                         .height(45.dp)
                     ,
-                    onClick = button.onClick,
-                    color = button.color
+                    onClick = {
+                        sheetState.setResult(mapOf(RESULT_BUTTON_ID to CONFIRM_ID))
+                        sheetState.hide()
+                    },
+                    color = Colors.error
                 ) {
                     Text(
-                        text = button.text,
-                        color = button.textColor,
-                        style = ThemeTypography.title
+                        text = stringResource(id = R.string.delete),
+                        color = Colors.surface,
+                        style = ThemeTypography.body1
+                    )
+                }
+
+                GenericButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(45.dp)
+                    ,
+                    onClick = {
+                        sheetState.setResult(mapOf(RESULT_BUTTON_ID to CANCEL_ID))
+                        sheetState.hide()
+                    },
+                    color = Colors.surface
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.cancel),
+                        color = Colors.text,
+                        style = ThemeTypography.body1
                     )
                 }
             }
-        }
-    )
+        )
+    }
+
 }
 
 @Composable
@@ -82,6 +112,7 @@ fun AbstractAlertBottomSheetDialog(
 ){
     Column(
         modifier = Modifier
+            .padding(10.dp)
             .background(color = MaterialTheme.colors.surface, shape = bottomSheetShape)
             .padding(10.dp)
             .fillMaxWidth(),
@@ -124,15 +155,6 @@ fun AlertBottomSheetText(
         )
     }
 }
-
-@Immutable
-data class AlertBottomSheetButton(
-    val color: Color,
-    val textColor: Color,
-    val icon: Painter? = null,
-    val text: String,
-    val onClick: () -> Unit
-)
 
 @Preview
 @Composable

@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
-import com.danilkha.trainstats.features.home.ui.NavigationItem
+import com.danilkha.trainstats.features.home.ui.MainNavigationItem
 import com.danilkha.trainstats.features.profile.ui.ProfileScreen
 import com.danilkha.trainstats.features.settings.SettingsHostScreen
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutScreenRoute
@@ -26,7 +26,7 @@ import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
 fun RootScreen() {
 
     val navController = rememberNavController()
-    var currentPageItem by rememberSaveable { mutableStateOf(NavigationItem.HOME) }
+    var currentPageItem by rememberSaveable { mutableStateOf(MainNavigationItem.HOME) }
 
     NavHost(
         modifier = Modifier
@@ -42,7 +42,7 @@ fun RootScreen() {
                 onChange = { currentPageItem = it }
             ) {
                 when(it){
-                    NavigationItem.HOME -> HistoryScreenPage(
+                    MainNavigationItem.HOME -> HistoryScreenPage(
                         onWorkoutClicked = {
                             navController.navigate(Navigation.Workout(it))
                         },
@@ -50,10 +50,10 @@ fun RootScreen() {
                             navController.navigate(Navigation.Workout(null))
                         }
                     )
-                    NavigationItem.EXERCISES -> ExerciseListScreenPage()
+                    MainNavigationItem.EXERCISES -> ExerciseListScreenPage()
                     //NavigationItem.WORKOUTS -> Unit
                     // NavigationItem.STATS -> Unit
-                    NavigationItem.PROFILE -> ProfileScreen(
+                    MainNavigationItem.PROFILE -> ProfileScreen(
                         onSettingsClicked = { navController.navigate(Navigation.settings) }
                     )
                 }

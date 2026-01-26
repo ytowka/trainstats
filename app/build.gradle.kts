@@ -14,6 +14,7 @@ kotlin {
 }
 
 android {
+    experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
     namespace = "com.danilkha.trainstats"
     compileSdk = 36
 
@@ -82,7 +83,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":uikit"))
     implementation(project(":common-core"))
     implementation(project(":common-ds"))
     implementation(project(":common-date-picker"))
@@ -101,6 +101,7 @@ dependencies {
     implementation(libs.compose.material.icons)
     implementation(libs.navigation.compose)
     implementation(libs.ui)
+    implementation(libs.compose.components.resources.kmp)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.dagger)

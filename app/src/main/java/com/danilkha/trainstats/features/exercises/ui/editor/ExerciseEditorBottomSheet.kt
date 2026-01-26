@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.features.exercises.ui.editor
 
-import android.os.Bundle
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,87 +20,98 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
+import com.danilkha.commonds.bottomsheet.BottomSheetScreen
+import com.danilkha.commonds.bottomsheet.BottomSheetState
+import com.danilkha.commonds.bottomsheet.initOnArgs
+import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.viewmodel.collectSingleEvents
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
-import com.danilkha.trainstats.core.viewmodel.viewModel
-import com.danilkha.uikit.bottomsheet.ComposeContextBottomDialog
 import com.danilkha.commonds.components.BottomSheetContent
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.GenericTextFiled
 import com.danilkha.commonds.theme.Colors
-import com.danilkha.trainstats.features.confirmdialog.rememberAlertDialog
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.commonds.theme.PreviewContent
 import com.danilkha.commonds.theme.ThemeTypography
+import com.danilkha.trainstats.core.viewmodel.getViewModel
+import com.danilkha.trainstats.features.confirmdialog.AlertBottomSheetDialog
+import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs
 
-class ExerciseEditorBottomSheet : ComposeContextBottomDialog(){
+object ExerciseEditorBottomSheetArgs {
+    internal val editingIdArg = "editing_id_arg"
 
+    internal val result = "result"
 
-    private val viewModel by viewModel { it.exerciseEditorViewModel }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (arguments?.containsKey(editingIdArg) == true){
-            val id = arguments?.getLong(editingIdArg, 0)
-            viewModel.init(id)
-            arguments?.remove(editingIdArg)
-        }
-    }
-
-    override val content: @Composable () -> Unit = {
-
-        val state by viewModel.state.collectAsState()
-
-        val listViewModel = getCurrentViewModel { it.exerciseListViewModel }
-
-        viewModel.collectSingleEvents {
-            when(it){
-                ExerciseEditorSingleEvent.Saved -> {
-                    listViewModel.processEvent(ExerciseListEvent.UpdateList)
-                    dismiss()
-                }
-            }
-        }
-
-        val deleteAlertDialogFragment = rememberAlertDialog(
-            titleRes = R.string.delete_exercise_title,
-            textRes = R.string.delete_exercise_subtitle,
-            dialogKey = "delete",
-            onConfirm = {
-                viewModel.delete()
-            },
-            onCancel = { })
-
-        ExerciseEditorBottomSheet(
-            state = state,
-            onNameChange = viewModel::editName,
-            onSplitChange = viewModel::setSeparated,
-            onWeightChange = viewModel::setWithWeight,
-            onSaveClick = viewModel::save,
-            onDeleteClick = {
-                deleteAlertDialogFragment.show()
-            },
-            onCloseClicked = { dismiss() },
+    fun buildArgs(editingId: Long): Map<String, Any> {
+        return mapOf(
+            editingIdArg to editingId
         )
-    }
-
-    companion object{
-        private val editingIdArg = "editing_id_arg"
-
-        fun buildArgs(editingId: Long): Bundle{
-            return bundleOf(
-                editingIdArg to editingId
-            )
-        }
     }
 }
 
 @Composable
 fun ExerciseEditorBottomSheet(
+    sheetState: BottomSheetState
+) {
+    val viewModel = getViewModel { it.exerciseEditorViewModel }
+
+    sheetState.initOnArgs {
+        val id = it[ExerciseEditorBottomSheetArgs.editingIdArg] as? Long
+        viewModel.init(id)
+    }
+
+    val state by viewModel.state.collectAsState()
+
+    viewModel.collectSingleEvents {
+        when (it) {
+            ExerciseEditorSingleEvent.Saved -> {
+                sheetState.setResult(mapOf(ExerciseEditorBottomSheetArgs.result to ExerciseListEvent.UpdateList))
+                sheetState.hide()
+            }
+        }
+    }
+
+    val deleteAlertDialogBottomSheet = rememberBottomSheetState(
+        onResult = {
+            val button = it?.get(AlertDialogArgs.RESULT_BUTTON_ID)
+            when (button) {
+                AlertDialogArgs.CONFIRM_ID -> {
+                    viewModel.delete()
+                }
+
+                AlertDialogArgs.DISMISS_ID -> {}
+                AlertDialogArgs.CANCEL_ID -> {}
+            }
+        }
+    )
+
+    Box {
+        BottomSheetScreen(
+            state = sheetState
+        ) {
+            ExerciseEditorBottomSheet(
+                state = state,
+                onNameChange = viewModel::editName,
+                onSplitChange = viewModel::setSeparated,
+                onWeightChange = viewModel::setWithWeight,
+                onSaveClick = viewModel::save,
+                onDeleteClick = {
+                    deleteAlertDialogBottomSheet.show()
+                },
+                onCloseClicked = { sheetState.hide() },
+            )
+        }
+        AlertBottomSheetDialog(
+            sheetState = deleteAlertDialogBottomSheet,
+            title = stringResource(R.string.delete_exercise_title),
+            text = stringResource(R.string.delete_exercise_subtitle)
+        )
+    }
+}
+
+@Composable
+private fun ExerciseEditorBottomSheet(
     state: ExerciseEditorState,
     onNameChange: (String) -> Unit,
     onSplitChange: (Boolean) -> Unit,
@@ -108,16 +119,18 @@ fun ExerciseEditorBottomSheet(
     onSaveClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onCloseClicked: () -> Unit,
-){
+) {
     CompositionLocalProvider(
         LocalTextStyle provides ThemeTypography.body1
     ) {
         BottomSheetContent(
             modifier = Modifier.padding(10.dp),
-            title = stringResource(id = when(state.mode){
-                is ExerciseEditorMode.Edit -> R.string.edit_exercise
-                ExerciseEditorMode.New -> R.string.new_exercise
-            }),
+            title = stringResource(
+                id = when (state.mode) {
+                    is ExerciseEditorMode.Edit -> R.string.edit_exercise
+                    ExerciseEditorMode.New -> R.string.new_exercise
+                }
+            ),
             onCloseClicked = onCloseClicked
         ) {
             GenericTextFiled(
@@ -153,7 +166,7 @@ fun ExerciseEditorBottomSheet(
                         text = stringResource(id = R.string.save),
                     )
                 }
-                if(state.mode is ExerciseEditorMode.Edit){
+                if (state.mode is ExerciseEditorMode.Edit) {
                     GenericButton(
                         onClick = onDeleteClick,
                         color = Colors.error
@@ -191,7 +204,7 @@ fun TumblerRow(
     enabled: Boolean,
     text: String,
     onValueChanged: (Boolean) -> Unit
-){
+) {
     Card {
         Row(
             modifier = Modifier
