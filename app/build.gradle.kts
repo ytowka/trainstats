@@ -87,32 +87,35 @@ dependencies {
     implementation(project(":common-ds"))
     implementation(project(":common-date-picker"))
 
+    implementation(libs.kotlinx.datetime)
+
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)
     implementation(libs.appcompat)
+    implementation(libs.androidx.fragment.ktx)
 
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.activity.compose)
-    implementation(platform(libs.compose.bom))
-    implementation(libs.kotlinx.datetime)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.activity.compose)
+
     implementation(libs.compose.foundation)
     implementation(libs.compose.material)
     implementation(libs.compose.material.icons)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.components.resources)
+    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.navigation.compose)
-    implementation(libs.ui)
-    implementation(libs.compose.components.resources.kmp)
-    implementation(libs.ui.graphics)
-    implementation(libs.ui.tooling.preview)
+
+    // dagger
     implementation(libs.dagger)
-    implementation(libs.androidx.fragment.ktx)
     ksp(libs.dagger.compiler)
 
-
+    // room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // tests
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)
@@ -123,7 +126,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.tooling)
-    debugImplementation(libs.ui.test.manifest)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

@@ -40,17 +40,6 @@ inline fun<reified T : ViewModel> getViewModel(crossinline getInstance: (ViewMod
     return viewModel
 }
 
-inline fun<reified T : ViewModel> Fragment.viewModel(crossinline getInstance: (AppComponent) -> T) : Lazy<T> = lazy{
-    ViewModelProvider(
-        owner = this,
-        factory = object : ViewModelProvider.Factory{
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val appComponent = (activity?.application as App).appComponent
-                return getInstance(appComponent) as T
-            }
-        })[T::class.java]
-}
-
 val LocalViewModelsProvider = staticCompositionLocalOf<ViewModelsProvider> { throw IllegalStateException("not initialized") }
 
 @SuppressLint("ComposableNaming")
