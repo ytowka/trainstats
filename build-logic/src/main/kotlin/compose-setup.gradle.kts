@@ -37,9 +37,5 @@ kotlin {
             implementation(library("jetbrains.lifecycle.viewmodel.compose"))
             implementation(library("jetbrains.lifecycle.runtime.compose"))
         }
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(library("kotlinx.coroutinesSwing"))
-        }
     }
 }

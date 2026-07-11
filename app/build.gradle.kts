@@ -92,6 +92,7 @@ dependencies {
     implementation(project(":common-core"))
     implementation(project(":common-ds"))
     implementation(project(":common-date-picker"))
+    implementation(project(":shared"))
 
     implementation(libs.kotlinx.datetime)
 

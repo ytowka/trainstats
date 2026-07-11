@@ -20,23 +20,23 @@ interface WorkoutDao {
     @Query("""
 select * from workoutentity where archived = 0 order by dateTime desc
     """)
-    fun getAll(): List<WorkoutWithExercises>
+    suspend fun getAll(): List<WorkoutWithExercises>
 
     @Query("select * from workoutentity where id = :id")
     @Transaction
-    fun getWorkoutById(id: Long): WorkoutWithExercises
+    suspend fun getWorkoutById(id: Long): WorkoutWithExercises
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveWorkout(workoutEntity: WorkoutEntity): Long
+    suspend fun saveWorkout(workoutEntity: WorkoutEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun saveSets(exerciseSetEntity: List<ExerciseSetEntity>)
+    suspend fun saveSets(exerciseSetEntity: List<ExerciseSetEntity>)
 
     @Query("delete from exercisesetentity where workoutId = :workoutId")
-    fun deleteWorkoutExercises(workoutId: Long)
+    suspend fun deleteWorkoutExercises(workoutId: Long)
 
     @Transaction
-    fun updateWorkout(
+    suspend fun updateWorkout(
         workoutEntity: WorkoutEntity,
         sets: List<ExerciseSetEntity>
     ): Long{
@@ -50,13 +50,13 @@ select * from workoutentity where archived = 0 order by dateTime desc
     }
 
     @Query("update workoutentity set saved = 1 where id = :workoutId")
-    fun commitWorkoutSave(workoutId: Long)
+    suspend fun commitWorkoutSave(workoutId: Long)
 
     @Query("update workoutentity set archived = 1 where id = :id")
-    fun archiveWorkout(id: Long)
+    suspend fun archiveWorkout(id: Long)
 
     @Query("delete from workoutentity where id = :id")
-    fun deleteWorkout(id: Long)
+    suspend fun deleteWorkout(id: Long)
 
     @Query("""
 select s.*, w.dateTime, e.name as exerciseName  from ExerciseSetEntity as s

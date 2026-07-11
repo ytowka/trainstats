@@ -28,4 +28,8 @@ abstract class TrainStatsDb : RoomDatabase(){
 
     abstract fun exerciseDao(): ExerciseDao
     abstract fun workoutDao(): WorkoutDao
+
+    companion object {
+        const val DB_NAME = "trainstatsDb"
+    }
 }
