@@ -6,9 +6,8 @@ import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.workout.domain.usecase.GetExerciseHistoryUseCase
 import com.danilkha.trainstats.features.workout.ui.toModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class ExerciseHistoryViewModel @Inject constructor(
+class ExerciseHistoryViewModel(
     private val getExerciseHistoryUseCase: GetExerciseHistoryUseCase,
 ): BaseViewModel<ExerciseHistoryState, ExerciseHistorySingleEvent>(){
     override val startState: ExerciseHistoryState = ExerciseHistoryState()

@@ -30,7 +30,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.GenericTextFiled
 import com.danilkha.commonds.components.TextToolbar
@@ -38,7 +38,7 @@ import com.danilkha.commonds.theme.Colors
 
 @Composable
 fun ImportScreenRoute(
-    viewModel: ImportViewModel = getCurrentViewModel { it.profileViewModel },
+    viewModel: ImportViewModel = koinViewModel(),
     onBack: () -> Unit,
 ){
     val state by viewModel.state.collectAsState()

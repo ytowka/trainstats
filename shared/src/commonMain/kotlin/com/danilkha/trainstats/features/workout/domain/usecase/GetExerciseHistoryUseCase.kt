@@ -3,9 +3,8 @@ package com.danilkha.trainstats.features.workout.domain.usecase
 import com.danilkha.commoncore.usecase.UseCase
 import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 import com.danilkha.trainstats.features.workout.domain.model.ExerciseWorkout
-import javax.inject.Inject
 
-class GetExerciseHistoryUseCase @Inject constructor(
+class GetExerciseHistoryUseCase(
     private val workoutRepository: WorkoutRepository
 ) : UseCase<Long, GetExerciseHistoryUseCase.Result>(){
 

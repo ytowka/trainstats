@@ -2,9 +2,8 @@ package com.danilkha.trainstats.features.workout.ui.history
 
 import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.workout.domain.usecase.GetWorkoutHistoryUseCase
-import javax.inject.Inject
 
-class HistoryViewModel @Inject constructor(
+class HistoryViewModel(
     private val getWorkoutHistoryUseCase: GetWorkoutHistoryUseCase,
 ) : MviViewModel<HistoryState, HistoryEvent, HistorySideEffect>() {
 

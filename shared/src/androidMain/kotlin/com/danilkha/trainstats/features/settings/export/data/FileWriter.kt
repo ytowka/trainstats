@@ -4,9 +4,8 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.os.Build
 import android.provider.MediaStore
-import javax.inject.Inject
 
-class FileWriter @Inject constructor(
+class FileWriter(
     val contentResolver: ContentResolver
 ){
 

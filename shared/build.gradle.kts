@@ -24,9 +24,6 @@ kotlin {
 
             // SQLite driver for iOS
             implementation(libs.sqlite.bundled)
-
-            // Temporary: javax.inject annotations (until Phase 4 removes Dagger annotations)
-            implementation(libs.javax.inject)
         }
         androidMain.dependencies {
             implementation(libs.coroutines.android)

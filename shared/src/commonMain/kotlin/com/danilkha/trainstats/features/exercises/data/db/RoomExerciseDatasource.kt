@@ -2,9 +2,8 @@ package com.danilkha.trainstats.features.exercises.data.db
 
 import com.danilkha.trainstats.features.exercises.data.repository.ExerciseLocalDatasource
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import javax.inject.Inject
 
-class RoomExerciseDatasource @Inject constructor(
+class RoomExerciseDatasource(
     private val exerciseDao: ExerciseDao
 ): ExerciseLocalDatasource{
     override suspend fun getAllExercises(): List<ExerciseData> {

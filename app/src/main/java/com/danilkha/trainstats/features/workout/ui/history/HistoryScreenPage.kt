@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.Fab
 import com.danilkha.commonds.components.GenericTextFiled
@@ -64,7 +64,7 @@ import kotlin.time.Clock
 
 @Composable
 fun HistoryScreenPage(
-    viewModel: HistoryViewModel = getCurrentViewModel { it.historyViewModel },
+    viewModel: HistoryViewModel = koinViewModel(),
     onWorkoutClicked: (id: Long) -> Unit,
     onAddClicked: () -> Unit
 ) {

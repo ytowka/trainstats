@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class ExerciseListViewModel @Inject constructor(
+class ExerciseListViewModel(
     private val getAllExercisesUseCase: GetAllExercisesUseCase,
 ): MviViewModel<ExerciseListState, ExerciseListEvent, ExerciseListSideEffect>(){
     override val startState: ExerciseListState = ExerciseListState()

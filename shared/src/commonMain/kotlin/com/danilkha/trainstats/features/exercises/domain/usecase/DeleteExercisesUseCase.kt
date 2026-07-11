@@ -2,9 +2,8 @@ package com.danilkha.trainstats.features.exercises.domain.usecase
 
 import com.danilkha.commoncore.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
-import javax.inject.Inject
 
-class DeleteExercisesUseCase @Inject constructor(
+class DeleteExercisesUseCase(
     private val exerciseRepository: ExerciseRepository
 ) : UseCase<Long, Unit>(){
     override suspend fun execute(params: Long) {

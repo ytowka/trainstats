@@ -2,9 +2,8 @@ package com.danilkha.trainstats.features.settings.workoutimport.ui
 
 import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.settings.workoutimport.domain.ImportWorkoutsUseCase
-import javax.inject.Inject
 
-class ImportViewModel @Inject constructor(
+class ImportViewModel(
     private val importWorkoutsUseCase: ImportWorkoutsUseCase
 ) : MviViewModel<ImportState, ImportEvent, ImportSideEffect>(){
     override val startState: ImportState = ImportState()

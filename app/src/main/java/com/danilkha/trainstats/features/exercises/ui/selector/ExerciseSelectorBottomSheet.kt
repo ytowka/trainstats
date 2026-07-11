@@ -22,14 +22,14 @@ import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseSearchBar
 import com.danilkha.commonds.components.BottomSheetContent
 import com.danilkha.commonds.theme.Colors
-import com.danilkha.trainstats.core.viewmodel.getViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ExerciseSelectorBottomSheet(
     sheetState: BottomSheetState,
     openExerciseEditor: () -> Unit,
 ) {
-    val viewModel: ExerciseListViewModel = getViewModel { it.exerciseListViewModel }
+    val viewModel: ExerciseListViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
 
     BottomSheetScreen(

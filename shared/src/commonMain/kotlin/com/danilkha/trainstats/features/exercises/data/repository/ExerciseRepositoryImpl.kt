@@ -4,9 +4,8 @@ import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-class ExerciseRepositoryImpl @Inject constructor(
+class ExerciseRepositoryImpl(
     private val exerciseLocalDatasource: ExerciseLocalDatasource,
 ) : ExerciseRepository{
     override suspend fun getAllExercises(): List<ExerciseData> {

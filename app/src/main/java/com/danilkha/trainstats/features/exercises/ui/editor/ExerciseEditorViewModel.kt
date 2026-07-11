@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
 
-class ExerciseEditorViewModel @Inject constructor(
+class ExerciseEditorViewModel(
     private val getExercisesUseCase: GetExercisesUseCase,
     private val createExercisesUseCase: CreateExercisesUseCase,
     private val updateExercisesUseCase: UpdateExercisesUseCase,

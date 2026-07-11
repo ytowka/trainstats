@@ -113,9 +113,9 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.navigation.compose)
 
-    // dagger
-    implementation(libs.dagger)
-    ksp(libs.dagger.compiler)
+    // koin
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose.viewmodel)
 
     // room
     implementation(libs.room.runtime)

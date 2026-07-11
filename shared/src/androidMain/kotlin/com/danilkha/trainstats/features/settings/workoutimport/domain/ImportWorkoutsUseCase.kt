@@ -21,9 +21,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import javax.inject.Inject
 
-class ImportWorkoutsUseCase @Inject constructor(
+class ImportWorkoutsUseCase(
     private val workoutParser: WorkoutParser,
     private val workoutRepository: WorkoutRepository,
     private val exerciseRepository: ExerciseRepository,

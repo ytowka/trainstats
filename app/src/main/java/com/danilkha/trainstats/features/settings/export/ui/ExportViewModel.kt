@@ -4,9 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.danilkha.commoncore.viewmodel.BaseViewModel
 import com.danilkha.trainstats.features.settings.export.domain.ExportWorkoutUseCase
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class ExportViewModel @Inject constructor(
+class ExportViewModel(
     private val exportWorkoutUseCase: ExportWorkoutUseCase,
 ) : BaseViewModel<ExportState, ExportSideEffect>(){
 

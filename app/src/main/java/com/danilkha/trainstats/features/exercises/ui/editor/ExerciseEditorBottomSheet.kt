@@ -34,7 +34,7 @@ import com.danilkha.commonds.theme.Colors
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.commonds.theme.PreviewContent
 import com.danilkha.commonds.theme.ThemeTypography
-import com.danilkha.trainstats.core.viewmodel.getViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.confirmdialog.AlertBottomSheetDialog
 import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs
 
@@ -54,7 +54,7 @@ object ExerciseEditorBottomSheetArgs {
 fun ExerciseEditorBottomSheet(
     sheetState: BottomSheetState
 ) {
-    val viewModel = getViewModel { it.exerciseEditorViewModel }
+    val viewModel = koinViewModel<ExerciseEditorViewModel>()
 
     sheetState.initOnArgs {
         val id = it[ExerciseEditorBottomSheetArgs.editingIdArg] as? Long

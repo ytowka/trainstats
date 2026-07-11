@@ -7,9 +7,8 @@ import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.domain.model.SetParams
 import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
 import kotlinx.datetime.LocalDate
-import javax.inject.Inject
 
-class WorkoutParserImpl @Inject constructor(): WorkoutParser {
+class WorkoutParserImpl() : WorkoutParser {
     override fun parse(text: String):  Pair<List<ExerciseData>,List<WorkoutParams>> {
         val exercises = mutableListOf<ExerciseData>()
         val paramsList = mutableListOf<WorkoutParams>()

@@ -16,7 +16,6 @@ import com.danilkha.trainstats.core.utils.JvmDateTimeFormatter
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.features.navigation.RootScreen
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import com.danilkha.trainstats.core.viewmodel.LocalViewModelsProvider
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,14 +23,12 @@ class MainActivity : FragmentActivity() {
 
         window.statusBarColor = android.graphics.Color.BLACK
         val dateFormat = JvmDateTimeFormatter(this)
-        val appComponent = (application as App).appComponent
 
         setContent {
             TrainingStatsTheme {
                 setStatusBarAppearance(!isSystemInDarkTheme())
                 CompositionLocalProvider(
                     LocalDateFormat provides dateFormat,
-                    LocalViewModelsProvider provides appComponent
                 ) {
                     RootScreen()
                 }

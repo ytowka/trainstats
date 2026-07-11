@@ -21,14 +21,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.R
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.components.TextToolbar
 
 @Composable
 fun ExportScreenPage(
-    viewModel: ExportViewModel = getCurrentViewModel { it.exportViewModel },
+    viewModel: ExportViewModel = koinViewModel(),
     onBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()

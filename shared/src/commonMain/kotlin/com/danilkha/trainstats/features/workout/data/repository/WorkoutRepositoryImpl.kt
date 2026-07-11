@@ -7,9 +7,8 @@ import com.danilkha.trainstats.features.workout.domain.model.WorkoutPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-class WorkoutRepositoryImpl @Inject constructor(
+class WorkoutRepositoryImpl(
     private val workoutLocalDatasource: WorkoutLocalDatasource,
 ) : WorkoutRepository{
     override fun getWorkoutHistory(): Flow<List<WorkoutPreview>> {

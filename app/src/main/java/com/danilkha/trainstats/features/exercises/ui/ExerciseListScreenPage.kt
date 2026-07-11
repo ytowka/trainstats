@@ -39,7 +39,7 @@ import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
 import com.danilkha.trainstats.R
 import com.danilkha.trainstats.core.utils.LocalDateFormat
-import com.danilkha.trainstats.core.viewmodel.getCurrentViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.GenericButton
@@ -50,7 +50,7 @@ import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottom
 
 @Composable
 fun ExerciseListScreenPage(
-    viewModel: ExerciseListViewModel = getCurrentViewModel { it.exerciseListViewModel }
+    viewModel: ExerciseListViewModel = koinViewModel()
 ) {
     val exerciseEditorBottomSheet = rememberBottomSheetState()
 

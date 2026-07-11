@@ -14,9 +14,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.byUnicodePattern
-import javax.inject.Inject
 
-class ExportWorkoutUseCase @Inject constructor(
+class ExportWorkoutUseCase(
     private val workoutRepository: WorkoutRepository,
     private val fileWriter: FileWriter,
 ) : SimpleUseCase<String>() {

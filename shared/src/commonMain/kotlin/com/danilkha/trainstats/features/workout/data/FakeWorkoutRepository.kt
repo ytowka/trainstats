@@ -18,11 +18,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FakeWorkoutRepository @Inject constructor(
+class FakeWorkoutRepository(
     private val fakeExerciseRepository: ExerciseRepository,
 ): WorkoutRepository {
 

@@ -11,9 +11,8 @@ import kotlin.time.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import javax.inject.Inject
 
-class SaveWorkoutUseCase @Inject constructor(
+class SaveWorkoutUseCase(
     private val workoutRepository: WorkoutRepository
 ) : UseCase<WorkoutParams, Long>(){
 

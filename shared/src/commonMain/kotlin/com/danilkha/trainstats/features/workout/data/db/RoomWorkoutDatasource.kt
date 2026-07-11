@@ -17,9 +17,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import javax.inject.Inject
 
-class RoomWorkoutDatasource @Inject constructor(
+class RoomWorkoutDatasource(
     private val workoutDao: WorkoutDao
 ): WorkoutLocalDatasource {
     private val timeZone = TimeZone.currentSystemDefault()

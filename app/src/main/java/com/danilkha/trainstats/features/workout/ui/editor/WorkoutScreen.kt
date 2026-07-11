@@ -38,6 +38,7 @@ import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
+import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
 import com.danilkha.commonds.components.DragAndDropColumn
@@ -48,7 +49,7 @@ import com.danilkha.commonds.components.TextToolbar
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.datepicker.DateSelector
-import com.danilkha.trainstats.core.viewmodel.getViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheetArgs
 import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheet
@@ -57,7 +58,7 @@ import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBott
 @Composable
 fun WorkoutScreenRoute(
     workoutId: Long? = null,
-    viewModel: WorkoutViewModel = getViewModel { it.workoutViewModel },
+    viewModel: WorkoutViewModel = koinViewModel(),
     onSaved: () -> Unit
 ) {
     val state by viewModel.state.collectAsState(viewModel.startState)
@@ -66,7 +67,7 @@ fun WorkoutScreenRoute(
         viewModel.processEvent(WorkoutEvent.RequestInit(workoutId))
     }
 
-    val exerciseSelectorViewModel = getViewModel { it.exerciseListViewModel }
+    val exerciseSelectorViewModel = koinViewModel<ExerciseListViewModel>()
 
     val exerciseSelectorBottomSheet = rememberBottomSheetState(
         canHide = {

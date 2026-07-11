@@ -22,9 +22,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
-import javax.inject.Inject
 
-class WorkoutViewModel @Inject constructor(
+class WorkoutViewModel(
     private val workoutSaver: WorkoutSaver,
     private val saveWorkoutUseCase: SaveWorkoutUseCase,
     private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,

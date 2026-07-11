@@ -54,7 +54,7 @@ import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import com.danilkha.trainstats.core.viewmodel.getViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetArgs.exerciseIdArg
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
@@ -76,7 +76,7 @@ object ExerciseHistoryBottomSheetArgs {
 fun ExerciseHistoryBottomSheet(
     sheetState: BottomSheetState
 ) {
-    val viewModel = getViewModel { it.exerciseHistoryViewModel }
+    val viewModel = koinViewModel<ExerciseHistoryViewModel>()
     val state by viewModel.state.collectAsState()
 
     sheetState.initOnArgs { args ->

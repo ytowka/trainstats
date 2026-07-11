@@ -4,9 +4,8 @@ import android.content.ContentResolver
 import android.net.Uri
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import javax.inject.Inject
 
-class FileReader @Inject constructor(
+class FileReader(
     private val contentResolver: ContentResolver
 ){
 

@@ -4,9 +4,8 @@ import com.danilkha.commoncore.usecase.SimpleUseCase
 import com.danilkha.commoncore.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import javax.inject.Inject
 
-class GetExercisesUseCase @Inject constructor(
+class GetExercisesUseCase(
     private val exerciseRepository: ExerciseRepository
 ): UseCase<Long, ExerciseData>(){
 

@@ -10,11 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class WorkoutSaver @Inject constructor(
+class WorkoutSaver(
     private val saveWorkoutUseCase: SaveWorkoutUseCase,
     private val deleteWorkoutUseCase: DeleteWorkoutUseCase,
 ){

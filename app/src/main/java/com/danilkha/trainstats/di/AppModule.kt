@@ -5,16 +5,21 @@ import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorViewMo
 import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryViewModel
 import com.danilkha.trainstats.features.settings.export.ui.ExportViewModel
 import com.danilkha.trainstats.features.settings.workoutimport.ui.ImportViewModel
+import com.danilkha.trainstats.features.workout.ui.editor.WorkoutSaver
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutViewModel
 import com.danilkha.trainstats.features.workout.ui.history.HistoryViewModel
+import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.module
 
-interface ViewModelsProvider {
-
-    val exerciseListViewModel: ExerciseListViewModel
-    val exerciseEditorViewModel: ExerciseEditorViewModel
-    val historyViewModel: HistoryViewModel
-    val workoutViewModel: WorkoutViewModel
-    val profileViewModel: ImportViewModel
-    val exerciseHistoryViewModel : ExerciseHistoryViewModel
-    val exportViewModel: ExportViewModel
+val appModule: Module = module {
+    singleOf(::WorkoutSaver)
+    viewModelOf(::WorkoutViewModel)
+    viewModelOf(::ExerciseListViewModel)
+    viewModelOf(::HistoryViewModel)
+    viewModelOf(::ExerciseHistoryViewModel)
+    viewModelOf(::ExerciseEditorViewModel)
+    viewModelOf(::ExportViewModel)
+    viewModelOf(::ImportViewModel)
 }
