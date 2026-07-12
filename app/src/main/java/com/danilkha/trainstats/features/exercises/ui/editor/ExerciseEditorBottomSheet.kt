@@ -52,7 +52,7 @@ object ExerciseEditorBottomSheetArgs {
 
 @Composable
 fun ExerciseEditorBottomSheet(
-    sheetState: BottomSheetState
+    sheetState: BottomSheetState,
 ) {
     val viewModel = koinViewModel<ExerciseEditorViewModel>()
 

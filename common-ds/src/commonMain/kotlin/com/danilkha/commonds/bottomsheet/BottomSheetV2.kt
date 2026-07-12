@@ -232,7 +232,7 @@ class BottomSheetState(
     val coroutineScope: CoroutineScope,
     val focusManager: FocusManager,
     val canHide: () -> Boolean,
-    val onResult: (Map<String, Any>?) -> Unit,
+    val onResult: (Map<String, Any>) -> Unit,
     val anchoredDraggableState: AnchoredDraggableState<BottomSheetExpandState> = AnchoredDraggableState(
         initialValue = BottomSheetExpandState.Collapsed,
         confirmValueChange = {
@@ -305,7 +305,7 @@ class BottomSheetState(
 
 
     // todo: make flow
-    fun setResult(result: Map<String, Any>?) {
+    fun setResult(result: Map<String, Any>) {
         onResult(result)
     }
 
@@ -314,7 +314,7 @@ class BottomSheetState(
             coroutineScope: CoroutineScope,
             focusManager: FocusManager,
             canHide: () -> Boolean,
-            onResult: (Map<String, Any>?) -> Unit,
+            onResult: (Map<String, Any>) -> Unit,
         ) =
             androidx.compose.runtime.saveable.Saver<BottomSheetState, BottomSheetExpandState>(
                 save = {
@@ -356,7 +356,7 @@ fun BottomSheetState.initOnArgs(onArgs: (Map<String, Any>) -> Unit) {
 @Composable
 fun rememberBottomSheetState(
     canHide: () -> Boolean = { true },
-    onResult: (Map<String, Any>?) -> Unit = {  },
+    onResult: (Map<String, Any>) -> Unit = {  },
 ): BottomSheetState {
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current

@@ -82,7 +82,7 @@ fun WorkoutScreenRoute(
             true
         },
         onResult = {
-            val result = it?.get(ExerciseEditorBottomSheetArgs.result)
+            val result = it[ExerciseEditorBottomSheetArgs.result]
             if(result is ExerciseListEvent.UpdateList) {
                 exerciseSelectorViewModel.processEvent(result)
             }

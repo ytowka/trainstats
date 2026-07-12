@@ -52,7 +52,11 @@ import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottom
 fun ExerciseListScreenPage(
     viewModel: ExerciseListViewModel = koinViewModel()
 ) {
-    val exerciseEditorBottomSheet = rememberBottomSheetState()
+    val exerciseEditorBottomSheet = rememberBottomSheetState(onResult = {
+        if(it[ExerciseEditorBottomSheetArgs.result] is ExerciseListEvent.UpdateList) {
+            viewModel.processEvent(ExerciseListEvent.UpdateList)
+        }
+    })
 
     val state by viewModel.state.collectAsState()
 
