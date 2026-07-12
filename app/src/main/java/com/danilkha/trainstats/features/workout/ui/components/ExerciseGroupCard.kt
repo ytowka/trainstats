@@ -96,7 +96,8 @@ fun ExerciseGroupCard(
             modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
         ) {
             DragThumb(
-                onDragStart = onDragStart, onDragEnd = onDragEnd, onVerticalDrag = onVerticalDrag
+                onDragStart = onDragStart, onDragEnd = onDragEnd, onVerticalDrag = onVerticalDrag,
+                contentDescription = stringResource(R.string.drag_handle)
             )
             Spacer(modifier = Modifier.size(10.dp))
             Row(modifier = Modifier.weight(1f)) {
@@ -109,6 +110,7 @@ fun ExerciseGroupCard(
                 Icon(
                     modifier = Modifier.padding(end = 10.dp),
                     imageVector = Icons.Default.History,
+                    contentDescription = stringResource(R.string.exercise_history),
                     onClick = onHistoryClick
                 )
             }
@@ -116,6 +118,7 @@ fun ExerciseGroupCard(
             Icon(
                 modifier = Modifier.rotate(rotation.value),
                 imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = stringResource(if (expanded) R.string.collapse else R.string.expand),
                 onClick = onExpandClick
             )
         }
@@ -172,6 +175,7 @@ fun ExerciseGroupCard(
 @Composable
 fun DragThumb(
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
     onDragStart: () -> Unit = { },
     onDragEnd: () -> Unit = { },
     onVerticalDrag: (dragAmount: Float) -> Unit
@@ -185,7 +189,7 @@ fun DragThumb(
                     onDragEnd = onDragEnd,
                 )
             },
-        imageVector = Icons.Default.DragHandle, contentDescription = null,
+        imageVector = Icons.Default.DragHandle, contentDescription = contentDescription,
         colorFilter = ColorFilter.tint(Colors.text),
         alpha = 0.3f
     )
@@ -246,6 +250,7 @@ fun ExerciseSet(
         if(!isStub){
             DragThumb(
                 modifier = Modifier.align(Alignment.CenterStart),
+                contentDescription = stringResource(R.string.drag_handle),
                 onDragStart = onDragStart,
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd
@@ -267,6 +272,7 @@ fun ExerciseSet(
                         imeAction = ImeAction.Next
                     ),
                     contentPadding = PaddingValues(vertical = 10.dp),
+                    contentDescription = stringResource(R.string.weight),
                     onValueChange = {
                         if(it.length <= MAX_FIELD_LENGTH){
                             weightText = it
@@ -299,6 +305,7 @@ fun ExerciseSet(
                         ),
                         contentPadding = PaddingValues(vertical = 10.dp),
                         textStyle = textFieldStyle,
+                        contentDescription = stringResource(R.string.reps_left),
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
                                 repsTextL = it
@@ -320,6 +327,7 @@ fun ExerciseSet(
                         ),
                         contentPadding = PaddingValues(vertical = 10.dp),
                         textStyle = textFieldStyle,
+                        contentDescription = stringResource(R.string.reps_right),
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
                                 repsTextR = it
@@ -344,6 +352,7 @@ fun ExerciseSet(
                         ),
                         contentPadding = PaddingValues(vertical = 10.dp),
                         textStyle = textFieldStyle,
+                        contentDescription = stringResource(R.string.reps_label),
                         onValueChange = {
                             if(it.length <= MAX_REPS_FIELD_LENGTH){
                                 repsText = it
@@ -367,6 +376,7 @@ fun ExerciseSet(
             Icon(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 imageVector = Icons.AutoMirrored.Default.Undo,
+                contentDescription = stringResource(R.string.undo),
                 alpha = 0.5f,
                 onClick = onReturnDeleted
             )
@@ -374,6 +384,7 @@ fun ExerciseSet(
             Icon(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 imageVector = Icons.Default.Clear,
+                contentDescription = stringResource(R.string.delete),
                 alpha = 0.5f,
                 onClick = onDelete
             )

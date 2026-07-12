@@ -150,6 +150,7 @@ fun ExerciseSearchBar(
                     {
                         Icon(
                             imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.clear),
                             onClick = {
                                 onQueryChange("")
                                 focusManager.clearFocus()
@@ -168,7 +169,8 @@ fun ExerciseSearchBar(
                 onClick = onAddClicked
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.new_exercise)
                 )
             }
         }

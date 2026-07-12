@@ -33,6 +33,7 @@ fun Fab(
     modifier: Modifier = Modifier,
     icon: Painter = rememberVectorPainter(Icons.Default.Add),
     color: Color = MaterialTheme.colors.primary,
+    contentDescription: String = "",
     onClick: () -> Unit,
 ){
     Box(
@@ -45,7 +46,7 @@ fun Fab(
     ){
         Icon(
             painter = icon,
-            contentDescription = "fab_icon",
+            contentDescription = contentDescription,
             tint = MaterialTheme.colors.onPrimary
         )
     }

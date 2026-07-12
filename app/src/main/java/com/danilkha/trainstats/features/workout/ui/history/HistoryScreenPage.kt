@@ -151,6 +151,7 @@ fun HistoryPageLayout(
         ) {
             Fab(
                 icon =  rememberVectorPainter(Icons.Default.KeyboardArrowUp),
+                contentDescription = stringResource(R.string.scroll_to_top),
                 onClick = {
                     scope.launch {
                         onScrollToTop()
@@ -186,6 +187,7 @@ fun TopBar(
                 {
                     Icon(
                         imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.clear),
                         onClick = {
                             onSearchQueryChanged("")
                             focusManager.clearFocus()
@@ -200,14 +202,17 @@ fun TopBar(
         ) {
             LargeButton(
                 painter = painterResource(Res.drawable.ic_add),
+                contentDescription = stringResource(R.string.new_workout),
                 onClick = onAddClicked
             )
             LargeButton(
                 painter = painterResource(Res.drawable.ic_chart),
+                contentDescription = stringResource(R.string.chart),
                 onClick = {}
             )
             LargeButton(
                 painter = rememberVectorPainter(Icons.Default.CalendarMonth),
+                contentDescription = stringResource(R.string.calendar),
                 onClick = onCalendarClicked
             )
         }
@@ -217,6 +222,7 @@ fun TopBar(
 @Composable
 private fun LargeButton(
     painter: Painter,
+    contentDescription: String?,
     onClick: () -> Unit,
 ) {
     Card(
@@ -225,7 +231,7 @@ private fun LargeButton(
     ) {
         androidx.compose.material.Icon(
             painter = painter,
-            contentDescription = null
+            contentDescription = contentDescription
         )
     }
 }

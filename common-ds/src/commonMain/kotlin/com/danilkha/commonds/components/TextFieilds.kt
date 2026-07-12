@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
@@ -42,11 +44,16 @@ fun GenericTextFiled(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     contentStart: @Composable (() -> Unit)? = null,
     contentEnd: @Composable (() -> Unit)? = null,
+    contentDescription: String? = null,
 ){
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier,
+        modifier = modifier.then(
+            if (contentDescription != null) {
+                Modifier.semantics { this.contentDescription = contentDescription }
+            } else Modifier
+        ),
         textStyle = textStyle.copy(
             textAlign = textAlign
         ),

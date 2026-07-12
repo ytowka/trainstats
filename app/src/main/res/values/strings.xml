@@ -37,4 +37,19 @@
     <string name="empty_search">Ничего не найдено</string>
     <string name="success_export">"Экспортировано в загрзуки %s</string>
     <string name="last_edited">Отредактировано:</string>
+
+    <!-- Accessibility labels for icon-only controls -->
+    <string name="exercise_history">История упражнения</string>
+    <string name="weight">Вес</string>
+    <string name="reps_label">Повторения</string>
+    <string name="reps_left">Повторения (лево)</string>
+    <string name="reps_right">Повторения (право)</string>
+    <string name="expand">Развернуть</string>
+    <string name="collapse">Свернуть</string>
+    <string name="undo">Вернуть</string>
+    <string name="drag_handle">Перетащить</string>
+    <string name="clear">Очистить</string>
+    <string name="scroll_to_top">Наверх</string>
+    <string name="chart">График</string>
+    <string name="calendar">Календарь</string>
 </resources>
