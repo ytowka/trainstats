@@ -127,6 +127,7 @@ dependencies {
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)
     testImplementation(libs.mockk)
+    androidTestImplementation(platform(libs.compose.bom.artifact))
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.kotest.assert)
@@ -135,5 +136,6 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 
     debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(platform(libs.compose.bom.artifact))
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
