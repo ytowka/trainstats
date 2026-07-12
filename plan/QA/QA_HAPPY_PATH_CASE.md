@@ -38,7 +38,7 @@ strings quoted verbatim so you can match them against `list_elements_on_screen` 
 | название | name (field hint) |
 | Раздельно | Separated |
 | С доп. весом | With extra weight |
-| с собественным весом | With body weight *(note typo, see §8)* |
+| с собственным весом | With body weight |
 | Сохранить | Save |
 | Добавить упражнение | Add exercise |
 | кг | kg |
@@ -125,22 +125,15 @@ Three nav items across the bottom. Tap by label text
 
 **Goal:** verify Koin → `CreateExercisesUseCase` → Room insert.
 
-| # | Action | Expected |
-|---|--------|----------|
-| 1 | Tap the nav item labelled **«Упражнения»** | Exercises tab opens; header shows **«Поиск»** (search hint). List may be empty after clear. |
-| 2 | Tap the Add-exercise «+» button — label **`Новое упражнение`** | Bottom sheet opens titled **«Новое упражнение»** with fields: «название», «Раздельно», «С доп. весом», and a **«Сохранить»** button. |
-| 3 | Tap the element with hint **«название»**, type `Test Exercise QA` | EditText shows `Test Exercise QA`. |
-| 4 | *(Optional, to allow weighted sets later)* Tap the row/card containing **«С доп. весом»** to enable it | Toggle switches to on. |
-| 5 | Tap **«Сохранить»** | Bottom sheet closes (the `Saved` event fired → `createExercisesUseCase` ran). |
-| 6 | **Known-issue workaround** — the list does **not** auto-refresh. Tap **«Поиск»**, type `Test` | Search results show **«test exercise qa»** (and any matching items). |
-| 7 | PASS gate | The created exercise is retrievable via search. |
-
-**Why the workaround is needed (known issue — do not re-report):**
-`ExerciseListScreenPage` creates the editor bottom sheet with
-`rememberBottomSheetState()` and **no `onResult` handler**, so the editor's
-`ExerciseListEvent.UpdateList` result is dropped. `ExerciseListViewModel` only
-reloads when `searchQuery` changes (not reactively). Changing the query forces a
-reload. See §8.
+| # | Action                                                                                                 | Expected                                                                                                                             |
+|---|--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | Tap the nav item labelled **«Упражнения»**                                                             | Exercises tab opens; header shows **«Поиск»** (search hint). List may be empty after clear.                                          |
+| 2 | Tap the Add-exercise «+» button — label **`Новое упражнение`**                                         | Bottom sheet opens titled **«Новое упражнение»** with fields: «название», «Раздельно», «С доп. весом», and a **«Сохранить»** button. |
+| 3 | Tap the element with hint **«название»**, type `Test Exercise QA`                                      | EditText shows `Test Exercise QA`.                                                                                                   |
+| 4 | *(Optional, to allow weighted sets later)* Tap the row/card containing **«С доп. весом»** to enable it | Toggle switches to on.                                                                                                               |
+| 5 | Tap **«Сохранить»**                                                                                    | Bottom sheet closes (the `Saved` event fired → `createExercisesUseCase` ran).                                                        |
+| 6 | Tap **«Поиск»**, type `Test`                                                                           | Search results show **«test exercise qa»** (and any matching items).                                                                 |
+| 7 | PASS gate                                                                                              | The created exercise is retrievable via search.                                                                                      |
 
 ---
 
@@ -200,12 +193,6 @@ no `com.danilkha.trainstats` crashes appear in logcat.
 
 ## 8. Known issues / false positives — DO NOT report these
 
-- **Exercise list does not auto-refresh** after create/edit (missing `onResult` on
-  `rememberBottomSheetState()` in `ExerciseListScreenPage`). Workaround: change the
-  search query. Pre-existing, not Koin-related. (For comparison, `WorkoutScreenRoute`
-  wires `onResult` correctly.)
-- **Localized string typo:** body-weight label reads «с собе**с**твенным весом»
-  (AGENTS.md expects «с собственным весом»). Cosmetic only.
 - **System crashes in logcat are unrelated:** `droid.bluetooth` `SIGABRT` (emulator
   Bluetooth service) and `.mobile.android` `SIGSEGV` (a different app). Only
   `com.danilkha.trainstats` crashes count.
