@@ -7,15 +7,17 @@
 
 ## Фичи
 - Добавить в hint предыдущий вес [PREVIOUS_SET_HINT.md](features/PREVIOUS_SET_HINT.md)
+- Добавить позицию упажнения в историю упражнений [EXERCIS_POSITION_IN_WORKOUT.md](features/EXERCIS_POSITION_IN_WORKOUT.md)
 
 ## Баги
 - Exercise list does not auto-refresh after create/edit
-- Localized string typo: body-weight label reads «с собественным весом»
 
 ## tech-debt
-
+- Сделать .md файл с информацией об:
+  - Существующих фичах приложения
+  - Пути в коде к этим фичам
+  - Определения
 
 ## Тестирование
-- Добавить нужные contentDescription или accessibility labels
-- Доработать happy path
+- Доработать happy path (Добавить импорт)
 - Написать автотест на happy path
