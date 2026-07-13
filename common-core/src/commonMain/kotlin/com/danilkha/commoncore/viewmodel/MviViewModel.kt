@@ -6,10 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<State, Event, SideEffect> : ViewModel() {
+abstract class MviViewModel<State, Event, SideEffect> : ViewModel(), IMviViewModel<State, Event, SideEffect> {
 
     protected val _state by lazy { MutableStateFlow(startState) }
-    val state: StateFlow<State>
+    override val state: StateFlow<State>
         get() = _state
             .asStateFlow()
             .onStart {
@@ -23,7 +23,7 @@ abstract class MviViewModel<State, Event, SideEffect> : ViewModel() {
 
     protected val _sideEffects = MutableSharedFlow<SideEffect>(extraBufferCapacity = 10)
 
-    val sideEffects: SharedFlow<SideEffect>
+    override val sideEffects: SharedFlow<SideEffect>
         get() = _sideEffects.asSharedFlow()
 
     abstract val startState: State
@@ -59,7 +59,7 @@ abstract class MviViewModel<State, Event, SideEffect> : ViewModel() {
 
     }
 
-    fun processEvent(event: Event) {
+    override fun processEvent(event: Event) {
         viewModelScope.launch {
             events.emit(event)
         }
