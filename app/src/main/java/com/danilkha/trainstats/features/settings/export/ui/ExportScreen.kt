@@ -35,7 +35,7 @@ fun ExportScreenPage(
 
     ExportPage(
         state = state,
-        onExportClicked = { viewModel.export() },
+        onExportClicked = { viewModel.processEvent(ExportEvent.Export) },
         onBack = onBack
     )
 }

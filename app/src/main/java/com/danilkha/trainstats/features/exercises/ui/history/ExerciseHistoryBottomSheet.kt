@@ -81,7 +81,7 @@ fun ExerciseHistoryBottomSheet(
 
     sheetState.initOnArgs { args ->
         val exerciseId = args[exerciseIdArg] as Long
-        viewModel.init(exerciseId)
+        viewModel.processEvent(ExerciseHistoryEvent.Init(exerciseId))
     }
 
     BottomSheetScreen(

@@ -8,3 +8,9 @@ data class ExerciseHistoryState(
 sealed interface ExerciseHistorySingleEvent{
 
 }
+
+sealed interface ExerciseHistoryEvent {
+
+    data class Init(val exerciseId: Long) : ExerciseHistoryEvent
+    data class HistoryLoaded(val exerciseName: String, val list: List<ExerciseHistoryModel>) : ExerciseHistoryEvent
+}
