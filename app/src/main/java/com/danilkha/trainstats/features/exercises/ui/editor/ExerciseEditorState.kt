@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.exercises.ui.editor
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 
 data class ExerciseEditorState(
@@ -29,4 +30,14 @@ sealed interface ExerciseEditorMode{
 
 sealed interface ExerciseEditorSingleEvent{
     object Saved : ExerciseEditorSingleEvent
+}
+
+sealed interface ExerciseEditorEvent {
+    data class Init(val editingId: Long?) : ExerciseEditorEvent
+    data class EditName(val name: String) : ExerciseEditorEvent
+    data class SetSeparated(val separated: Boolean) : ExerciseEditorEvent
+    data class SetWithWeight(val withWeight: Boolean) : ExerciseEditorEvent
+    object Save : ExerciseEditorEvent
+    object Delete : ExerciseEditorEvent
+    data class ExerciseLoaded(val data: ExerciseData) : ExerciseEditorEvent
 }

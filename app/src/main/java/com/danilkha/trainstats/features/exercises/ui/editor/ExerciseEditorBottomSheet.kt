@@ -58,7 +58,7 @@ fun ExerciseEditorBottomSheet(
 
     sheetState.initOnArgs {
         val id = it[ExerciseEditorBottomSheetArgs.editingIdArg] as? Long
-        viewModel.init(id)
+        viewModel.processEvent(ExerciseEditorEvent.Init(id))
     }
 
     val state by viewModel.state.collectAsState()
@@ -77,7 +77,7 @@ fun ExerciseEditorBottomSheet(
             val button = it?.get(AlertDialogArgs.RESULT_BUTTON_ID)
             when (button) {
                 AlertDialogArgs.CONFIRM_ID -> {
-                    viewModel.delete()
+                    viewModel.processEvent(ExerciseEditorEvent.Delete)
                 }
 
                 AlertDialogArgs.DISMISS_ID -> {}
@@ -92,10 +92,10 @@ fun ExerciseEditorBottomSheet(
         ) {
             ExerciseEditorBottomSheet(
                 state = state,
-                onNameChange = viewModel::editName,
-                onSplitChange = viewModel::setSeparated,
-                onWeightChange = viewModel::setWithWeight,
-                onSaveClick = viewModel::save,
+                onNameChange = { viewModel.processEvent(ExerciseEditorEvent.EditName(it)) },
+                onSplitChange = { viewModel.processEvent(ExerciseEditorEvent.SetSeparated(it)) },
+                onWeightChange = { viewModel.processEvent(ExerciseEditorEvent.SetWithWeight(it)) },
+                onSaveClick = { viewModel.processEvent(ExerciseEditorEvent.Save) },
                 onDeleteClick = {
                     deleteAlertDialogBottomSheet.show()
                 },
