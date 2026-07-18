@@ -278,9 +278,10 @@ fun WorkoutScreen(
                 )
             }
             Spacer(modifier = Modifier.size(20.dp))
-            if (state.lastEdited != null) {
+            val lastEdited = state.lastEdited
+            if (lastEdited != null) {
                 Text(
-                    text = "${stringResource(id = R.string.last_edited)} ${dateFormat.format(state.lastEdited.toLocal())}",
+                    text = "${stringResource(id = R.string.last_edited)} ${dateFormat.format(lastEdited.toLocal())}",
                     style = MaterialTheme.typography.caption,
                     color = Colors.text.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 4.dp)
@@ -289,7 +290,8 @@ fun WorkoutScreen(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                val isSaved = state.initialWorkout != null && state.initialWorkout.saved
+                val initialWorkout = state.initialWorkout
+                val isSaved = initialWorkout != null && initialWorkout.saved
                 if (isSaved) {
                     GenericButton(
                         onClick = onDelete,

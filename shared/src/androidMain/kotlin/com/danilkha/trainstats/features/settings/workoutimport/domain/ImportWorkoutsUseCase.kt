@@ -1,7 +1,6 @@
 package com.danilkha.trainstats.features.settings.workoutimport.domain
 
 import android.net.Uri
-import android.util.Log
 import com.danilkha.commoncore.usecase.UseCase
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
@@ -21,6 +20,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import io.github.aakira.napier.Napier
 
 class ImportWorkoutsUseCase(
     private val workoutParser: WorkoutParser,
@@ -38,7 +38,7 @@ class ImportWorkoutsUseCase(
         val (exercises, workouts) = try{
             workoutParser.parse(textToParse)
         }catch (e: ParserException){
-            Log.d("debugg", "execute() called with: params = ${e.invalidLineIndex}")
+            Napier.d(tag = "debugg") { "execute() called with: params = ${e.invalidLineIndex}" }
             return Result.Error(e.invalidLineIndex)
         }
 

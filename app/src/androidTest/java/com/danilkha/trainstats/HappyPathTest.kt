@@ -6,7 +6,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -21,15 +20,13 @@ import com.danilkha.commonds.theme.TrainingStatsTheme
 import com.danilkha.trainstats.core.utils.JvmDateTimeFormatter
 import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.di.androidSharedModule
-import com.danilkha.trainstats.di.appModule
+import com.danilkha.trainstats.di.viewModelModule
 import com.danilkha.trainstats.di.dataModule
 import com.danilkha.trainstats.di.platformModule
 import com.danilkha.trainstats.di.repositoryModule
 import com.danilkha.trainstats.di.useCaseModule
 import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
 import com.danilkha.trainstats.features.navigation.RootScreen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -67,7 +64,7 @@ class HappyPathTest {
                 repositoryModule,
                 useCaseModule,
                 androidSharedModule,
-                appModule,
+                viewModelModule,
                 testDbModule
             )
         }

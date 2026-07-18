@@ -2,7 +2,7 @@ package com.danilkha.trainstats.entrypoint
 
 import android.app.Application
 import com.danilkha.trainstats.di.androidSharedModule
-import com.danilkha.trainstats.di.appModule
+import com.danilkha.trainstats.di.viewModelModule
 import com.danilkha.trainstats.di.dataModule
 import com.danilkha.trainstats.di.platformModule
 import com.danilkha.trainstats.di.repositoryModule
@@ -24,7 +24,7 @@ class App : Application() {
                 repositoryModule,
                 useCaseModule,
                 androidSharedModule,
-                appModule,
+                viewModelModule,
             )
         }
     }

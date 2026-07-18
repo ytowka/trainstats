@@ -217,10 +217,11 @@ fun ExerciseCard(
                 color = Colors.text,
             )
         }
-        if(exerciseModel.lastUsedDate != null) {
+        val lastUsedDate = exerciseModel.lastUsedDate
+        if(lastUsedDate != null) {
             val dateFormat = LocalDateFormat.current
             Text(
-                text = dateFormat.format(exerciseModel.lastUsedDate.toLocal()),
+                text = dateFormat.format(lastUsedDate.toLocal()),
                 style = MaterialTheme.typography.caption,
                 color = Colors.text.copy(alpha = 0.6f),
                 modifier = Modifier.padding(top = 4.dp)

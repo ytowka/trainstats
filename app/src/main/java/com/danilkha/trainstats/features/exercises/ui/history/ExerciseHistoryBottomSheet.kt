@@ -241,12 +241,13 @@ fun ExerciseSetsHistoryCard(
                         textAlign = TextAlign.Center,
                         color = Colors.textInverse
                     )
-                    if(set.weight != null){
+                    val weight = set.weight
+                    if(weight != null){
                         Text(
                             modifier = Modifier
                                 .weight(1f),
                             text = buildAnnotatedString {
-                                append(set.weight.value.format2())
+                                append(weight.value.format2())
                                 withStyle(subtextSpanStyle){
                                     append(stringResource(id = R.string.kg))
                                 }
@@ -259,15 +260,15 @@ fun ExerciseSetsHistoryCard(
                         modifier = Modifier
                             .weight(1f),
                         text = buildAnnotatedString {
-                            when(set.reps){
+                            when(val reps = set.reps){
                                 is RepetitionsModel.Double -> {
-                                    append(set.reps.left?.format2())
+                                    append(reps.left?.format2())
                                     append(", ")
-                                    append(set.reps.right?.format2())
+                                    append(reps.right?.format2())
                                     append(" ")
                                 }
                                 is RepetitionsModel.Single -> {
-                                    append(set.reps.reps?.format2())
+                                    append(reps.reps?.format2())
                                 }
                             }
                             withStyle(subtextSpanStyle){

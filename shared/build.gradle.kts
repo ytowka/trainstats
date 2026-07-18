@@ -8,6 +8,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":common-ds"))
             implementation(libs.coroutines.core)
             implementation(libs.kotlinx.datetime)
 
