@@ -8,31 +8,20 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalView
 import androidx.fragment.app.FragmentActivity
-import com.danilkha.trainstats.core.utils.JvmDateTimeFormatter
-import com.danilkha.trainstats.core.utils.LocalDateFormat
-import com.danilkha.trainstats.features.navigation.RootScreen
-import com.danilkha.commonds.theme.TrainingStatsTheme
+import com.danilkha.trainstats.SharedApp
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         window.statusBarColor = android.graphics.Color.BLACK
-        val dateFormat = JvmDateTimeFormatter(this)
 
         setContent {
-            TrainingStatsTheme {
-                setStatusBarAppearance(!isSystemInDarkTheme())
-                CompositionLocalProvider(
-                    LocalDateFormat provides dateFormat,
-                ) {
-                    RootScreen()
-                }
-            }
+            setStatusBarAppearance(!isSystemInDarkTheme())
+            SharedApp()
         }
     }
 }

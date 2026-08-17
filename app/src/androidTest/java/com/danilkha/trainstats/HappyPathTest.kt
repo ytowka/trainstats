@@ -2,7 +2,6 @@ package com.danilkha.trainstats
 
 import android.content.Context
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -16,9 +15,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.danilkha.commonds.theme.TrainingStatsTheme
-import com.danilkha.trainstats.core.utils.JvmDateTimeFormatter
-import com.danilkha.trainstats.core.utils.LocalDateFormat
 import com.danilkha.trainstats.di.androidSharedModule
 import com.danilkha.trainstats.di.viewModelModule
 import com.danilkha.trainstats.di.dataModule
@@ -26,7 +22,6 @@ import com.danilkha.trainstats.di.platformModule
 import com.danilkha.trainstats.di.repositoryModule
 import com.danilkha.trainstats.di.useCaseModule
 import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
-import com.danilkha.trainstats.features.navigation.RootScreen
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -69,13 +64,7 @@ class HappyPathTest {
             )
         }
         composeTestRule.setContent {
-            val context = LocalContext.current
-            val dateFormat = JvmDateTimeFormatter(context)
-            TrainingStatsTheme {
-                CompositionLocalProvider(LocalDateFormat provides dateFormat) {
-                    RootScreen()
-                }
-            }
+            SharedApp()
         }
         composeTestRule.waitForIdle()
     }

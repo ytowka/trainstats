@@ -111,7 +111,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.components.resources)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.navigation.compose)
+    implementation(libs.compose.components.resources)
 
     // koin
     implementation(libs.koin.android)

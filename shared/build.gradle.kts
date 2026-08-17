@@ -9,6 +9,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":common-ds"))
+            implementation(project(":common-date-picker"))
             implementation(libs.coroutines.core)
             implementation(libs.kotlinx.datetime)
 
