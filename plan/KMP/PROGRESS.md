@@ -1,6 +1,6 @@
 # Прогресс миграции на Kotlin Multiplatform
 
-> Последнее обновление: 21 июля 2026
+> Последнее обновление: 17 августа 2026
 
 ## Сводка
 
@@ -13,14 +13,16 @@
 | **4** | Dagger → Koin 4.x | ✅ Завершено |
 | **5** | ViewModels | ✅ Завершено |
 | **6** | Compose-UI и навигация | ✅ Завершено |
-| 7 | Оболочка `:app` (slimming) | ⬜ Не начато |
+| **7** | Оболочка `:app` (slimming) | ✅ Завершено |
 | 8 | iOS-приложение (`:iosApp`) | ⬜ Не начато |
 
-### Результаты сборки (на момент завершения Фаз 0-6)
+### Результаты сборки (на момент завершения Фаз 0-7)
 
-- ✅ `./gradlew :app:assembleDebug` — **BUILD SUCCESSFUL** (116 задач)
-- ✅ `./gradlew :app:assembleDebugAndroidTest` — **BUILD SUCCESSFUL** (129 задач, HappyPathTest компилируется)
-- ✅ `./gradlew test` — **BUILD SUCCESSFUL** (142 задачи, все unit-тесты зелёные)
+- ✅ `./gradlew :app:assembleDebug` — **BUILD SUCCESSFUL** (115 задач)
+- ✅ `./gradlew :app:assembleDebugAndroidTest` — **BUILD SUCCESSFUL** (126 задач, все 6 androidTest-файлов компилируются)
+- ✅ `./gradlew test` — **BUILD SUCCESSFUL** (SampleTest: 3 варианта debug/release/benchmark, 0 failures)
+- ✅ `./gradlew :app:lint` — **BUILD SUCCESSFUL**
+- ✅ `./gradlew :benchmark:assembleBenchmark` + `:app:assembleBenchmark` — **BUILD SUCCESSFUL** (в dex-архиве `:app` больше нет Room-классов)
 - ✅ `./gradlew :app:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.danilkha.trainstats.HappyPathTest` — **3 сценария прошли** на `emulator-5554` (scenario1_exerciseCreation, scenario2_workoutCreation, scenario3_exerciseHistory)
 - ⚠️ `./gradlew :shared:compileKotlinIosArm64` — **FAILS** на Room KSP: `@Database class must be annotated with @ConstructedBy`. **Pre-existing issue** с Фазы 2 — Native Room требует `@ConstructedBy`, будет устранено в Фазе 8.
 
@@ -230,6 +232,9 @@ platformModule → dataModule → repositoryModule → useCaseModule → android
 | 13 | 6 | `stringResource(id = ...)` → `stringResource(...)` | Compose-MP `org.jetbrains.compose.resources.stringResource` принимает `resource: StringResource` позиционно (без имени `id`). Все call sites обновлены ( sed-замена по всему `:shared`) |
 | 14 | 6 | `@Composable expect fun rememberDateTimeFormatter()` работает напрямую | План упоминал fallback на `expect val rememberDateTimeFormatter: () -> DateTimeFormatter` если `@Composable expect fun` не компилируется. На Kotlin 2.2.21 + Compose 1.10 `@Composable expect fun` компилируется без проблем — fallback не потребовался |
 | 15 | 6 | `compileCommonMainKotlinMetadata` / `compileKotlinIosArm64` **FAIL** на Room KSP | `@Database class must be annotated with @ConstructedBy since the source is targeting non-Android platforms`. **Pre-existing issue** — существует с Фазы 2, не введён Фазой 6 (проверено через `git stash`). Android-сборка (`compileAndroidMain`, `assembleDebug`, `assembleDebugAndroidTest`) — зелёная. Полный Native-путь устраняется в Фазе 8 (`@ConstructedBy` + Room Native driver) |
+| 16 | 7 | Добавлена `androidTestImplementation(project(":common-core"))` | Без неё `ExportImportTest.kt` не компилируется: `Cannot access 'UseCase' which is a supertype of 'ImportWorkoutsUseCase'` — супертипы use-case'ов (`UseCase`/`SimpleUseCase`) живут в `:common-core`, приходящем в `:shared` в implementation-scope. Та же механика Gradle-класспатов, что и room-компенсация; main-scope не затронут (0 вхождений `:common-*` в debugCompileClasspath) |
+| 17 | 7 | Чистка каталога шире техдолг-списка: дополнительно к `dagger`/`dagger-compiler`/`javax-inject` удалены `navigation` (версия) + `navigation-compose` (AndroidX), `room-ktx`, `room-testing` | 0 использований во всех `*.gradle.kts` (rg incl. build-logic) после Фаз 6-7; Room/навигационная гигиена каталога в духе Фазы 7. Оставшиеся неиспользуемые записи (`kotlinx-coroutinesSwing` и пр.) не тронуты — не в скоупе |
+| 18 | 7 | Добавлена `implementation(libs.napier)` в `:app` | План Фазы 7 не упоминал: Napier приходил в app только транзитивно через `api` из `:common-core`, прямой dep на который Фаза 7 удаляет. Без компенсации `App.kt` не компилируется. Обнаружено анализом (dependencyInsight) до имплементации |
 
 ---
 
@@ -237,14 +242,14 @@ platformModule → dataModule → repositoryModule → useCaseModule → android
 
 | # | Описание | Фаза устранения |
 |---|----------|----------------|
-| ~~1~~ | ~~`:app` сохраняет мёртвый Room/KSP-конфиг~~ | Фаза 7 |
-| ~~2~~ | ~~Неиспользуемые каталог-записи `dagger`/`dagger-compiler`/`javax-inject` в `libs.versions.toml`~~ | Фаза 7 |
+| ~~1~~ | ~~`:app` сохраняет мёртвый Room/KSP-конфиг~~ | **✅ Устранено в Фазе 7** |
+| ~~2~~ | ~~Неиспользуемые каталог-записи `dagger`/`dagger-compiler`/`javax-inject` в `libs.versions.toml`~~ | **✅ Устранено в Фазе 7** (+ `navigation-compose`, `room-ktx`, `room-testing`) |
 | ~~3~~ | ~~`android.util.Log` в `ExerciseEditorViewModel` и `ImportWorkoutsUseCase`~~ | **✅ Устранено в Фазе 5** (замена на Napier; фактически был только в `ImportWorkoutsUseCase`) |
 | 4 | Пустые директории-оболочки в `:app` (git не трекает) | **✅ Устранено в Фазе 6** (cleanup) |
 | 5 | `FakeWorkoutRepository`/`FakeExerciseRepository` — мёртвый код, не зарегистрированы в Koin | Можно удалить в любой фазе |
 | ~~6~~ | ~~VMs и `appModule` всё ещё в `:app` (перенос в `:shared/commonMain`)~~ | **✅ Устранено в Фазе 5** (5 VM + Saver в commonMain, 2 VM в androidMain, `viewModelModule` создан) |
 | 7 | Компиляция iOS-таргетов `:shared` не проверялась | **Pre-existing blocker**: Room KSP требует `@ConstructedBy` для Native. Будет устранено в Фазе 8 |
-| 8 | `:app` всё ещё содержит `:common-core`, `:common-ds`, `:common-date-picker` как прямые зависимости (транзитивно доступны через `:shared`) | Фаза 7 (slimming) |
+| ~~8~~ | ~~`:app` всё ещё содержит `:common-core`, `:common-ds`, `:common-date-picker` как прямые зависимости (транзитивно доступны через `:shared`)~~ | **✅ Устранено в Фазе 7** (main-scope; `common-core` осталась только в `androidTestImplementation` — компенсация для `ExportImportTest`) |
 | 9 | ~~`core/viewmodel/ViewModels.kt` (`collectSingleEvents` + `LaunchCollectEffects`) остаётся в `:app`~~ | **✅ Устранено в Фазе 6** (перенесён в `shared/commonMain`) |
 | 10 | Неосвещённые instrumented-тесты: `ExportImportTest`, `WorkoutDaoTest`, `RoomWorkoutDatasourceTest` (были red/непроходящие до Фазы 5) | Отдельный ticket — не блок Phase 5/6 |
 | 11 | ~~`:app:connectedAndroidTest --tests "*.HappyPathTest"` — требует эмулятора~~ | **✅ Устранено в Фазе 6** — 3 сценария прошли на `emulator-5554` после реализации `SharedApp()` |
@@ -394,6 +399,39 @@ platformModule → dataModule → repositoryModule → useCaseModule → android
 - MOD-3: `R.string.foo` → `Res.string.foo` + `import training_stats.shared.generated.resources.Res` + `import training_stats.shared.generated.resources.*`
 - Параметр `id =` у `stringResource` удалён везде (Compose-MP `stringResource` принимает `resource: StringResource` позиционно)
 
+### Фаза 7 — Оболочка `:app` (slimming) ✅
+
+**Изменённые файлы:**
+
+| Файл | Изменение |
+|------|-----------|
+| `app/build.gradle.kts` | Удалены: плагины `alias(libs.plugins.room)` + `alias(libs.plugins.ksp)`; блоки `room { schemaDirectory(...) }` и `ksp { arg("room.generateKotlin") }`; deps `:common-core`, `:common-ds`, `:common-date-picker`, `libs.kotlinx.datetime`, `libs.room.runtime`, `libs.room.ktx`, `ksp(libs.room.compiler)`; дубликат `compose.components.resources`. Добавлены: `implementation(libs.napier)` + `androidTestImplementation(libs.room.runtime)` (см. ключевые находки ниже) |
+| `gradle/libs.versions.toml` | Удалены версии `dagger`, `navigation`; библиотеки `dagger`, `dagger-compiler`, `javax-inject`, `navigation-compose` (AndroidX), `room-ktx`, `room-testing` — все с 0 использований (rg по всем `*.gradle.kts` incl. build-logic) |
+| `app/schemas/` | Удалён целиком (`git rm -r`) — байт-идентичен `shared/schemas/com.danilkha.trainstats.entrypoint.db.TrainStatsDb/1.json` (проверено `diff -r`) |
+| `AGENTS.md` | Устаревшее упоминание `app/schemas/` → `shared/schemas/` (место экспорта схем после миграции) |
+
+**Ключевые находки анализа (реализованы как обязательные компенсации):**
+
+- **Napier-компенсация**: `App.kt` импортирует `io.github.aakira.napier.*`, но Napier приходил в `:app` только через `api(libs.napier)` из `:common-core` — а `api`-экспорт не пробивается через `implementation`-scope `:shared` (единственный путь в `dependencyInsight`). Без прямой `implementation(libs.napier)` main не компилировался бы после удаления `:common-core`.
+- **androidTest-компенсация Room**: `RoomTestUtils.kt`/`HappyPathTest.kt` импортируют `androidx.room.*`; Room в `:shared` — implementation-scope → не виден на compile classpath. Решение: `androidTestImplementation(libs.room.runtime)`.
+- **`room-ktx` не нужен**: в Room 2.7.2 `withTransaction` живёт в `room-runtime-android` (подтверждено инспекцией байткода AAR), а `room-ktx` — пустой stub. В androidTest добавлен только `room.runtime`.
+- **Stale dex**: в `app/build/intermediates/project_dex_archive/benchmark/` лежали февральские dex `TrainStatsDb_Impl` — QA-верификация выполнялась после `./gradlew clean`; свежий benchmark dex-архив содержит только entrypoint-классы `:app` (`App.dex`, `MainActivity.dex` и пр.), 0 попаданий `*TrainStatsDb*`/`*Room*`.
+
+**Контрольные точки QA (все проверки пройдены ✅):**
+
+- [x] AC-A1: в `app/build.gradle.kts` нет room/ksp плагинов, блоков `room {}`/`ksp {}`, room-депов в main-scope
+- [x] AC-B1: `implementation(libs.napier)`; `io.github.aakira:napier:2.7.1` в debugCompileClasspath
+- [x] AC-B2: `androidTestImplementation(libs.room.runtime)`; assembleDebugAndroidTest успешен
+- [x] AC-C1: нет прямых deps на `:common-*` в main-scope; assembleDebug успешен
+- [x] AC-C2: нет `libs.kotlinx.datetime` в app (0 использований)
+- [x] AC-D1: каталог очищен от `dagger`/`dagger-compiler`/`javax-inject`/`navigation-compose`/`room-ktx`/`room-testing` + версий `dagger`/`navigation`
+- [x] AC-E1: `app/schemas/` удалён; `shared/schemas/.../1.json` на месте (git-tracked)
+- [x] AC-F1: `App.kt`, `MainActivity.kt`, манифесты, ресурсы, `trainstatsDb.db`, `shared/`, `benchmark/`, `common-*`, `build-logic/` — без изменений (git status/diff)
+- [x] AC-G: все сборки и тесты (см. «Результаты сборки» выше): clean → assembleDebug (115 задач) → assembleDebugAndroidTest (126 задач) → test (SampleTest: 3 варианта debug/release/benchmark, 0 failures) → lint → benchmark → HappyPathTest (3/3 сценария на `emulator-5554`, Medium_Phone(AVD) - 16, 21.7s)
+- [x] Classpath-санити: `napier` ЕСТЬ; `androidx.room` НЕТ; `:common-*` НЕТ в debugCompileClasspath
+
+**Не тронуто (по плану):** `experimentalProperties["android.experimental.kmp.enableAndroidResources"]` (нужен для потребления KMP-ресурсов `:shared`), buildTypes incl. `benchmark`, `useJUnitPlatform()`, packaging-блоки, `app/src/main/assets/trainstatsDb.db` (рудимент по решению Сложности №6), `koin-android`/`koin-compose-viewmodel` в `:app`.
+
 ---
 
 ## Следующие шаги
@@ -403,5 +441,5 @@ platformModule → dataModule → repositoryModule → useCaseModule → android
 1. ~~**Фаза 4 (Dagger → Koin)**~~ ✅ Завершено
 2. ~~**Фаза 5 (ViewModels)**~~ ✅ Завершено
 3. ~~**Фаза 6 (Compose-UI + навигация)**~~ ✅ Завершено
-4. **Фаза 7 (slimming `:app`)** — удалить мёртвый Room/KSP-конфиг из `:app`, неиспользуемые каталог-записи (`dagger`/`javax-inject`), убрать прямые deps на `:common-*` (транзитивно через `:shared`), финальный App.kt/MainActivity.kt cleanup
+4. ~~**Фаза 7 (slimming `:app`)**~~ ✅ Завершено — мёртвый Room/KSP-конфиг удалён, каталог очищен (`dagger`/`javax-inject`/`navigation-compose`/`room-ktx`/`room-testing`), прямые deps на `:common-*` убраны из main, `app/schemas/` удалён; компенсации: `implementation(libs.napier)`, `androidTestImplementation(libs.room.runtime)`, `androidTestImplementation(project(":common-core"))`
 5. **Фаза 8 (iOS)** — реализовать `:iosApp`, actuals для iOS, починить Room Native driver (`@ConstructedBy`), проверить компиляцию Native

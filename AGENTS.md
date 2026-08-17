@@ -58,7 +58,7 @@ and reuses the root `libs` version catalog via
   ViewModels are exposed via `di/ViewModelsProvider` and resolved at runtime
   through a `LocalViewModelsProvider` `CompositionLocal` in `MainActivity`.
 - **Room via KSP** (not KAPT). `exportSchema = true`; schemas are exported to
-  `app/schemas/` and tracked in git. The DB is
+  `shared/schemas/` and tracked in git. The DB is
   `entrypoint/db/TrainStatsDb.kt` (version 1). When entities/views change you
   must either bump `version` and provide a migration, or reset schemas
   deliberately — do not silently change entities without handling the version.

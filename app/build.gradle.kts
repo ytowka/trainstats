@@ -2,8 +2,6 @@
 plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
-    alias(libs.plugins.room)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -56,13 +54,6 @@ android {
     buildFeatures {
         compose = true
     }
-    room {
-        schemaDirectory("$projectDir/schemas")
-    }
-    ksp {
-        arg("room.generateKotlin", "true")
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -89,12 +80,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":common-core"))
-    implementation(project(":common-ds"))
-    implementation(project(":common-date-picker"))
     implementation(project(":shared"))
-
-    implementation(libs.kotlinx.datetime)
 
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)
@@ -111,18 +97,15 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.components.resources)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.components.resources)
 
     // koin
     implementation(libs.koin.android)
     implementation(libs.koin.compose.viewmodel)
 
-    // room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
+    implementation(libs.napier)
 
     // tests
+    androidTestImplementation(project(":common-core")) // supertypes (UseCase/SimpleUseCase) not visible via implementation-scope :shared
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)
@@ -134,6 +117,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.room.runtime)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(platform(libs.compose.bom.artifact))
