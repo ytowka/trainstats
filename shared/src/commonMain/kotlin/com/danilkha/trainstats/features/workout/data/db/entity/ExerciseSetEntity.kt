@@ -30,10 +30,10 @@ import com.danilkha.trainstats.features.workout.domain.model.ExerciseSet
 )
 @TypeConverters(RepetitionsDbTypeConverter::class)
 data class ExerciseSetEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val workoutId: Long,
-    val exerciseId: Long,
+    @PrimaryKey
+    val id: String = "",
+    val workoutId: String,
+    val exerciseId: String,
     val reps: RepetitionsDb,
     val weightKg: Float?,
     val orderPosition: Int,

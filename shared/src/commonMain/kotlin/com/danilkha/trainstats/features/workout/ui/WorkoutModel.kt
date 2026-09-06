@@ -5,7 +5,7 @@ import com.danilkha.trainstats.features.workout.domain.model.Workout
 import kotlinx.datetime.Instant
 
 data class WorkoutModel(
-    val id: Long,
+    val id: String,
     val dateTime: Instant,
     val groups: List<ExerciseGroup>,
     val saved: Boolean,
@@ -14,7 +14,7 @@ data class WorkoutModel(
 
 data class ExerciseGroup(
     val groupTempId: Long = 0,
-    val exerciseId: Long = 0,
+    val exerciseId: String = "",
     val name: String,
     val imageUrl: String?,
     val hasWeight: Boolean,
@@ -55,7 +55,7 @@ inline fun Workout.toModel(
 ): WorkoutModel {
     val groups = mutableListOf<ExerciseGroup>()
 
-    var lastExerciseId: Long? = null
+    var lastExerciseId: String? = null
     val lastGroupSets = mutableListOf<ExerciseSetSlot>()
     var lastGroup: ExerciseGroup? = null
     steps.forEach { step ->

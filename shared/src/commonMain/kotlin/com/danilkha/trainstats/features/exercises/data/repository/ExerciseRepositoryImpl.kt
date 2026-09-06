@@ -15,11 +15,11 @@ class ExerciseRepositoryImpl(
 
     }
 
-    override suspend fun getExercise(id: Long): ExerciseData {
+    override suspend fun getExercise(id: String): ExerciseData {
         return withContext(Dispatchers.IO){ exerciseLocalDatasource.getExercise(id) }
     }
 
-    override suspend fun getExerciseIds(names: List<String>): List<Pair<String, Long>> {
+    override suspend fun getExerciseIds(names: List<String>): List<Pair<String, String>> {
         return exerciseLocalDatasource.getExerciseIds(names)
     }
 
@@ -27,7 +27,7 @@ class ExerciseRepositoryImpl(
         return withContext(Dispatchers.IO){ exerciseLocalDatasource.findExercise(query) }
     }
 
-    override suspend fun createExercise(exerciseData: ExerciseData): Long {
+    override suspend fun createExercise(exerciseData: ExerciseData): String {
         return withContext(Dispatchers.IO){ exerciseLocalDatasource.createExercise(exerciseData) }
     }
 
@@ -35,7 +35,7 @@ class ExerciseRepositoryImpl(
         withContext(Dispatchers.IO){ exerciseLocalDatasource.updateExercise(exerciseData) }
     }
 
-    override suspend fun deleteExercise(id: Long) {
+    override suspend fun deleteExercise(id: String) {
         withContext(Dispatchers.IO){ exerciseLocalDatasource.deleteExercise(id) }
     }
 }

@@ -15,7 +15,7 @@ class WorkoutRepositoryImpl(
         return workoutLocalDatasource.getWorkoutHistory()
     }
 
-    override suspend fun getWorkoutById(id: Long): Workout {
+    override suspend fun getWorkoutById(id: String): Workout {
         return withContext(Dispatchers.IO){ workoutLocalDatasource.getWorkoutById(id) }
     }
 
@@ -23,23 +23,23 @@ class WorkoutRepositoryImpl(
         return workoutLocalDatasource.getAll()
     }
 
-    override suspend fun saveWorkout(workout: Workout): Long {
+    override suspend fun saveWorkout(workout: Workout): String {
         return withContext(Dispatchers.IO){ workoutLocalDatasource.saveWorkout(workout) }
     }
 
-    override suspend fun commitWorkoutSave(id: Long) {
+    override suspend fun commitWorkoutSave(id: String) {
         withContext(Dispatchers.IO){ workoutLocalDatasource.commitWorkoutSave(id) }
     }
 
-    override suspend fun archiveWorkout(id: Long) {
+    override suspend fun archiveWorkout(id: String) {
         withContext(Dispatchers.IO){ workoutLocalDatasource.archiveWorkout(id) }
     }
 
-    override suspend fun deleteWorkout(id: Long) {
+    override suspend fun deleteWorkout(id: String) {
         withContext(Dispatchers.IO){ workoutLocalDatasource.deleteWorkout(id) }
     }
 
-    override suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout> {
+    override suspend fun getExerciseHistory(exerciseId: String): List<ExerciseWorkout> {
         return withContext(Dispatchers.IO){ workoutLocalDatasource.getExerciseHistory(exerciseId) }
     }
 }

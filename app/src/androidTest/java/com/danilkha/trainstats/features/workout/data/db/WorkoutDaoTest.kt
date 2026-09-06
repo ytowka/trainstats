@@ -44,7 +44,7 @@ class WorkoutDaoTest {
     @Test
     @Throws(Exception::class)
     fun testHistoryByExercise() = runBlocking{
-        val result = workoutDao.getHistoryByExercise(3)
+        val result = workoutDao.getHistoryByExercise("3")
 
         val workouts = result.groupBy { it.workoutId }
         workouts.forEach {

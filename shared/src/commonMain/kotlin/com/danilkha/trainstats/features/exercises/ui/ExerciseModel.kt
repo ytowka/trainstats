@@ -4,7 +4,7 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import kotlinx.datetime.Instant
 
 data class ExerciseModel(
-    val id: Long,
+    val id: String,
     val name: String,
     val separated: Boolean,
     val imageUrl: String?,

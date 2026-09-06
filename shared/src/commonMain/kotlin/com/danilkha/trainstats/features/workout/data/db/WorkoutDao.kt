@@ -24,39 +24,35 @@ select * from workoutentity where archived = 0 order by dateTime desc
 
     @Query("select * from workoutentity where id = :id")
     @Transaction
-    suspend fun getWorkoutById(id: Long): WorkoutWithExercises
+    suspend fun getWorkoutById(id: String): WorkoutWithExercises
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveWorkout(workoutEntity: WorkoutEntity): Long
+    suspend fun saveWorkout(workoutEntity: WorkoutEntity)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun saveSets(exerciseSetEntity: List<ExerciseSetEntity>)
 
     @Query("delete from exercisesetentity where workoutId = :workoutId")
-    suspend fun deleteWorkoutExercises(workoutId: Long)
+    suspend fun deleteWorkoutExercises(workoutId: String)
 
     @Transaction
     suspend fun updateWorkout(
         workoutEntity: WorkoutEntity,
         sets: List<ExerciseSetEntity>
-    ): Long{
-        val workoutId = saveWorkout(workoutEntity)
+    ){
+        saveWorkout(workoutEntity)
         deleteWorkoutExercises(workoutEntity.id)
-        val newSets = sets.map {
-            it.copy(workoutId = workoutId)
-        }
-        saveSets(newSets)
-        return workoutId
+        saveSets(sets)
     }
 
     @Query("update workoutentity set saved = 1 where id = :workoutId")
-    suspend fun commitWorkoutSave(workoutId: Long)
+    suspend fun commitWorkoutSave(workoutId: String)
 
     @Query("update workoutentity set archived = 1 where id = :id")
-    suspend fun archiveWorkout(id: Long)
+    suspend fun archiveWorkout(id: String)
 
     @Query("delete from workoutentity where id = :id")
-    suspend fun deleteWorkout(id: Long)
+    suspend fun deleteWorkout(id: String)
 
     @Query("""
 select s.*, w.dateTime, e.name as exerciseName  from ExerciseSetEntity as s
@@ -65,5 +61,5 @@ inner join ExerciseEntity e on e.id = s.exerciseId
 where exerciseId = :exerciseId
 order by dateTime desc
     """)
-    suspend fun getHistoryByExercise(exerciseId: Long): List<ExerciseWorkoutRelation>
+    suspend fun getHistoryByExercise(exerciseId: String): List<ExerciseWorkoutRelation>
 }

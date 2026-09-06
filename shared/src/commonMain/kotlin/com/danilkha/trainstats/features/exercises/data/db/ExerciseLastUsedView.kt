@@ -10,6 +10,6 @@ import kotlinx.datetime.Instant
     GROUP BY s.exerciseId
 """, viewName = "ExerciseLastUsedView")
 data class ExerciseLastUsedView(
-    val exerciseId: Long,
+    val exerciseId: String,
     val lastUsed: Instant
 )

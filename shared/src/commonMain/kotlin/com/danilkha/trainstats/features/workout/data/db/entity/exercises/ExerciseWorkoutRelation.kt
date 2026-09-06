@@ -9,9 +9,9 @@ import kotlinx.datetime.Instant
 data class ExerciseWorkoutRelation(
 
     val dateTime: Instant,
-    val id: Long = 0,
-    val workoutId: Long,
-    val exerciseId: Long,
+    val id: String = "",
+    val workoutId: String,
+    val exerciseId: String,
     val reps: RepetitionsDb,
     val weightKg: Float?,
     val orderPosition: Int,

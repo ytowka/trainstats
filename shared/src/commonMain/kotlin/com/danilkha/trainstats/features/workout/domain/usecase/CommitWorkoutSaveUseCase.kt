@@ -5,8 +5,8 @@ import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 
 class CommitWorkoutSaveUseCase(
     private val workoutRepository: WorkoutRepository
-) : UseCase<Long, Unit>(){
-    override suspend fun execute(params: Long) {
+) : UseCase<String, Unit>(){
+    override suspend fun execute(params: String) {
         workoutRepository.commitWorkoutSave(params)
     }
 }

@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.workout.data.db
 
+import com.danilkha.trainstats.core.utils.generateId
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.workout.data.db.entity.RepetitionsDb
 import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutEntity
@@ -33,30 +34,32 @@ class RoomWorkoutDatasource(
         return workoutDao.getAll().map(WorkoutWithExercises::toDomain)
     }
 
-    override suspend fun getWorkoutById(id: Long): Workout {
+    override suspend fun getWorkoutById(id: String): Workout {
         return workoutDao.getWorkoutById(id).toDomain()
     }
 
-    override suspend fun saveWorkout(workout: Workout): Long {
-        return workoutDao.updateWorkout(
-            workout.toEntity(),
-            workout.steps.map { it.toEntity() }
+    override suspend fun saveWorkout(workout: Workout): String {
+        val id = workout.id.ifEmpty { generateId() }
+        workoutDao.updateWorkout(
+            workout.copy(id = id).toEntity(),
+            workout.steps.map { it.toEntity().copy(id = generateId(), workoutId = id) }
         )
+        return id
     }
 
-    override suspend fun commitWorkoutSave(id: Long) {
+    override suspend fun commitWorkoutSave(id: String) {
         workoutDao.commitWorkoutSave(id)
     }
 
-    override suspend fun archiveWorkout(id: Long) {
+    override suspend fun archiveWorkout(id: String) {
         workoutDao.archiveWorkout(id)
     }
 
-    override suspend fun deleteWorkout(id: Long) {
+    override suspend fun deleteWorkout(id: String) {
         workoutDao.deleteWorkout(id)
     }
 
-    override suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout> {
+    override suspend fun getExerciseHistory(exerciseId: String): List<ExerciseWorkout> {
         val rawResult = workoutDao.getHistoryByExercise(exerciseId)
         val grouped = rawResult.groupBy { it.workoutId }
         return grouped.values.map { group ->

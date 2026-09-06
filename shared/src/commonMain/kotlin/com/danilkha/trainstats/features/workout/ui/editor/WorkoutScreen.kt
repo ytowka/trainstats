@@ -58,7 +58,7 @@ import training_stats.shared.generated.resources.*
 
 @Composable
 fun WorkoutScreenRoute(
-    workoutId: Long? = null,
+    workoutId: String? = null,
     viewModel: WorkoutViewModel = koinViewModel(),
     onSaved: () -> Unit
 ) {
@@ -154,7 +154,7 @@ fun WorkoutScreen(
     eventConsumer: (WorkoutEvent) -> Unit,
 
     onDateClicked: () -> Unit,
-    onHistoryClick: (Long) -> Unit,
+    onHistoryClick: (String) -> Unit,
     addExercise: () -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit

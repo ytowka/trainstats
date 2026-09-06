@@ -5,8 +5,8 @@ import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 
 class DeleteExercisesUseCase(
     private val exerciseRepository: ExerciseRepository
-) : UseCase<Long, Unit>(){
-    override suspend fun execute(params: Long) {
+) : UseCase<String, Unit>(){
+    override suspend fun execute(params: String) {
         exerciseRepository.deleteExercise(params)
     }
 }

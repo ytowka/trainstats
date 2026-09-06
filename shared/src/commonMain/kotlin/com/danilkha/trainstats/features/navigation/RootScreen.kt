@@ -67,10 +67,11 @@ fun RootScreen() {
         composable(
             route = Navigation.Workout.route,
             arguments = listOf(navArgument(Navigation.Workout.idArg) {
-                type = NavType.LongType
+                type = NavType.StringType
+                defaultValue = ""
             })
         ){ backStackEntry ->
-            val id = backStackEntry.arguments?.getLong(Navigation.Workout.idArg)?.takeIf { it != -1L }
+            val id = backStackEntry.arguments?.getString(Navigation.Workout.idArg)?.takeIf { it.isNotEmpty() }
             WorkoutScreenRoute(
                 workoutId = id,
                 onSaved = { navController.navigateUp() }

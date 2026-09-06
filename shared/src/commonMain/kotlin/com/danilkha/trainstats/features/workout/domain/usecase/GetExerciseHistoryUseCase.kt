@@ -6,9 +6,9 @@ import com.danilkha.trainstats.features.workout.domain.model.ExerciseWorkout
 
 class GetExerciseHistoryUseCase(
     private val workoutRepository: WorkoutRepository
-) : UseCase<Long, GetExerciseHistoryUseCase.Result>(){
+) : UseCase<String, GetExerciseHistoryUseCase.Result>(){
 
-    override suspend fun execute(params: Long): Result {
+    override suspend fun execute(params: String): Result {
         val workouts = workoutRepository.getExerciseHistory(params)
 
         val exerciseName = workouts.first().sets.first().exerciseData.name

@@ -42,12 +42,12 @@ class ImportWorkoutsUseCase(
             return Result.Error(e.invalidLineIndex)
         }
 
-        val exerciseIds = mutableMapOf<String, Long>()
+        val exerciseIds = mutableMapOf<String, String>()
         val exerciseNames = mutableMapOf<String, ExerciseData>()
 
         exercises.forEach { exercise ->
             val exerciseName = exercise.name.lowercase().trim()
-            exerciseIds[exerciseName] = 0
+            exerciseIds[exerciseName] = ""
             exerciseNames[exerciseName] = exercise
         }
 
@@ -56,7 +56,7 @@ class ImportWorkoutsUseCase(
             exerciseIds[it.first] = it.second
         }
         val newExercises = exerciseIds.filter { (_, id) ->
-            id == 0L
+            id.isEmpty()
         }
         newExercises.forEach { (name, _) ->
             exerciseNames[name]?.let {
@@ -69,10 +69,10 @@ class ImportWorkoutsUseCase(
         workouts.map { workout ->
             val steps = workout.steps.mapIndexed { index, item ->
                 val validName = item.exerciseName.lowercase().trim()
-                val id = exerciseIds[validName] ?: 0L
+                val id = exerciseIds[validName] ?: ""
                 ExerciseSet(
-                    id = 0,
-                    workoutId = 0,
+                    id = "",
+                    workoutId = "",
                     exerciseData = ExerciseData.stub(id, item.exerciseName),
                     reps = item.reps,
                     weight = item.weight,
@@ -85,7 +85,7 @@ class ImportWorkoutsUseCase(
                 time = now
             )
             Workout(
-                id = 0,
+                id = "",
                 dateTime = dateTime.toInstant(timeZone),
                 steps = steps,
                 saved = false,

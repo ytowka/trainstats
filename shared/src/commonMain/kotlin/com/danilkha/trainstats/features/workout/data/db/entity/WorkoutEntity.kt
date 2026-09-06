@@ -8,8 +8,8 @@ import kotlinx.datetime.Instant
 
 @Entity
 data class WorkoutEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: String = "",
     val dateTime: Instant,
     val saved: Boolean,
     val exercises: List<String>,

@@ -68,7 +68,7 @@ object ExerciseHistoryBottomSheetArgs {
 
     const val exerciseIdArg = "exerciseId"
 
-    fun buildArgs(exerciseId: Long): Map<String, Any> {
+    fun buildArgs(exerciseId: String): Map<String, Any> {
         return mapOf(exerciseIdArg to exerciseId)
     }
 }
@@ -81,7 +81,7 @@ fun ExerciseHistoryBottomSheet(
     val state by viewModel.state.collectAsState()
 
     sheetState.initOnArgs { args ->
-        val exerciseId = args[exerciseIdArg] as Long
+        val exerciseId = args[exerciseIdArg] as String
         viewModel.processEvent(ExerciseHistoryEvent.Init(exerciseId))
     }
 
@@ -298,20 +298,20 @@ fun ExerciseHistoryBottomSheetPreview(){
                     date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
                     sets = listOf(
                         ExerciseSetHistoryModel(
-                            id = 0,
-                            workoutId = 1,
+                            id = "",
+                            workoutId = "",
                             reps = RepetitionsModel.Single(10f),
                             weight = Kg(20f)
                         ),
                         ExerciseSetHistoryModel(
-                            id = 0,
-                            workoutId = 1,
+                            id = "",
+                            workoutId = "",
                             reps = RepetitionsModel.Single(10f),
                             weight = Kg(20f)
                         ),
                         ExerciseSetHistoryModel(
-                            id = 0,
-                            workoutId = 1,
+                            id = "",
+                            workoutId = "",
                             reps = RepetitionsModel.Single(10f),
                             weight = Kg(20f)
                         )
@@ -321,20 +321,20 @@ fun ExerciseHistoryBottomSheetPreview(){
                     date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
                     sets = listOf(
                         ExerciseSetHistoryModel(
-                            id = 0,
-                            workoutId = 1,
+                            id = "",
+                            workoutId = "",
                             reps = RepetitionsModel.Double(10f, 10f),
                             weight = Kg(20f)
                         ),
                         ExerciseSetHistoryModel(
-                            id = 0,
-                            workoutId = 1,
+                            id = "",
+                            workoutId = "",
                             reps = RepetitionsModel.Double(10f, 10f),
                             weight = Kg(20f)
                         ),
                         ExerciseSetHistoryModel(
-                            id = 0,
-                            workoutId = 1,
+                            id = "",
+                            workoutId = "",
                             reps = RepetitionsModel.Double(10f, 10f),
                             weight = Kg(20f)
                         )

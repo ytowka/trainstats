@@ -26,7 +26,7 @@ class WorkoutParserImpl() : WorkoutParser {
                         val isSeparated = step.reps is Repetitions.Double
                         val hasWeight = step.weight != null
                         val exerciseDate = ExerciseData(
-                            id = 0,
+                            id = "",
                             name = step.exerciseName,
                             imageUrl = null,
                             separated = isSeparated,
@@ -57,7 +57,7 @@ class WorkoutParserImpl() : WorkoutParser {
                     val set = if(setParams.size == 1){
                         val reps = setParams[0].split(" ")[0]
                         SetParams(
-                            exerciseId = 0,
+                            exerciseId = "",
                             exerciseName = lastExerciseName,
                             reps = Repetitions.Single(reps.toFloat()),
                             weight = null
@@ -75,7 +75,7 @@ class WorkoutParserImpl() : WorkoutParser {
                             Repetitions.Double(left, right)
                         }
                         SetParams(
-                            exerciseId = 0,
+                            exerciseId = "",
                             exerciseName = lastExerciseName,
                             reps = reps,
                             weight = Kg(weight)

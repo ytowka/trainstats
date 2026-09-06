@@ -5,8 +5,8 @@ import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import kotlinx.datetime.LocalDate
 
 data class ExerciseSetHistoryModel(
-    val id: Long = 0,
-    val workoutId: Long,
+    val id: String = "",
+    val workoutId: String,
     val reps: RepetitionsModel,
     val weight: Kg?,
 )

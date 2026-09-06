@@ -65,7 +65,7 @@ import kotlin.time.Clock
 @Composable
 fun HistoryScreenPage(
     viewModel: HistoryViewModel = koinViewModel(),
-    onWorkoutClicked: (id: Long) -> Unit,
+    onWorkoutClicked: (id: String) -> Unit,
     onAddClicked: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -300,7 +300,7 @@ fun HistoryPagePreview() {
             state = HistoryState(
                 allWorkouts = listOf(
                     WorkoutHistoryModel(
-                        id = 0,
+                        id = "",
                         date = Clock.System.now(),
                         exercises = listOf("becnh press")
                     )

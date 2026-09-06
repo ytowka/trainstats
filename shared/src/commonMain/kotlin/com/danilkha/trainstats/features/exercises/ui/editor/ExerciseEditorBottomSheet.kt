@@ -44,7 +44,7 @@ object ExerciseEditorBottomSheetArgs {
 
     internal val result = "result"
 
-    fun buildArgs(editingId: Long): Map<String, Any> {
+    fun buildArgs(editingId: String): Map<String, Any> {
         return mapOf(
             editingIdArg to editingId
         )
@@ -58,7 +58,7 @@ fun ExerciseEditorBottomSheet(
     val viewModel = koinViewModel<ExerciseEditorViewModel>()
 
     sheetState.initOnArgs {
-        val id = it[ExerciseEditorBottomSheetArgs.editingIdArg] as? Long
+        val id = it[ExerciseEditorBottomSheetArgs.editingIdArg] as? String
         viewModel.processEvent(ExerciseEditorEvent.Init(id))
     }
 

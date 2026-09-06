@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.workout.data
 
+import com.danilkha.trainstats.core.utils.generateId
 import com.danilkha.trainstats.features.exercises.data.FakeExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
@@ -23,21 +24,15 @@ class FakeWorkoutRepository(
     private val fakeExerciseRepository: ExerciseRepository,
 ): WorkoutRepository {
 
-    private var idSequence: Long = 0
-        get() {
-            field++
-            return field
-        }
-
-    private val workouts = MutableStateFlow(mapOf<Long, Workout>())
+    private val workouts = MutableStateFlow(mapOf<String, Workout>())
 
     fun prepopulate() {
-        val id = idSequence
+        val id = generateId()
         val exerciseData1 = runBlocking{ fakeExerciseRepository.getAllExercises().firstOrNull() }
         val steps = exerciseData1?.let {
             buildList {
                 add(ExerciseSet(
-                    id = idSequence,
+                    id = generateId(),
                     workoutId = id,
                     exerciseData = exerciseData1,
                     reps = Repetitions.Single(10f),
@@ -47,7 +42,7 @@ class FakeWorkoutRepository(
                 )
                 add(
                     ExerciseSet(
-                        id = idSequence,
+                        id = generateId(),
                         workoutId = id,
                         exerciseData = exerciseData1,
                         reps = Repetitions.Single(10f),
@@ -57,7 +52,7 @@ class FakeWorkoutRepository(
                 )
                 add(
                     ExerciseSet(
-                        id = idSequence,
+                        id = generateId(),
                         workoutId = id,
                         exerciseData = exerciseData1,
                         reps = Repetitions.Single(10f),
@@ -102,7 +97,7 @@ class FakeWorkoutRepository(
         }
     }
 
-    override suspend fun getWorkoutById(id: Long): Workout {
+    override suspend fun getWorkoutById(id: String): Workout {
         val map = fakeExerciseRepository.getAllExercises().associateBy {
             it.id
         }
@@ -119,12 +114,12 @@ class FakeWorkoutRepository(
         return workouts.value.map { (k, v ) -> v }
     }
 
-    override suspend fun saveWorkout(workout: Workout): Long {
-        return if(workout.id == 0L){
-            val id = idSequence
+    override suspend fun saveWorkout(workout: Workout): String {
+        return if(workout.id.isEmpty()){
+            val id = generateId()
             val steps = workout.steps.map {
                 it.copy(
-                    id = idSequence,
+                    id = generateId(),
                     workoutId = id,
                 )
             }
@@ -143,7 +138,7 @@ class FakeWorkoutRepository(
         }
     }
 
-    override suspend fun commitWorkoutSave(id: Long) {
+    override suspend fun commitWorkoutSave(id: String) {
         workouts.update { map ->
             map[id]?.let {
                 map + (it.id to it.copy(saved = true))
@@ -152,7 +147,7 @@ class FakeWorkoutRepository(
 
     }
 
-    override suspend fun archiveWorkout(id: Long) {
+    override suspend fun archiveWorkout(id: String) {
         workouts.update { map ->
             map[id]?.let {
                 map + (it.id to it.copy(archived = true))
@@ -160,13 +155,13 @@ class FakeWorkoutRepository(
         }
     }
 
-    override suspend fun deleteWorkout(id: Long) {
+    override suspend fun deleteWorkout(id: String) {
         workouts.update {
             it - id
         }
     }
 
-    override suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout> {
+    override suspend fun getExerciseHistory(exerciseId: String): List<ExerciseWorkout> {
         return emptyList()
     }
 }

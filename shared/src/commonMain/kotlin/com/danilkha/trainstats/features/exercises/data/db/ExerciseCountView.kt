@@ -8,7 +8,7 @@ import androidx.room.DatabaseView
     group by s.exerciseId
 """, viewName = "ExerciseCountView")
 data class ExerciseCountView(
-    val exerciseId: Long,
+    val exerciseId: String,
     val inWorkouts: Int,
     val totalSets: Int
 )

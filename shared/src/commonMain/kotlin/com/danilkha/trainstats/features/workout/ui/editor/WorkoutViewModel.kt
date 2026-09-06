@@ -134,7 +134,7 @@ class WorkoutViewModel(
         }
     }
 
-    private fun init(currentState: WorkoutState, editingId: Long?) {
+    private fun init(currentState: WorkoutState, editingId: String?) {
         if(currentState.initialization != null) return
         viewModelScope.launch {
             if (editingId != null) {

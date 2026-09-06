@@ -5,9 +5,9 @@ import com.danilkha.trainstats.features.workout.domain.WorkoutRepository
 
 class ArchiveWorkoutUseCase(
     private val workoutRepository: WorkoutRepository
-) : UseCase<Long, Unit>(){
+) : UseCase<String, Unit>(){
 
-    override suspend fun execute(params: Long) {
+    override suspend fun execute(params: String) {
         workoutRepository.archiveWorkout(params)
     }
 }

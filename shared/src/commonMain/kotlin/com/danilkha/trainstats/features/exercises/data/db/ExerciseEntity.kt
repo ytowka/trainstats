@@ -9,7 +9,7 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
     indices = [ Index(value = ["name"], unique = true) ]
 )
 data class ExerciseEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey val id: String = "",
     val name: String,
     val imageUrl: String?,
     val separated: Boolean,
@@ -18,7 +18,7 @@ data class ExerciseEntity(
 ){
 
     data class NameId(
-        val id: Long,
+        val id: String,
         val name: String,
     )
 }

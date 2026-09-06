@@ -49,7 +49,7 @@ class ExerciseEditorViewModel(
             }
             ExerciseEditorEvent.Save -> viewModelScope.launch {
                 val exercise = ExerciseData(
-                    id = (newState.mode as? ExerciseEditorMode.Edit)?.initial?.id ?: 0L,
+                    id = (newState.mode as? ExerciseEditorMode.Edit)?.initial?.id ?: "",
                     name = newState.name,
                     separated = newState.separated,
                     hasWeight = newState.withWeight,

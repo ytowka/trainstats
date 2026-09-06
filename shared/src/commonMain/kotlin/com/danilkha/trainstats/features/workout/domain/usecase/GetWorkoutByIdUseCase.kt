@@ -6,8 +6,8 @@ import com.danilkha.trainstats.features.workout.domain.model.Workout
 
 class GetWorkoutByIdUseCase(
     private val workoutRepository: WorkoutRepository
-) : UseCase<Long, Workout>(){
-    override suspend fun execute(params: Long): Workout {
+) : UseCase<String, Workout>(){
+    override suspend fun execute(params: String): Workout {
         return workoutRepository.getWorkoutById(params)
     }
 }

@@ -49,7 +49,7 @@ data class WorkoutState(
 enum class WorkoutEditorInitialization { NEW, EDIT }
 
 sealed interface WorkoutEvent {
-    data class RequestInit(val editingId: Long?) : WorkoutEvent
+    data class RequestInit(val editingId: String?) : WorkoutEvent
     data class InitState(val state: WorkoutState) : WorkoutEvent
 
     data class ChangeDate(val date: LocalDate) : WorkoutEvent

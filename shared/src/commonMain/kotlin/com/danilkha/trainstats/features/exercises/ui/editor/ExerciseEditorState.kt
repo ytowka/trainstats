@@ -33,7 +33,7 @@ sealed interface ExerciseEditorSingleEvent{
 }
 
 sealed interface ExerciseEditorEvent {
-    data class Init(val editingId: Long?) : ExerciseEditorEvent
+    data class Init(val editingId: String?) : ExerciseEditorEvent
     data class EditName(val name: String) : ExerciseEditorEvent
     data class SetSeparated(val separated: Boolean) : ExerciseEditorEvent
     data class SetWithWeight(val withWeight: Boolean) : ExerciseEditorEvent

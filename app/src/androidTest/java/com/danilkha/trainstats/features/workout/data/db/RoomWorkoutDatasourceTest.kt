@@ -26,7 +26,7 @@ class RoomWorkoutDatasourceTest {
 
     @Test
     fun testHistoryByExercise() = runTest{
-        val exerciseId = 3L
+        val exerciseId = "3"
 
         roomWorkoutDatasource.getExerciseHistory(exerciseId)
     }

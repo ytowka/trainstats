@@ -4,8 +4,8 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 
 
 data class ExerciseSet(
-    val id: Long = 0,
-    val workoutId: Long,
+    val id: String = "",
+    val workoutId: String,
     val exerciseData: ExerciseData,
     val reps: Repetitions,
     val weight: Kg?,

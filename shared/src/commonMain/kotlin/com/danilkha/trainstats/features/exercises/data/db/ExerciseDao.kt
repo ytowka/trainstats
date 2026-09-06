@@ -34,16 +34,16 @@ interface ExerciseDao {
     suspend fun getAllExercises(query: String): List<ExerciseWithLastUsed>
 
     @Query("select * from ExerciseEntity where id = :id")
-    suspend fun getExercise(id: Long): ExerciseEntity
+    suspend fun getExercise(id: String): ExerciseEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun createExercise(exercise: ExerciseEntity): Long
+    suspend fun createExercise(exercise: ExerciseEntity)
 
     @Update
     suspend fun updateExercise(exercise: ExerciseEntity)
 
     @Query("update ExerciseEntity set archived = 1 where id = :id")
-    suspend fun deleteExercise(id: Long)
+    suspend fun deleteExercise(id: String)
 
     @Query("select e.id, e.name from ExerciseEntity as e where e.name in (:names)")
     suspend fun getExerciseIds(names: List<String>): List<ExerciseEntity.NameId>

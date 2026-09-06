@@ -14,14 +14,14 @@ import kotlinx.datetime.toInstant
 
 class SaveWorkoutUseCase(
     private val workoutRepository: WorkoutRepository
-) : UseCase<WorkoutParams, Long>(){
+) : UseCase<WorkoutParams, String>(){
 
 
-    override suspend fun execute(params: WorkoutParams): Long {
+    override suspend fun execute(params: WorkoutParams): String {
         val steps = params.steps.mapIndexed { index, item ->
             ExerciseSet(
-                id = 0,
-                workoutId = 0,
+                id = "",
+                workoutId = "",
                 exerciseData = ExerciseData.stub(item.exerciseId, item.exerciseName),
                 reps = item.reps,
                 weight = item.weight,
@@ -34,7 +34,7 @@ class SaveWorkoutUseCase(
             time = now
         )
         val workout = Workout(
-            id = params.id ?: 0,
+            id = params.id ?: "",
             dateTime = dateTime.toInstant(TimeZone.currentSystemDefault()),
             steps = steps,
             saved = false,

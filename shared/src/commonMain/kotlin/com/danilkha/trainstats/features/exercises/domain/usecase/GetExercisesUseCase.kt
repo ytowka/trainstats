@@ -7,9 +7,9 @@ import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 
 class GetExercisesUseCase(
     private val exerciseRepository: ExerciseRepository
-): UseCase<Long, ExerciseData>(){
+): UseCase<String, ExerciseData>(){
 
-    override suspend fun execute(id: Long): ExerciseData {
+    override suspend fun execute(id: String): ExerciseData {
         return exerciseRepository.getExercise(id)
     }
 }

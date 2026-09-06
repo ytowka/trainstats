@@ -12,7 +12,7 @@ private class ExerciseListScreenPreviewProvider : PreviewParameterProvider<Exerc
             searchQuery = "",
             exerciseList = listOf(
                 ExerciseModel(
-                    id = 1,
+                    id = "",
                     name = "жим лежа",
                     separated = false,
                     imageUrl = null,

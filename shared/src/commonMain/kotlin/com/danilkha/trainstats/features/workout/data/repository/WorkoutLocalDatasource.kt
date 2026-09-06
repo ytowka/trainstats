@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.Flow
 interface WorkoutLocalDatasource {
     fun getWorkoutHistory(): Flow<List<WorkoutPreview>>
     suspend fun getAll(): List<Workout>
-    suspend fun getWorkoutById(id: Long): Workout
-    suspend fun saveWorkout(workout: Workout): Long
-    suspend fun commitWorkoutSave(id: Long)
-    suspend fun archiveWorkout(id: Long)
-    suspend fun deleteWorkout(id: Long)
-    suspend fun getExerciseHistory(exerciseId: Long): List<ExerciseWorkout>
+    suspend fun getWorkoutById(id: String): Workout
+    suspend fun saveWorkout(workout: Workout): String
+    suspend fun commitWorkoutSave(id: String)
+    suspend fun archiveWorkout(id: String)
+    suspend fun deleteWorkout(id: String)
+    suspend fun getExerciseHistory(exerciseId: String): List<ExerciseWorkout>
 }
