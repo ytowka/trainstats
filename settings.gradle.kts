@@ -1,3 +1,5 @@
+import kotlin.text.replace
+
 pluginManagement {
     repositories {
         google()
@@ -17,11 +19,18 @@ rootProject.name = "Training-stats"
 
 includeBuild("build-logic")
 
+fun includeSourceModule(path: String){
+    include(path)
+    val projectDir = path.replace(':', '/')
+    project(path).projectDir = file("sources$projectDir")
+}
+
 include(":app")
-include(":common-core")
-include(":common-ds")
-include(":common-date-picker")
-include(":common-db")
-include(":common-db-api")
 include(":benchmark")
-include(":shared")
+
+includeSourceModule(":common-core")
+includeSourceModule(":common-ds")
+includeSourceModule(":common-date-picker")
+includeSourceModule(":common-db")
+includeSourceModule(":common-db-api")
+includeSourceModule(":shared")
