@@ -32,10 +32,10 @@ import com.danilkha.commonds.theme.Colors
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.commonds.theme.PreviewContent
 import com.danilkha.commonds.theme.ThemeTypography
+import com.danilkha.trainstats.confirmdialog.AlertDialogArgs
+import com.danilkha.trainstats.confirmdialog.confirmDialogEntrypoint
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import com.danilkha.trainstats.features.confirmdialog.AlertBottomSheetDialog
-import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs
 import training_stats.shared.generated.resources.Res
 import training_stats.shared.generated.resources.*
 
@@ -103,7 +103,7 @@ fun ExerciseEditorBottomSheet(
                 onCloseClicked = { sheetState.hide() },
             )
         }
-        AlertBottomSheetDialog(
+        confirmDialogEntrypoint.BottomSheetDialog(
             sheetState = deleteAlertDialogBottomSheet,
             title = stringResource(Res.string.delete_exercise_title),
             text = stringResource(Res.string.delete_exercise_subtitle)

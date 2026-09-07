@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.confirmdialog
+package com.danilkha.trainstats.confirmdialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,22 +30,14 @@ import com.danilkha.commonds.components.bottomSheetShape
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
-import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs.CANCEL_ID
-import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs.CONFIRM_ID
-import com.danilkha.trainstats.features.confirmdialog.AlertDialogArgs.RESULT_BUTTON_ID
+import com.danilkha.trainstats.confirmdialog.AlertDialogArgs.CANCEL_ID
+import com.danilkha.trainstats.confirmdialog.AlertDialogArgs.CONFIRM_ID
+import com.danilkha.trainstats.confirmdialog.AlertDialogArgs.RESULT_BUTTON_ID
 import org.jetbrains.compose.resources.stringResource
-import training_stats.shared.generated.resources.Res
-import training_stats.shared.generated.resources.*
+import training_stats.features.confirmdialog.ui.generated.resources.Res
+import training_stats.features.confirmdialog.ui.generated.resources.cancel
+import training_stats.features.confirmdialog.ui.generated.resources.delete
 
-
-object AlertDialogArgs {
-
-    const val RESULT_BUTTON_ID = "result"
-
-    const val DISMISS_ID = "dismiss"
-    const val CONFIRM_ID = "confirm"
-    const val CANCEL_ID= "cancel"
-}
 
 @Composable
 fun AlertBottomSheetDialog(

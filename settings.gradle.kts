@@ -23,6 +23,7 @@ fun includeSourceModule(path: String){
     include(path)
     val projectDir = path.replace(':', '/')
     project(path).projectDir = file("sources$projectDir")
+    println(projectDir)
 }
 
 include(":app")
@@ -34,3 +35,6 @@ includeSourceModule(":common-date-picker")
 includeSourceModule(":common-db")
 includeSourceModule(":common-db-api")
 includeSourceModule(":shared")
+
+includeSourceModule(":features:confirmdialog:entrypoint")
+includeSourceModule(":features:confirmdialog:ui")

@@ -3,6 +3,7 @@ package com.danilkha.trainstats.features.exercises.data.repository
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 class ExerciseRepositoryImpl(
