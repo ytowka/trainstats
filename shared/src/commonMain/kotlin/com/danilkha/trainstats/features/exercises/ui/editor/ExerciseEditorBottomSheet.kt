@@ -23,7 +23,7 @@ import com.danilkha.commonds.bottomsheet.BottomSheetScreen
 import com.danilkha.commonds.bottomsheet.BottomSheetState
 import com.danilkha.commonds.bottomsheet.initOnArgs
 import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
-import com.danilkha.trainstats.core.viewmodel.collectSingleEvents
+import com.danilkha.commoncore.viewmodel.collectSingleEvents
 import com.danilkha.commonds.components.BottomSheetContent
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.GenericButton

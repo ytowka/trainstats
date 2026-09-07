@@ -1,6 +1,6 @@
 package com.danilkha.trainstats.features.workout.data
 
-import com.danilkha.trainstats.core.utils.generateId
+import com.danilkha.commoncore.utils.generateId
 import com.danilkha.trainstats.features.exercises.data.FakeExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData

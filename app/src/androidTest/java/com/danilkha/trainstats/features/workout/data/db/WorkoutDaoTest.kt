@@ -3,7 +3,8 @@ package com.danilkha.trainstats.features.workout.data.db
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
+import com.danilkha.trainstats.db.TrainStatsDb
+import com.danilkha.trainstats.db.WorkoutDao
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After

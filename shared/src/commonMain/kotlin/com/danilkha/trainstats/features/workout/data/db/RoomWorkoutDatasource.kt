@@ -1,10 +1,11 @@
 package com.danilkha.trainstats.features.workout.data.db
 
-import com.danilkha.trainstats.core.utils.generateId
+import com.danilkha.commoncore.utils.generateId
+import com.danilkha.trainstats.db.WorkoutDao
+import com.danilkha.trainstats.db.entity.RepetitionsDb
+import com.danilkha.trainstats.db.entity.WorkoutEntity
+import com.danilkha.trainstats.db.entity.WorkoutWithExercises
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
-import com.danilkha.trainstats.features.workout.data.db.entity.RepetitionsDb
-import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutEntity
-import com.danilkha.trainstats.features.workout.data.db.entity.WorkoutWithExercises
 import com.danilkha.trainstats.features.workout.data.db.entity.toDomain
 import com.danilkha.trainstats.features.workout.data.db.entity.toEntity
 import com.danilkha.trainstats.features.workout.data.db.entity.toPreview

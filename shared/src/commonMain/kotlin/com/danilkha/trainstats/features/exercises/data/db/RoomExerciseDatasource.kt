@@ -1,6 +1,7 @@
 package com.danilkha.trainstats.features.exercises.data.db
 
-import com.danilkha.trainstats.core.utils.generateId
+import com.danilkha.commoncore.utils.generateId
+import com.danilkha.trainstats.db.ExerciseDao
 import com.danilkha.trainstats.features.exercises.data.repository.ExerciseLocalDatasource
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 

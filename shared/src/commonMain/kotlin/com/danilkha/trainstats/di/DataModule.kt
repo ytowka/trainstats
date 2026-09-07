@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.di
 
-import com.danilkha.trainstats.entrypoint.db.DatabaseDriverFactory
-import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
+import com.danilkha.trainstats.db.DatabaseDriverFactory
+import com.danilkha.trainstats.db.TrainStatsDb
 import com.danilkha.trainstats.features.exercises.data.db.RoomExerciseDatasource
 import com.danilkha.trainstats.features.exercises.data.repository.ExerciseLocalDatasource
 import com.danilkha.trainstats.features.workout.data.db.RoomWorkoutDatasource

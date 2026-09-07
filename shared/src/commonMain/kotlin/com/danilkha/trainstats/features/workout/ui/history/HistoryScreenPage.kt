@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilkha.commoncore.utils.toLocal
-import com.danilkha.trainstats.core.utils.LocalDateFormat
+import com.danilkha.commoncore.utils.LocalDateFormat
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.Fab

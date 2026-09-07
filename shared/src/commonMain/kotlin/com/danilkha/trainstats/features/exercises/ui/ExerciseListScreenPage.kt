@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
-import com.danilkha.trainstats.core.utils.LocalDateFormat
+import com.danilkha.commoncore.utils.LocalDateFormat
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.commonds.components.Card

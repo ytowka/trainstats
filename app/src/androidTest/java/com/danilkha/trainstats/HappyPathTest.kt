@@ -21,7 +21,7 @@ import com.danilkha.trainstats.di.dataModule
 import com.danilkha.trainstats.di.platformModule
 import com.danilkha.trainstats.di.repositoryModule
 import com.danilkha.trainstats.di.useCaseModule
-import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
+import com.danilkha.trainstats.db.TrainStatsDb
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

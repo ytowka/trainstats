@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.withTransaction
 import androidx.test.platform.app.InstrumentationRegistry
-import com.danilkha.trainstats.entrypoint.db.TrainStatsDb
+import com.danilkha.trainstats.db.TrainStatsDb
 import java.io.InputStreamReader
 
 fun createTestDb(context: Context): TrainStatsDb {

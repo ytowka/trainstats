@@ -1,7 +1,7 @@
 package com.danilkha.trainstats.di
 
 import android.content.Context
-import com.danilkha.trainstats.entrypoint.db.DatabaseDriverFactory
+import com.danilkha.trainstats.db.DatabaseDriverFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

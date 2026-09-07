@@ -1,8 +1,6 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("compose-setup")
-    alias(libs.plugins.room)
-    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -10,11 +8,10 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":common-ds"))
             implementation(project(":common-date-picker"))
+            implementation(project(":common-db"))
+            implementation(libs.room.runtime) // RoomDatabase.Builder used in DataModule
             implementation(libs.coroutines.core)
             implementation(libs.kotlinx.datetime)
-
-            // Room KMP
-            implementation(libs.room.runtime)
 
             // Navigation (JetBrains KMP port)
             implementation(libs.jetbrains.navigation.compose)
@@ -23,24 +20,9 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-
-            // SQLite driver for iOS
-            implementation(libs.sqlite.bundled)
         }
         androidMain.dependencies {
             implementation(libs.coroutines.android)
         }
     }
-}
-
-dependencies {
-    ksp(libs.room.compiler)
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
-ksp {
-    arg("room.generateKotlin", "true")
 }

@@ -106,6 +106,7 @@ dependencies {
 
     // tests
     androidTestImplementation(project(":common-core")) // supertypes (UseCase/SimpleUseCase) not visible via implementation-scope :shared
+    androidTestImplementation(project(":common-db")) // TrainStatsDb/DAOs not visible via implementation-scope :shared
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)

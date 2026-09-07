@@ -27,7 +27,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
-import com.danilkha.trainstats.core.viewmodel.LaunchCollectEffects
+import com.danilkha.commoncore.viewmodel.LaunchCollectEffects
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.GenericButton
