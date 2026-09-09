@@ -36,5 +36,4 @@ includeSourceModule(":common-db")
 includeSourceModule(":common-db-api")
 includeSourceModule(":shared")
 
-includeSourceModule(":features:confirmdialog:entrypoint")
-includeSourceModule(":features:confirmdialog:ui")
+includeSourceModule(":common:alertdialog")

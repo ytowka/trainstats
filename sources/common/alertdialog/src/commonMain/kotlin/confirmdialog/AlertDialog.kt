@@ -34,10 +34,19 @@ import com.danilkha.trainstats.confirmdialog.AlertDialogArgs.CANCEL_ID
 import com.danilkha.trainstats.confirmdialog.AlertDialogArgs.CONFIRM_ID
 import com.danilkha.trainstats.confirmdialog.AlertDialogArgs.RESULT_BUTTON_ID
 import org.jetbrains.compose.resources.stringResource
-import training_stats.features.confirmdialog.ui.generated.resources.Res
-import training_stats.features.confirmdialog.ui.generated.resources.cancel
-import training_stats.features.confirmdialog.ui.generated.resources.delete
+import training_stats.common.alertdialog.generated.resources.Res
+import training_stats.common.alertdialog.generated.resources.cancel
+import training_stats.common.alertdialog.generated.resources.delete
 
+
+object AlertDialogArgs {
+
+    const val RESULT_BUTTON_ID = "result"
+
+    const val DISMISS_ID = "dismiss"
+    const val CONFIRM_ID = "confirm"
+    const val CANCEL_ID= "cancel"
+}
 
 @Composable
 fun AlertBottomSheetDialog(

@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import com.danilkha.commonds.theme.TrainingStatsTheme
 import com.danilkha.commoncore.utils.LocalDateFormat
 import com.danilkha.commoncore.utils.rememberDateTimeFormatter
-import com.danilkha.trainstats.confirmdialog.ConfirmDialogEntrypointProvider
 import com.danilkha.trainstats.features.navigation.RootScreen
 
 @Composable
@@ -14,7 +13,6 @@ fun SharedApp() {
         val formatter = rememberDateTimeFormatter()
         CompositionLocalProvider(
             LocalDateFormat provides formatter,
-            ConfirmDialogEntrypointProvider
         ) {
             RootScreen()
         }
