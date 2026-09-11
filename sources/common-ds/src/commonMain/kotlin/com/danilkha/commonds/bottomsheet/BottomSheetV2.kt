@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -46,6 +47,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
@@ -60,11 +62,15 @@ import kotlinx.coroutines.launch
 
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheetScreen(
     state: BottomSheetState,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    BackHandler(enabled = state.isVisible) {
+        state.hide()
+    }
 
     SubcomposeLayout(
         modifier = Modifier.fillMaxSize(),

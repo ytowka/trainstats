@@ -6,7 +6,7 @@ Android; the `common-*` modules are Kotlin Multiplatform (Android + iOS + JVM).
 
 ## Toolchain
 
-- JDK 17, Kotlin 2.2.21, AGP 8.9.3, Gradle 8.11.1
+- JDK 17, Kotlin 2.3.21, AGP 8.9.3, Gradle 8.11.1
 - compileSdk 36, minSdk 26, targetSdk 36
 - All versions centralized in `gradle/libs.versions.toml` — do not hardcode
   versions in module `build.gradle.kts` files.

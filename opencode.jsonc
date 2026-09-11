@@ -7,6 +7,14 @@
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-16f1d7e2-86fa-44e8-8266-7220026e6577"
       }
+    },
+    "zai-mcp-server": {
+      "type": "local",
+      "command": ["npx","-y","@z_ai/mcp-server"],
+      "environment": {
+        "Z_AI_API_KEY": "1c601969a00a43c3bcd89b74ac1ac141.K9pzJgLy6Rj0I3Xf",
+        "Z_AI_MODE": "ZAI"
+      }
     }
   },
   "provider": {

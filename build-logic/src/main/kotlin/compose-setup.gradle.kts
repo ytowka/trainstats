@@ -1,9 +1,8 @@
-import gradle.kotlin.dsl.accessors._2035c3f0e1508481f6a78e92762cd0f2.androidLibrary
-
 plugins {
     id("multiplatform-library")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.android.kotlin.multiplatform.library")
 }
 
 val libs = the<VersionCatalogsExtension>().named("libs")
