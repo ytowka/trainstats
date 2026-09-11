@@ -14,10 +14,10 @@ kotlin {
             implementation(libs.coroutines.core)
             implementation(libs.kotlinx.datetime)
 
-            // Navigation 3 (KMP)
+            // Navigation 3 (KMP): entryProvider DSL из runtime; хост — в :navigation:impl
+            implementation(project(":navigation:api"))
+            implementation(project(":navigation:impl"))
             implementation(libs.androidx.navigation3.runtime)
-            implementation(libs.jetbrains.navigation3.ui)
-            implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
             // Koin 4.x
             implementation(libs.koin.core)
@@ -26,6 +26,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.coroutines.android)
+            implementation(libs.androidx.activity.compose) // rememberLauncherForActivityResult
         }
     }
 }

@@ -34,9 +34,11 @@ uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
 koin = "4.0.0"
 sqlite-bundled = "2.5.0"
-nav3Core = "1.1.7"
-nav3Ui = "1.1.1" # JetBrains port: androidx navigation3-ui is Android-only (stubs elsewhere)
-lifecycleViewmodelNav3 = "2.11.0"
+# Максимальные версии с ABI 2.2.0 (Kotlin 2.2.x): 1.1.0-alpha03+/1.1.x собраны Kotlin 2.3 (ABI 2.3.0)
+nav3Core = "1.1.0-alpha02"
+nav3Ui = "1.1.0-alpha02"
+lifecycleViewmodelNav3 = "2.10.0" # 2.11.0 требует compileSdk 37 / AGP 9.1
+kotlinxSerialization = "1.9.0"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -99,7 +101,9 @@ androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchm
 
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
 jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "nav3Ui" }
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+# JB KMP-порт (androidx-оригинал не публикует iOS-варианты; на Android делегирует на androidx)
+androidx-lifecycle-viewmodel-navigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
@@ -118,6 +122,7 @@ kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }

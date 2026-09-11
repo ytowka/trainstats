@@ -1,5 +1,7 @@
 package com.danilkha.navigation.api.destinations
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-data object SettingsNav  : NavKey
+@Serializable
+data object SettingsNav : NavKey

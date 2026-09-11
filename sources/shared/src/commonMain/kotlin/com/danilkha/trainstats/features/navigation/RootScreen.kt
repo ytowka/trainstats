@@ -9,71 +9,55 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation3.runtime.entryProvider
+import com.danilkha.navigation.api.destinations.RootNav
+import com.danilkha.navigation.api.destinations.SettingsNav
+import com.danilkha.navigation.api.destinations.WorkoutNav
+import com.danilkha.navigation.impl.NavHost
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
 import com.danilkha.trainstats.features.home.ui.MainNavigationItem
 import com.danilkha.trainstats.features.profile.ui.ProfileScreen
-import com.danilkha.trainstats.features.settings.SettingsHostScreen
+import com.danilkha.trainstats.features.settings.SettingsScreen
+import com.danilkha.trainstats.features.settings.importExportEntries
 import com.danilkha.trainstats.features.workout.ui.editor.WorkoutScreenRoute
 import com.danilkha.trainstats.features.workout.ui.history.HistoryScreenPage
 
 @Composable
 fun RootScreen() {
-
-    val navController = rememberNavController()
-    var currentPageItem by rememberSaveable { mutableStateOf(MainNavigationItem.HOME) }
-
     NavHost(
+        startDestination = RootNav,
         modifier = Modifier
             .background(color = MaterialTheme.colors.background)
-            .safeDrawingPadding()
-        ,
-        navController = navController,
-        startDestination = Navigation.root
-    ){
-        composable(Navigation.root){
-            HomeScreen(
-                currentPageItem = currentPageItem,
-                onChange = { currentPageItem = it }
-            ) {
-                when(it){
-                    MainNavigationItem.HOME -> HistoryScreenPage(
-                        onWorkoutClicked = {
-                            navController.navigate(Navigation.Workout(it))
-                        },
-                        onAddClicked = {
-                            navController.navigate(Navigation.Workout(null))
-                        }
-                    )
-                    MainNavigationItem.EXERCISES -> ExerciseListScreenPage()
-                    MainNavigationItem.PROFILE -> ProfileScreen(
-                        onSettingsClicked = { navController.navigate(Navigation.settings) }
-                    )
-                }
+            .safeDrawingPadding(),
+        entryProvider = entryProvider {
+            entry<RootNav> {
+                HomeRoot()
             }
+            entry<SettingsNav> {
+                SettingsScreen()
+            }
+            entry<WorkoutNav> { key ->
+                WorkoutScreenRoute(workoutId = key.id)
+            }
+            importExportEntries()
         }
-        composable(Navigation.settings) {
-            SettingsHostScreen(
-                onBack = { navController.navigateUp() }
-            )
-        }
-        composable(
-            route = Navigation.Workout.route,
-            arguments = listOf(navArgument(Navigation.Workout.idArg) {
-                type = NavType.StringType
-                defaultValue = ""
-            })
-        ){ backStackEntry ->
-            val id = backStackEntry.arguments?.getString(Navigation.Workout.idArg)?.takeIf { it.isNotEmpty() }
-            WorkoutScreenRoute(
-                workoutId = id,
-                onSaved = { navController.navigateUp() }
-            )
+    )
+}
+
+/** Хост нижних табов: HOME / EXERCISES / PROFILE. Табы — внутреннее состояние, не навигация. */
+@Composable
+private fun HomeRoot() {
+    var currentPageItem by rememberSaveable { mutableStateOf(MainNavigationItem.HOME) }
+
+    HomeScreen(
+        currentPageItem = currentPageItem,
+        onChange = { currentPageItem = it }
+    ) {
+        when (it) {
+            MainNavigationItem.HOME -> HistoryScreenPage()
+            MainNavigationItem.EXERCISES -> ExerciseListScreenPage()
+            MainNavigationItem.PROFILE -> ProfileScreen()
         }
     }
 }

@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commoncore.utils.LocalDateFormat
+import com.danilkha.navigation.api.LocalNavigator
+import com.danilkha.navigation.api.destinations.WorkoutNav
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.Fab
@@ -65,17 +67,16 @@ import kotlin.time.Clock
 @Composable
 fun HistoryScreenPage(
     viewModel: HistoryViewModel = koinViewModel(),
-    onWorkoutClicked: (id: String) -> Unit,
-    onAddClicked: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val navigator = LocalNavigator.current
 
     HistoryPage(
         state = state,
-        onWorkoutClicked = { onWorkoutClicked(it.id) },
+        onWorkoutClicked = { navigator.navigate(WorkoutNav(it.id)) },
         onCalendarClicked = { },
         onSearchQueryChanged = { viewModel.processEvent(HistoryEvent.ChangeSearchQuery(it)) },
-        onAddClicked = onAddClicked,
+        onAddClicked = { navigator.navigate(WorkoutNav(null)) },
     )
 }
 

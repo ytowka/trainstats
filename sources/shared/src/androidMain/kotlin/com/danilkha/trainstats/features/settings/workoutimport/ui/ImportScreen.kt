@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.viewmodel.LaunchCollectEffects
+import com.danilkha.navigation.api.LocalNavigator
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.GenericButton
@@ -40,10 +41,10 @@ import training_stats.shared.generated.resources.*
 @Composable
 fun ImportScreenRoute(
     viewModel: ImportViewModel = koinViewModel(),
-    onBack: () -> Unit,
 ){
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val navigator = LocalNavigator.current
 
     viewModel.LaunchCollectEffects { event ->
         when(event){
@@ -60,7 +61,7 @@ fun ImportScreenRoute(
     ImportScreen(
         state = state,
         eventConsumer = viewModel::processEvent,
-        onBack = onBack
+        onBack = { navigator.back() }
     )
 }
 

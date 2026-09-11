@@ -16,13 +16,15 @@ import org.jetbrains.compose.resources.stringResource
 import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.components.TextToolbar
 import com.danilkha.commonds.theme.Colors
+import com.danilkha.navigation.api.LocalNavigator
+import com.danilkha.navigation.api.destinations.SettingsNav
 import training_stats.shared.generated.resources.Res
 import training_stats.shared.generated.resources.*
 
 @Composable
-fun ProfileScreen(
-    onSettingsClicked: () -> Unit,
-) {
+fun ProfileScreen() {
+    val navigator = LocalNavigator.current
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -31,7 +33,7 @@ fun ProfileScreen(
             endContent = {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    onClick = onSettingsClicked
+                    onClick = { navigator.navigate(SettingsNav) }
                 )
             }
         )

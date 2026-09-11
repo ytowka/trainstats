@@ -14,11 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavKey
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.TextToolbar
+import com.danilkha.navigation.api.LocalNavigator
+import com.danilkha.navigation.api.destinations.ExportNav
+import com.danilkha.navigation.api.destinations.ImportNav
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import training_stats.shared.generated.resources.Res
@@ -26,45 +27,19 @@ import training_stats.shared.generated.resources.settings
 import training_stats.shared.generated.resources.to_export
 import training_stats.shared.generated.resources.to_import
 
-object SettingsDestinations {
-    const val SETTINGS = "Settings"
-}
-
-enum class SettingsOption(val titleRes: StringResource) {
-    Import(Res.string.to_import),
-    Export(Res.string.to_export)
+enum class SettingsOption(val titleRes: StringResource, val destination: NavKey) {
+    Import(Res.string.to_import, ImportNav),
+    Export(Res.string.to_export, ExportNav),
 }
 
 @Composable
-fun SettingsHostScreen(
-    onBack: () -> Unit,
-) {
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = SettingsDestinations.SETTINGS
-    ) {
-        composable(SettingsDestinations.SETTINGS) {
-            SettingsScreen(
-                onBack = onBack,
-                onItemClicked = {
-                    navController.navigate(it.name)
-                }
-            )
-        }
-        importExportScreens(onBack = { navController.navigateUp() })
-    }
-}
+fun SettingsScreen() {
+    val navigator = LocalNavigator.current
 
-@Composable
-fun SettingsScreen(
-    onBack: () -> Unit,
-    onItemClicked: (SettingsOption) -> Unit,
-) {
     Column {
         TextToolbar(
             title = stringResource(Res.string.settings),
-            onBack = onBack
+            onBack = { navigator.back() }
         )
         Card(
             modifier = Modifier
@@ -76,7 +51,7 @@ fun SettingsScreen(
             availableSettingsOptions.forEach {
                 SettingsItem(
                     title = stringResource(it.titleRes),
-                    onClick = { onItemClicked(it) }
+                    onClick = { navigator.navigate(it.destination) }
                 )
             }
         }

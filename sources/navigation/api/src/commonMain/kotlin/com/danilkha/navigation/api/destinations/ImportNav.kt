@@ -1,5 +1,7 @@
 package com.danilkha.navigation.api.destinations
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-data object ExerciseListNav : NavKey
+@Serializable
+data object ImportNav : NavKey

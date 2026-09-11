@@ -24,20 +24,21 @@ import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.Icon
 import com.danilkha.commonds.components.TextToolbar
+import com.danilkha.navigation.api.LocalNavigator
 import training_stats.shared.generated.resources.Res
 import training_stats.shared.generated.resources.*
 
 @Composable
 fun ExportScreenPage(
     viewModel: ExportViewModel = koinViewModel(),
-    onBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
+    val navigator = LocalNavigator.current
 
     ExportPage(
         state = state,
         onExportClicked = { viewModel.processEvent(ExportEvent.Export) },
-        onBack = onBack
+        onBack = { navigator.back() }
     )
 }
 

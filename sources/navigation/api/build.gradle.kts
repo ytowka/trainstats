@@ -1,6 +1,7 @@
 
 plugins {
     id("multiplatform-library")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -9,6 +10,10 @@ kotlin {
 
             // Navigation 3 (KMP)
             implementation(libs.androidx.navigation3.runtime)
+            implementation(libs.kotlinx.serialization.core)
+
+            // staticCompositionLocalOf для LocalNavigator
+            implementation(libs.compose.runtime)
         }
     }
 }

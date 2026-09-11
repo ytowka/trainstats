@@ -47,6 +47,7 @@ import com.danilkha.commonds.components.TextToolbar
 import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.datepicker.DateSelector
+import com.danilkha.navigation.api.LocalNavigator
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
@@ -60,9 +61,9 @@ import training_stats.shared.generated.resources.*
 fun WorkoutScreenRoute(
     workoutId: String? = null,
     viewModel: WorkoutViewModel = koinViewModel(),
-    onSaved: () -> Unit
 ) {
     val state by viewModel.state.collectAsState(viewModel.startState)
+    val navigator = LocalNavigator.current
 
     LaunchedEffect(key1 = Unit) {
         viewModel.processEvent(WorkoutEvent.RequestInit(workoutId))
@@ -92,7 +93,7 @@ fun WorkoutScreenRoute(
 
     viewModel.LaunchCollectEffects { event ->
         when (event) {
-            WorkoutSideEffect.Deleted -> onSaved()
+            WorkoutSideEffect.Deleted -> navigator.back()
             WorkoutSideEffect.OpenExerciseSelector -> exerciseSelectorBottomSheet.show()
         }
     }
@@ -127,7 +128,7 @@ fun WorkoutScreenRoute(
             onDateClicked = { showDateDialog = true },
             onSave = {
                 viewModel.processEvent(WorkoutEvent.SaveWorkout)
-                onSaved()
+                navigator.back()
             },
             addExercise = {
                 exerciseSelectorBottomSheet.show()
