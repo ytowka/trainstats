@@ -37,3 +37,5 @@ includeSourceModule(":common-db-api")
 includeSourceModule(":shared")
 
 includeSourceModule(":common:alertdialog")
+includeSourceModule(":navigation:api")
+includeSourceModule(":navigation:impl")

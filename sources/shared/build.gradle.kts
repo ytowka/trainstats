@@ -14,8 +14,10 @@ kotlin {
             implementation(libs.coroutines.core)
             implementation(libs.kotlinx.datetime)
 
-            // Navigation (JetBrains KMP port)
-            implementation(libs.jetbrains.navigation.compose)
+            // Navigation 3 (KMP)
+            implementation(libs.androidx.navigation3.runtime)
+            implementation(libs.jetbrains.navigation3.ui)
+            implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
             // Koin 4.x
             implementation(libs.koin.core)
