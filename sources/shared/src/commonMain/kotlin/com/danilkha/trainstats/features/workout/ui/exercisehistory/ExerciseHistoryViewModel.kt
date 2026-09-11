@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.exercises.ui.history
+package com.danilkha.trainstats.features.workout.ui.exercisehistory
 
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commoncore.viewmodel.MviViewModel

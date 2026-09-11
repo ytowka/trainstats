@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.exercises.ui.history
+package com.danilkha.trainstats.features.workout.ui.exercisehistory
 
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel

@@ -1,4 +1,4 @@
-package com.danilkha.trainstats.features.exercises.ui.history
+package com.danilkha.trainstats.features.workout.ui.exercisehistory
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -54,7 +54,7 @@ import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.commonds.theme.TrainingStatsTheme
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetArgs.exerciseIdArg
+import com.danilkha.trainstats.features.workout.ui.exercisehistory.ExerciseHistoryBottomSheetArgs.exerciseIdArg
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone

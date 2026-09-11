@@ -51,8 +51,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheet
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorBottomSheetArgs
-import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheet
-import com.danilkha.trainstats.features.exercises.ui.history.ExerciseHistoryBottomSheetArgs
+import com.danilkha.trainstats.features.workout.ui.exercisehistory.ExerciseHistoryBottomSheet
+import com.danilkha.trainstats.features.workout.ui.exercisehistory.ExerciseHistoryBottomSheetArgs
 import training_stats.shared.generated.resources.Res
 import training_stats.shared.generated.resources.*
 

@@ -51,8 +51,6 @@ fun RootScreen() {
                         }
                     )
                     MainNavigationItem.EXERCISES -> ExerciseListScreenPage()
-                    //NavigationItem.WORKOUTS -> Unit
-                    // NavigationItem.STATS -> Unit
                     MainNavigationItem.PROFILE -> ProfileScreen(
                         onSettingsClicked = { navController.navigate(Navigation.settings) }
                     )
