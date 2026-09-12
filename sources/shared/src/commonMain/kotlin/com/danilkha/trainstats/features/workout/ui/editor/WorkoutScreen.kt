@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.utils.toLocal
-import com.danilkha.commonds.bottomsheet.rememberBottomSheetState
+import com.danilkha.trainstats.bottomsheet.rememberBottomSheetState
 import com.danilkha.commoncore.utils.LocalDateFormat
 import com.danilkha.commoncore.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent

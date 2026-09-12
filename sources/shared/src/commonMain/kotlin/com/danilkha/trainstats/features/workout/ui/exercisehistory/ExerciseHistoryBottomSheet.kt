@@ -41,9 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilkha.commoncore.utils.LocalDateFormat
 import com.danilkha.commoncore.utils.format2
-import com.danilkha.commonds.bottomsheet.BottomSheetScreen
-import com.danilkha.commonds.bottomsheet.BottomSheetState
-import com.danilkha.commonds.bottomsheet.initOnArgs
+import com.danilkha.trainstats.bottomsheet.BottomSheetScreen
+import com.danilkha.trainstats.bottomsheet.BottomSheetState
+import com.danilkha.trainstats.bottomsheet.initOnArgs
 import com.danilkha.trainstats.features.workout.domain.model.Kg
 import com.danilkha.trainstats.features.workout.ui.RepetitionsModel
 import com.danilkha.commonds.components.BottomSheetContent

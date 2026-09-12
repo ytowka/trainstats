@@ -9,6 +9,7 @@ kotlin {
             implementation(project(":common-ds"))
             implementation(project(":common-date-picker"))
             implementation(project(":common:alertdialog"))
+            implementation(project(":common:bottomsheet"))
             implementation(project(":common-db"))
             implementation(libs.room.runtime) // RoomDatabase.Builder used in DataModule
             implementation(libs.coroutines.core)

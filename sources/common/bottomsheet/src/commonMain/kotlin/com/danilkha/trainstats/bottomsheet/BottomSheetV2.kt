@@ -1,4 +1,4 @@
-package com.danilkha.commonds.bottomsheet
+package com.danilkha.trainstats.bottomsheet
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween

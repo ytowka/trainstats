@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.danilkha.commonds.bottomsheet.BottomSheetScreen
-import com.danilkha.commonds.bottomsheet.BottomSheetState
+import com.danilkha.trainstats.bottomsheet.BottomSheetScreen
+import com.danilkha.trainstats.bottomsheet.BottomSheetState
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.GenericButton
 import com.danilkha.commonds.components.bottomSheetShape

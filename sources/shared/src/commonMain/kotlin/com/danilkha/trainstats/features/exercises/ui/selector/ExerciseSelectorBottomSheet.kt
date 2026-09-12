@@ -12,8 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import com.danilkha.commonds.bottomsheet.BottomSheetScreen
-import com.danilkha.commonds.bottomsheet.BottomSheetState
+import com.danilkha.trainstats.bottomsheet.BottomSheetScreen
+import com.danilkha.trainstats.bottomsheet.BottomSheetState
 import com.danilkha.trainstats.features.exercises.ui.ExerciseList
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
