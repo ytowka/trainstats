@@ -17,7 +17,6 @@ import com.danilkha.trainstats.features.workout.ui.Side
 import com.danilkha.trainstats.features.workout.ui.WorkoutModel
 import com.danilkha.trainstats.features.workout.ui.isNotEmpty
 import com.danilkha.trainstats.features.workout.ui.toModel
-import com.danilkha.commonds.components.move
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -329,6 +328,20 @@ class WorkoutViewModel(
     override fun onCleared() {
         workoutSaver.commit(_state.value.mapToParams())
     }
+}
+
+fun <T> MutableList<T>.move(from: Int, to: Int){
+    val item = get(from)
+    if(to > from){
+        for(i in from until to){
+            set(i, get(i+1))
+        }
+    }else if(from > to){
+        for(i in IntProgression.fromClosedRange(from, to+1, -1)){
+            set(i, get(i-1))
+        }
+    }
+    set(to, item)
 }
 
 private fun <T> List<T>.replace(index: Int, item: T) = toMutableList().apply {

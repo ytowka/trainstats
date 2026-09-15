@@ -153,20 +153,6 @@ private fun calculateOffsetMultiplier(
     } else 0
 }
 
-fun <T> MutableList<T>.move(from: Int, to: Int){
-    val item = get(from)
-    if(to > from){
-        for(i in from until to){
-            set(i, get(i+1))
-        }
-    }else if(from > to){
-        for(i in IntProgression.fromClosedRange(from, to+1, -1)){
-            set(i, get(i-1))
-        }
-    }
-    set(to, item)
-}
-
 private fun calculateTargetIndex(
     itemsPositions: List<Float>,
     dragY: Float,
