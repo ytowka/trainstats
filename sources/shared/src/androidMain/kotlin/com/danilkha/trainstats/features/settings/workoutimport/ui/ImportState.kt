@@ -1,14 +1,13 @@
 package com.danilkha.trainstats.features.settings.workoutimport.ui
 
 import android.net.Uri
-import androidx.compose.ui.text.TextRange
-
 data class ImportState(
     val exportText: String = "",
     val isLoading: Boolean = false,
-    val errorLine: TextRange? = null
+    val errorLine: ImportTextRange? = null
 )
 
+data class ImportTextRange(val start: Int, val end: Int)
 
 sealed interface ImportEvent {
     data class ChangeImportText(val text: String) : ImportEvent

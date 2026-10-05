@@ -9,7 +9,6 @@ import com.danilkha.trainstats.features.settings.workoutimport.ui.ImportViewMode
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val androidSharedModule: Module = module {
@@ -17,6 +16,6 @@ val androidSharedModule: Module = module {
     singleOf(::FileReader)
     factoryOf(::ExportWorkoutUseCase)
     factoryOf(::ImportWorkoutsUseCase)
-    viewModelOf(::ExportViewModel)
-    viewModelOf(::ImportViewModel)
+    factoryOf(::ExportViewModel)
+    factoryOf(::ImportViewModel)
 }

@@ -79,6 +79,7 @@ android {
 
 dependencies {
     implementation(project(":shared"))
+    implementation(project(":ui-compose"))
 
     implementation(libs.core.ktx)
     implementation(libs.coroutines.android)

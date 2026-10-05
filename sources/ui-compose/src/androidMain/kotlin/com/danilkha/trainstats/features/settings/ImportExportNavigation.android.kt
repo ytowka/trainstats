@@ -15,6 +15,3 @@ actual fun EntryProviderScope<NavKey>.importExportEntries() {
         ExportScreenPage()
     }
 }
-
-actual val availableSettingsOptions: List<SettingsOption> =
-    listOf(SettingsOption.Import, SettingsOption.Export)

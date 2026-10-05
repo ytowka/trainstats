@@ -35,6 +35,7 @@ includeSourceModule(":common-date-picker")
 includeSourceModule(":common-db")
 includeSourceModule(":common-db-api")
 includeSourceModule(":shared")
+includeSourceModule(":ui-compose")
 
 includeSourceModule(":common:bottomsheet")
 includeSourceModule(":common:alertdialog")
