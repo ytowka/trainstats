@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danilkha.commoncore.utils.floatPrecision
 import com.danilkha.commoncore.utils.format2
+import com.danilkha.commoncore.utils.toDecimalFloatOrNull
 import com.danilkha.commoncore.utils.trimDots
 import com.danilkha.commoncore.utils.trimFirstZeros
 import com.danilkha.trainstats.features.workout.domain.model.Kg
@@ -280,7 +281,7 @@ fun ExerciseSet(
                                 .trimFirstZeros()
                                 .trimDots()
                                 .floatPrecision(2)
-                            val value = weightText.toFloatOrNull()
+                            val value = weightText.toDecimalFloatOrNull()
                             onWeightChange(value)
                         }
                     }
@@ -313,7 +314,7 @@ fun ExerciseSet(
                                     .trimFirstZeros()
                                     .trimDots()
                                     .floatPrecision(2)
-                                val value = repsTextL.toFloatOrNull()
+                                val value = repsTextL.toDecimalFloatOrNull()
                                 onRepsChange(Side.Left, value)
                             }
                         }
@@ -335,7 +336,7 @@ fun ExerciseSet(
                                     .trimFirstZeros()
                                     .trimDots()
                                     .floatPrecision(2)
-                                val value = repsTextR.toFloatOrNull()
+                                val value = repsTextR.toDecimalFloatOrNull()
                                 onRepsChange(Side.Right, value)
                             }
                         }
@@ -360,7 +361,7 @@ fun ExerciseSet(
                                     .trimFirstZeros()
                                     .trimDots()
                                     .floatPrecision(2)
-                                val value = repsText.toFloatOrNull()
+                                val value = repsText.toDecimalFloatOrNull()
                                 onRepsChange(null, value)
                             }
                         }

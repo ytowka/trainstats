@@ -3,6 +3,9 @@ package com.danilkha.commoncore.utils
 expect fun Float.format1(): String
 expect fun Float.format2(): String
 
+fun CharSequence.toDecimalFloatOrNull(): Float? =
+    toString().replace(',', '.').toFloatOrNull()
+
 fun CharSequence.trimFirstZeros(): String = buildString {
     var firstZeros = true
     this@trimFirstZeros.forEachIndexed { index, c ->
