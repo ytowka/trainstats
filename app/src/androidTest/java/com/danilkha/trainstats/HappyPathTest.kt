@@ -2,7 +2,6 @@ package com.danilkha.trainstats
 
 import android.content.Context
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -101,7 +100,8 @@ class HappyPathTest {
                 .fetchSemanticsNodes().isNotEmpty()
         }
 
-        composeTestRule.onAllNodes(hasSetTextAction())[1].performTextInput(rawName)
+        composeTestRule.onNode(hasSetTextAction() and hasText("название"))
+            .performTextInput(rawName)
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText("Сохранить").performClick()
@@ -117,11 +117,7 @@ class HappyPathTest {
 
         composeTestRule.onNodeWithContentDescription("Новая тренировка").performClick()
 
-        composeTestRule.waitUntil(5_000) {
-            composeTestRule.onAllNodesWithText("Сохранить")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-
+        // New workouts open the exercise selector, which hides the editor's semantics.
         composeTestRule.waitUntil(15_000) {
             composeTestRule.onAllNodesWithText("Добавить упражнение")
                 .fetchSemanticsNodes().isNotEmpty()
@@ -190,8 +186,6 @@ class HappyPathTest {
         createExerciseViaUi("Test Exercise QA")
         createWorkoutViaUi("test exercise qa", "60", "10")
 
-
-
         composeTestRule.onAllNodes(hasText("test exercise qa"), useUnmergedTree = true)
             .get(0).performClick()
 
@@ -203,17 +197,13 @@ class HappyPathTest {
         composeTestRule.onNodeWithContentDescription("История упражнения").performClick()
 
         composeTestRule.waitUntil(5_000) {
-            composeTestRule.onAllNodesWithText("Всего записей", substring = true)
+            composeTestRule.onAllNodesWithText("Всего записей: 1")
                 .fetchSemanticsNodes().isNotEmpty()
         }
 
-        composeTestRule.onAllNodesWithText("60").fetchSemanticsNodes().also {
-            assert(it.isNotEmpty()) { "Expected weight '60' in history sheet" }
-        }
-
-        composeTestRule.onAllNodesWithText("10").fetchSemanticsNodes().also {
-            assert(it.isNotEmpty()) { "Expected reps '10' in history sheet" }
-        }
+        // Values and their units are rendered in the same Text semantics node.
+        composeTestRule.onNodeWithText("60кг").assertExists()
+        composeTestRule.onNodeWithText("10повт").assertExists()
     }
 
     // endregion
