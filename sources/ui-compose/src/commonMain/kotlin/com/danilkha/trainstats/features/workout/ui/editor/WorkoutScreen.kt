@@ -160,7 +160,9 @@ fun WorkoutScreen(
 ) {
     val dateFormat = LocalDateFormat.current
 
-    Column {
+    Column(
+        modifier = Modifier.background(color = Colors.background)
+    ) {
         TextToolbar(
             title = stringResource(when (state.initialization) {
                     WorkoutEditorInitialization.NEW -> Res.string.new_workout
@@ -174,7 +176,6 @@ fun WorkoutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(color = Colors.background)
                 .padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
