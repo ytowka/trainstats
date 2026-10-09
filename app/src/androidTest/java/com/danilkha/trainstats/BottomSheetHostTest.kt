@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -12,6 +13,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.danilkha.trainstats.bottomsheet.BottomSheetHost
+import com.danilkha.trainstats.bottomsheet.BottomSheetExpandState
 import com.danilkha.trainstats.bottomsheet.BottomSheetScreen
 import com.danilkha.trainstats.bottomsheet.BottomSheetState
 import com.danilkha.trainstats.bottomsheet.rememberBottomSheetState
@@ -54,6 +57,38 @@ private val LocalSheetTestValue = staticCompositionLocalOf { "root" }
 class BottomSheetHostTest {
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
+
+    @Test
+    fun autofocusWaitsUntilFullyOpenOnFirstAndRepeatedPresentation() {
+        lateinit var state: BottomSheetState
+        val focusOffsets = mutableListOf<Float>()
+        rule.setContent {
+            BottomSheetHost {
+                state = rememberBottomSheetState()
+                BottomSheetScreen(state) {
+                    val focusRequester = remember { FocusRequester() }
+                    LaunchedEffect(state) {
+                        state.awaitExpanded()
+                        focusOffsets.add(state.anchoredDraggableState.requireOffset())
+                        focusRequester.requestFocus()
+                    }
+                    Box(Modifier.fillMaxSize().background(Color.White).testTag("sheet")) {
+                        BasicTextField("search", {}, Modifier.focusRequester(focusRequester).testTag("search"))
+                    }
+                }
+            }
+        }
+        repeat(2) { presentation ->
+            rule.runOnIdle { state.show() }
+            rule.onNodeWithTag("search").assertIsFocused()
+            rule.runOnIdle {
+                assertEquals(presentation + 1, focusOffsets.size)
+                assertEquals(0f, focusOffsets.last(), 0.5f)
+            }
+            rule.runOnIdle { state.hide() }
+            rule.onNodeWithTag("sheet").assertDoesNotExist()
+        }
+    }
 
     @Test
     fun nestedDeclarationRendersAtRootWithCallerLocals() {
@@ -142,6 +177,10 @@ class BottomSheetHostTest {
             assertEquals(0, disposals)
             assertTrue(topFocus.requestFocus())
             assertFalse(editorFocus.requestFocus())
+        }
+        rule.runOnIdle {
+            assertEquals(BottomSheetExpandState.Expanded, confirmation.anchoredDraggableState.settledValue)
+            assertEquals(0f, confirmation.anchoredDraggableState.requireOffset(), 0.5f)
         }
         rule.onNodeWithTag("top-field").assertIsFocused()
         // Tap the exposed lower sheet through the top sheet's scrim.

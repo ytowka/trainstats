@@ -254,6 +254,15 @@ class BottomSheetState(
         animateTo(BottomSheetExpandState.Expanded)
     }
 
+    /** Waits for opening to finish, so autofocus does not resize the sheet mid-animation. */
+    suspend fun awaitExpanded() {
+        snapshotFlow {
+            isShowed && !isTransitioning &&
+                anchoredDraggableState.settledValue == BottomSheetExpandState.Expanded &&
+                abs(anchoredDraggableState.offset) < 0.5f
+        }.first { it }
+    }
+
     fun hide() {
         if (isShowed && canHide()) {
             animateTo(BottomSheetExpandState.Collapsed)

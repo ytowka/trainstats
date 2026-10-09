@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.danilkha.commonds.theme.Colors
 import com.danilkha.commonds.theme.ThemeTypography
 
 val bottomSheetShape = RoundedCornerShape(
@@ -37,7 +38,7 @@ fun BottomSheetContent(
     Column(
         modifier = Modifier
             .padding(10.dp)
-            .background(color = MaterialTheme.colors.background, shape = bottomSheetShape)
+            .background(color = Colors.background, shape = bottomSheetShape)
             .fillMaxWidth()
     ) {
         Row(

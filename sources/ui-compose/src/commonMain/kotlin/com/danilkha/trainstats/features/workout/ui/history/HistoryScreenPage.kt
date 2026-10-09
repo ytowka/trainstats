@@ -232,7 +232,8 @@ private fun LargeButton(
     ) {
         androidx.compose.material.Icon(
             painter = painter,
-            contentDescription = contentDescription
+            contentDescription = contentDescription,
+            tint = Colors.text,
         )
     }
 }

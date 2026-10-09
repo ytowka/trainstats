@@ -41,7 +41,8 @@ fun ExerciseSelectorBottomSheet(
             onCloseClicked = { sheetState.hide() }
         ) {
             val focusRequester = remember { FocusRequester() }
-            LaunchedEffect(Unit) {
+            LaunchedEffect(sheetState) {
+                sheetState.awaitExpanded()
                 focusRequester.requestFocus()
             }
             Column(

@@ -1,5 +1,11 @@
 package com.danilkha.navigation.impl
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -56,10 +62,20 @@ fun NavHost(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
             ),
+            popTransitionSpec = { backTransition() },
+            predictivePopTransitionSpec = { _ -> backTransition() },
             entryProvider = entryProvider,
         )
     }
 }
+
+// Keep both return paths identical so completing a predictive gesture does not change the motion.
+private fun backTransition(): ContentTransform =
+    fadeIn(tween(BackTransitionDurationMillis)) togetherWith
+        (slideOutHorizontally(tween(BackTransitionDurationMillis)) { width -> width } +
+            fadeOut(tween(BackTransitionDurationMillis)))
+
+private const val BackTransitionDurationMillis = 300
 
 private class RootViewModelStoreOwner : ViewModelStoreOwner {
     override val viewModelStore: ViewModelStore = ViewModelStore()

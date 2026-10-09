@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -160,6 +161,45 @@ class BottomSheetStateTest : BehaviorSpec({
                 sheet.anchoredDraggableState.requireOffset() shouldBe 0f
                 sheet.anchoredDraggableState.settledValue shouldBe BottomSheetExpandState.Expanded
                 dismissals shouldBe 0
+            }
+        }
+    }
+
+    Given("autofocus waiting for the sheet to open") {
+        Then("it waits for measurement and animation before resizing for the keyboard") {
+            runTest {
+                var frames = 0
+                val clock = object : MonotonicFrameClock {
+                    override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+                        yield()
+                        return onFrame(++frames * 16_000_000L)
+                    }
+                }
+                val sheet = createSheet(initialValue = BottomSheetExpandState.Collapsed, frameClock = clock)
+                var focusRequested = false
+                backgroundScope.launch {
+                    sheet.awaitExpanded()
+                    focusRequested = true
+                    sheet.emitSize(600)
+                }
+                sheet.show()
+                flushSnapshots()
+                focusRequested shouldBe false
+                sheet.emitSize(1000)
+                flushSnapshots()
+                focusRequested shouldBe true
+                // A 300 ms tween takes 20 frames including its initial frame.
+                frames shouldBe 20
+                sheet.anchoredDraggableState.requireOffset() shouldBe 0f
+            }
+        }
+
+        Then("an already expanded sheet can focus immediately") {
+            runTest {
+                val sheet = createSheet()
+                sheet.emitSize(300)
+                sheet.awaitExpanded()
+                sheet.anchoredDraggableState.requireOffset() shouldBe 0f
             }
         }
     }
