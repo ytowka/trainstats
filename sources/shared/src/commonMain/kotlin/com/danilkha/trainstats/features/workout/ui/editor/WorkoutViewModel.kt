@@ -43,7 +43,7 @@ class WorkoutViewModel(
         state: WorkoutState,
         event: WorkoutEvent
     ): WorkoutState {
-        return when (event) {
+        val newState = when (event) {
             is WorkoutEvent.InitState -> event.state
             is WorkoutEvent.AddExercise -> state.reduceAddExercise(event.exercise)
             is WorkoutEvent.ChangeDate -> state.copy(date = event.date)
@@ -85,8 +85,12 @@ class WorkoutViewModel(
                 state.copy(pendingDelete = state.pendingDelete - setId)
             }
             is WorkoutEvent.ToggleGroup -> state.reduceToggleGroup(event.groupIndex)
-            is WorkoutEvent.UpdateDateTime -> state.copy(lastEdited = Clock.System.now())
             else -> state
+        }
+        return if (event.editsWorkout()) {
+            newState.copy(lastEdited = Clock.System.now())
+        } else {
+            newState
         }
     }
 
@@ -117,23 +121,8 @@ class WorkoutViewModel(
             is WorkoutEvent.DeleteWorkout -> deleteWorkout()
             else -> Unit
         }
-        when (event) {
-            is WorkoutEvent.CommitDeleteSet,
-            is WorkoutEvent.DeleteGroup,
-            is WorkoutEvent.OnSetMove,
-            is WorkoutEvent.EditReps,
-            is WorkoutEvent.EditWeight,
-            is WorkoutEvent.AddExercise,
-            is WorkoutEvent.ChangeDate -> {
-                workoutSaver.update(newState.mapToParams())
-                processEvent(WorkoutEvent.UpdateDateTime)
-            }
-            is WorkoutEvent.OnGroupMove -> {
-                if (event.from != event.to) {
-                    workoutSaver.update(newState.mapToParams())
-                }
-            }
-            else -> Unit
+        if (event.editsWorkout()) {
+            workoutSaver.update(newState.mapToParams())
         }
     }
 
@@ -334,6 +323,18 @@ class WorkoutViewModel(
     }
 }
 
+private fun WorkoutEvent.editsWorkout(): Boolean = when (this) {
+    is WorkoutEvent.CommitDeleteSet,
+    is WorkoutEvent.DeleteGroup,
+    is WorkoutEvent.OnSetMove,
+    is WorkoutEvent.EditReps,
+    is WorkoutEvent.EditWeight,
+    is WorkoutEvent.AddExercise,
+    is WorkoutEvent.ChangeDate -> true
+    is WorkoutEvent.OnGroupMove -> from != to
+    else -> false
+}
+
 fun <T> MutableList<T>.move(from: Int, to: Int){
     val item = get(from)
     if(to > from){
@@ -351,6 +352,5 @@ fun <T> MutableList<T>.move(from: Int, to: Int){
 private fun <T> List<T>.replace(index: Int, item: T) = toMutableList().apply {
     set(index, item)
 }.toList()
-
 
 

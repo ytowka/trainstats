@@ -99,7 +99,6 @@ sealed interface WorkoutEvent {
     object DeleteWorkout : WorkoutEvent
 
     object SaveWorkout : WorkoutEvent
-    object UpdateDateTime : WorkoutEvent
 }
 
 sealed interface WorkoutSideEffect{

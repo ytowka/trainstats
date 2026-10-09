@@ -279,12 +279,15 @@ fun WorkoutScreen(
             Spacer(modifier = Modifier.size(20.dp))
             val lastEdited = state.lastEdited
             if (lastEdited != null) {
-                Text(
-                    text = "${stringResource(Res.string.last_edited)} ${dateFormat.format(lastEdited.toLocal())}",
-                    style = MaterialTheme.typography.caption,
-                    color = Colors.text.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "${stringResource(Res.string.last_edited)} ${dateFormat.format(lastEdited.toLocal())}",
+                        style = MaterialTheme.typography.caption,
+                        color = Colors.text.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                    WorkoutStopwatch(lastEdited)
+                }
             }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
