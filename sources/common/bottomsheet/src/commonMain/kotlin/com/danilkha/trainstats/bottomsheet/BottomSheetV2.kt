@@ -1,12 +1,11 @@
 package com.danilkha.trainstats.bottomsheet
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.anchoredDraggable
@@ -14,53 +13,41 @@ import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.backhandler.BackHandler
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
-
-
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -72,38 +59,9 @@ fun BottomSheetScreen(
         state.hide()
     }
 
-    SubcomposeLayout(
-        modifier = Modifier.fillMaxSize(),
-        measurePolicy = { constraints ->
-            if (state.isShowed) {
-                if (state.needMeasure) {
-                    val subcomposed = subcompose(SubscomposeSlots.Measure) {
-                        Box { content() }
-                    }.map {
-                        it.measure(constraints)
-                    }.get(0)
-
-                    state.emitSize(subcomposed.height)
-                }
-
-                val placeables = subcompose(SubscomposeSlots.Place) {
-                    BottomSheetOverlay(
-                        state = state,
-                        content = content
-                    )
-                }.map { it.measure(constraints) }
-
-
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeables.forEach {
-                        it.place(0, 0)
-                    }
-                }
-            } else {
-                layout(0, 0) {}
-            }
-        }
-    )
+    if (state.isVisible) {
+        BottomSheetOverlay(state = state, content = content)
+    }
 }
 
 
@@ -121,40 +79,30 @@ private fun BottomSheetOverlay(
         }
     val backgroundColor by animateColorAsState(targetBackgroundColor)
 
-    if (state.isVisible) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
+    Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier
+                .matchParentSize()
                 .drawBehind { drawRect(color = backgroundColor) }
-        ) {
-            Spacer(
-                modifier = Modifier
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {
-                            if (state.canHide()) {
-                                state.hide()
-                            }
-                        }
-                    )
-                    .weight(1f)
-                    .fillMaxWidth()
-            )
-            BottomSheetV2(
-                state = state,
-                content = content,
-            )
-        }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = state::hide,
+                )
+        )
+        BottomSheetV2(
+            state = state,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            content = content,
+        )
     }
 }
-
-private enum class SubscomposeSlots { Measure, Place }
 
 
 @Composable
 internal fun BottomSheetV2(
     state: BottomSheetState,
+    modifier: Modifier = Modifier,
     closeThreshold: Float = 2 / 3f,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -162,60 +110,56 @@ internal fun BottomSheetV2(
         state = state.anchoredDraggableState,
         positionalThreshold = { it * closeThreshold },
     )
-    val scrollFlingScope = object : ScrollScope {
-        override fun scrollBy(pixels: Float): Float {
-            state.anchoredDraggableState.dispatchRawDelta(pixels)
-            return pixels
-        }
-    }
-    val nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            return if (available.y < 0 && source == NestedScrollSource.Drag) {
-                Offset(0f, state.anchoredDraggableState.dispatchRawDelta(available.y))
-            } else {
-                Offset.Zero
+    val nestedScrollConnection = remember(state, flingBehavior) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                return if (available.y < 0 && source == NestedScrollSource.Drag) {
+                    Offset(0f, state.dispatchScrollDelta(available.y))
+                } else {
+                    Offset.Zero
+                }
             }
-        }
 
-        override fun onPostScroll(
-            consumed: Offset,
-            available: Offset,
-            source: NestedScrollSource
-        ): Offset {
-            return if (available.y > 0 && source == NestedScrollSource.Drag) {
-                Offset(0f, state.anchoredDraggableState.dispatchRawDelta(available.y))
-            } else {
-                Offset.Zero
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                return if (available.y > 0 && source == NestedScrollSource.Drag) {
+                    Offset(0f, state.dispatchScrollDelta(available.y))
+                } else {
+                    Offset.Zero
+                }
             }
-        }
 
-        override suspend fun onPreFling(available: Velocity): Velocity {
-            if (state.anchoredDraggableState.offset > 0) {
-                with(flingBehavior) { scrollFlingScope.performFling(available.y) }
-                return available
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                if (state.anchoredDraggableState.offset > 0) {
+                    return Velocity(0f, state.performFling(flingBehavior, available.y))
+                }
+                return Velocity.Zero
             }
-            return Velocity.Zero
-        }
 
 
-        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-            return Velocity.Zero
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (available.y != 0f || state.anchoredDraggableState.offset > 0f) {
+                    return Velocity(0f, state.performFling(flingBehavior, available.y))
+                }
+                return Velocity.Zero
+            }
         }
     }
     Box(
-        Modifier
+        modifier
+            .onSizeChanged { state.emitSize(it.height) }
             .nestedScroll(nestedScrollConnection)
             .offset {
-                IntOffset(0, state.anchoredDraggableState.offset.toInt())
+                IntOffset(0, state.anchoredDraggableState.requireOffset().roundToInt())
             }
             .anchoredDraggable(
                 state = state.anchoredDraggableState,
                 reverseDirection = false,
                 orientation = Orientation.Vertical,
-                flingBehavior = AnchoredDraggableDefaults.flingBehavior(
-                    state = state.anchoredDraggableState,
-                    positionalThreshold = { it * closeThreshold },
-                ),
+                flingBehavior = flingBehavior,
             ),
         content = content
     )
@@ -248,65 +192,113 @@ class BottomSheetState(
         anchors = DraggableAnchors {
             BottomSheetExpandState.Expanded at 0f
         }
-    )
+    ),
+    val onDismiss: () -> Unit = {},
 ) {
     var args by mutableStateOf<Map<String, Any>?>(null)
 
 
     internal var isShowed by mutableStateOf(anchoredDraggableState.currentValue == BottomSheetExpandState.Expanded)
 
-    internal val needMeasure by derivedStateOf { anchoredDraggableState.anchors.size < 2 }
+    internal val isVisible: Boolean get() = isShowed
 
-    internal val isVisible: Boolean by derivedStateOf {
-        anchoredDraggableState.settledValue == BottomSheetExpandState.Expanded
-                || anchoredDraggableState.targetValue == BottomSheetExpandState.Expanded
-    }
-
-    private val targetState = MutableSharedFlow<BottomSheetExpandState>(extraBufferCapacity = 1)
+    private var animationJob: Job? = null
+    private var animationId = 0
+    private var isTransitioning by mutableStateOf(false)
 
     init {
         coroutineScope.launch {
-            targetState
-                .onSubscription { emit(anchoredDraggableState.currentValue) }
-                .collectLatest {
-                    when (it) {
-                        BottomSheetExpandState.Collapsed -> {
-                            anchoredDraggableState.animateTo(BottomSheetExpandState.Collapsed)
-                            isShowed = false
-                        }
-
-                        BottomSheetExpandState.Expanded -> {
-                            isShowed = true
-                            snapshotFlow { anchoredDraggableState.anchors }
-                                .first { it.size > 1 }
-                            anchoredDraggableState.animateTo(BottomSheetExpandState.Expanded)
-                        }
-                    }
+            snapshotFlow {
+                val collapsedOffset = anchoredDraggableState.anchors
+                    .positionOf(BottomSheetExpandState.Collapsed)
+                // Distinguish separate closes even if snapshot notifications are coalesced.
+                animationId to (isShowed && !isTransitioning &&
+                    anchoredDraggableState.settledValue == BottomSheetExpandState.Collapsed &&
+                    !collapsedOffset.isNaN() &&
+                    abs(anchoredDraggableState.offset - collapsedOffset) < 0.5f)
+            }.collect { (_, closed) ->
+                if (closed) {
+                    isShowed = false
+                    args = null
+                    onDismiss()
                 }
-        }
-        coroutineScope.launch {
-            snapshotFlow { anchoredDraggableState.settledValue }.collectLatest { isVisible ->
-                Napier.d("settledValue = $isVisible")
             }
         }
     }
 
+    private fun animateTo(target: BottomSheetExpandState) {
+        val requestId = ++animationId
+        animationJob?.cancel()
+        isTransitioning = true
+        animationJob = coroutineScope.launch {
+            try {
+                snapshotFlow { anchoredDraggableState.anchors }
+                    .first { it.hasPositionFor(BottomSheetExpandState.Collapsed) }
+                anchoredDraggableState.animateTo(target)
+                // A veto can change during the animation. Keep the sheet at its accepted state.
+                if (anchoredDraggableState.settledValue != target) {
+                    anchoredDraggableState.animateTo(anchoredDraggableState.settledValue)
+                }
+            } finally {
+                if (requestId == animationId) {
+                    isTransitioning = false
+                }
+            }
+        }
+    }
+
+    internal fun dispatchScrollDelta(delta: Float): Float {
+        if (delta != 0f) animationJob?.cancel()
+        return anchoredDraggableState.dispatchRawDelta(delta)
+    }
+
+    internal suspend fun performFling(flingBehavior: FlingBehavior, velocity: Float): Float {
+        var remainingVelocity = velocity
+        anchoredDraggableState.anchoredDrag { anchors ->
+            val scrollScope = object : ScrollScope {
+                override fun scrollBy(pixels: Float): Float {
+                    val previousOffset = anchoredDraggableState.requireOffset()
+                    val newOffset = (previousOffset + pixels)
+                        .coerceIn(anchors.minPosition(), anchors.maxPosition())
+                    dragTo(newOffset)
+                    return newOffset - previousOffset
+                }
+            }
+            with(flingBehavior) {
+                remainingVelocity = scrollScope.performFling(velocity)
+            }
+        }
+        return velocity - remainingVelocity
+    }
+
     internal fun emitSize(height: Int) {
-        anchoredDraggableState.updateAnchors(DraggableAnchors {
-            BottomSheetExpandState.Collapsed at height.toFloat()
-            BottomSheetExpandState.Expanded at 0f
-        })
+        val newTarget = if (anchoredDraggableState.anchors.hasPositionFor(BottomSheetExpandState.Collapsed)) {
+            anchoredDraggableState.targetValue
+        } else {
+            // Preserve the initial state instead of snapping a new, hidden sheet to Expanded.
+            anchoredDraggableState.settledValue
+        }
+        anchoredDraggableState.updateAnchors(
+            DraggableAnchors {
+                BottomSheetExpandState.Collapsed at height.coerceAtLeast(1).toFloat()
+                BottomSheetExpandState.Expanded at 0f
+            },
+            newTarget = newTarget,
+        )
     }
 
     // todo: save args through configuration change
     fun show(args: Map<String, Any>? = null) {
         this.args = args
         focusManager.clearFocus()
-        targetState.tryEmit(BottomSheetExpandState.Expanded)
+        isShowed = true
+        animateTo(BottomSheetExpandState.Expanded)
     }
 
     fun hide() {
-        targetState.tryEmit(BottomSheetExpandState.Collapsed)
+        if (isShowed && canHide()) {
+            animateTo(BottomSheetExpandState.Collapsed)
+        }
     }
 
 
@@ -321,10 +313,11 @@ class BottomSheetState(
             focusManager: FocusManager,
             canHide: () -> Boolean,
             onResult: (Map<String, Any>) -> Unit,
+            onDismiss: () -> Unit = {},
         ) =
             androidx.compose.runtime.saveable.Saver<BottomSheetState, BottomSheetExpandState>(
                 save = {
-                    it.anchoredDraggableState.currentValue
+                    if (it.isShowed) BottomSheetExpandState.Expanded else BottomSheetExpandState.Collapsed
                 },
                 restore = { currentValue ->
                     BottomSheetState(
@@ -332,6 +325,7 @@ class BottomSheetState(
                         focusManager = focusManager,
                         canHide = canHide,
                         onResult = onResult,
+                        onDismiss = onDismiss,
                         anchoredDraggableState = AnchoredDraggableState(
                             initialValue = currentValue,
                             confirmValueChange = {
@@ -363,15 +357,25 @@ fun BottomSheetState.initOnArgs(onArgs: (Map<String, Any>) -> Unit) {
 fun rememberBottomSheetState(
     canHide: () -> Boolean = { true },
     onResult: (Map<String, Any>) -> Unit = {  },
+    onDismiss: () -> Unit = {},
 ): BottomSheetState {
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
-    return rememberSaveable(saver = BottomSheetState.Saver(coroutineScope, focusManager, canHide, onResult)) {
+    val currentCanHide = rememberUpdatedState(canHide)
+    val currentOnResult = rememberUpdatedState(onResult)
+    val currentOnDismiss = rememberUpdatedState(onDismiss)
+    val canHideCallback = remember { { currentCanHide.value() } }
+    val resultCallback = remember { { result: Map<String, Any> -> currentOnResult.value(result) } }
+    val dismissCallback = remember { { currentOnDismiss.value() } }
+    return rememberSaveable(
+        saver = BottomSheetState.Saver(coroutineScope, focusManager, canHideCallback, resultCallback, dismissCallback)
+    ) {
         BottomSheetState(
             coroutineScope = coroutineScope,
             focusManager = focusManager,
-            canHide = canHide,
-            onResult = onResult
+            canHide = canHideCallback,
+            onResult = resultCallback,
+            onDismiss = dismissCallback,
         )
     }
 }

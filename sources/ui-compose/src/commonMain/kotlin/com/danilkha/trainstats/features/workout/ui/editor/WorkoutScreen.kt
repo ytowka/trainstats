@@ -72,16 +72,14 @@ fun WorkoutScreenRoute(
     val exerciseSelectorViewModel = koinViewModel<ExerciseListViewModel>()
 
     val exerciseSelectorBottomSheet = rememberBottomSheetState(
-        canHide = {
+        onDismiss = {
             exerciseSelectorViewModel.processEvent(ExerciseListEvent.OnSelectorClosed)
-            true
         }
     )
 
     val exerciseEditorBottomSheet = rememberBottomSheetState(
-        canHide = {
+        onDismiss = {
             exerciseSelectorViewModel.processEvent(ExerciseListEvent.OnSelectorClosed)
-            true
         },
         onResult = {
             val result = it[ExerciseEditorBottomSheetArgs.result]
