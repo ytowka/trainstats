@@ -120,7 +120,6 @@ class WorkoutViewModel(
         when (event) {
             is WorkoutEvent.CommitDeleteSet,
             is WorkoutEvent.DeleteGroup,
-            is WorkoutEvent.OnGroupMove,
             is WorkoutEvent.OnSetMove,
             is WorkoutEvent.EditReps,
             is WorkoutEvent.EditWeight,
@@ -128,6 +127,11 @@ class WorkoutViewModel(
             is WorkoutEvent.ChangeDate -> {
                 workoutSaver.update(newState.mapToParams())
                 processEvent(WorkoutEvent.UpdateDateTime)
+            }
+            is WorkoutEvent.OnGroupMove -> {
+                if (event.from != event.to) {
+                    workoutSaver.update(newState.mapToParams())
+                }
             }
             else -> Unit
         }
