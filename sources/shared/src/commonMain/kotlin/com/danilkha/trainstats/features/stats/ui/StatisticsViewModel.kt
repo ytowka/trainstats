@@ -37,7 +37,7 @@ class StatisticsViewModel(
                 } ?: event.data.exercises.firstOrNull()
             state.copy(
                 data = event.data, loading = false, failed = false, exerciseId = exercise?.id,
-                hiddenSets = if (exercise?.id == state.exerciseId) state.hiddenSets else emptySet(),
+                visibleSeries = if (exercise?.id == state.exerciseId) state.visibleSeries else setOf(MAXIMUM_SERIES),
                 metric = if (exercise?.hasWeight == false) StatisticsMetric.Repetitions else state.metric,
                 selectedPoint = state.selectedPoint?.let { selected ->
                     exercise?.id?.let { exerciseStatistics(event.data.workouts, it) }
@@ -47,16 +47,18 @@ class StatisticsViewModel(
         }
         is StatisticsEvent.Search -> state.copy(searchQuery = event.query)
         is StatisticsEvent.SelectExercise -> state.copy(
-            exerciseId = event.id, searchQuery = "", selectedPoint = null, hiddenSets = emptySet(),
+            exerciseId = event.id, searchQuery = "", selectedPoint = null, visibleSeries = setOf(MAXIMUM_SERIES),
             metric = if (state.data.exercises.firstOrNull { it.id == event.id }?.hasWeight == false)
                 StatisticsMetric.Repetitions else state.metric,
         )
         is StatisticsEvent.SelectMetric -> state.copy(metric = event.metric, selectedPoint = null)
         is StatisticsEvent.SelectPoint -> state.copy(selectedPoint = event.point)
-        is StatisticsEvent.ToggleSet -> state.copy(
-            hiddenSets = if (event.number in state.hiddenSets) state.hiddenSets - event.number else state.hiddenSets + event.number,
-            selectedPoint = state.selectedPoint?.takeUnless { it.setNumber == event.number },
-        )
+        is StatisticsEvent.ToggleSet -> {
+            val changed = state.copy(
+                visibleSeries = if (event.number in state.visibleSeries) state.visibleSeries - event.number else state.visibleSeries + event.number,
+            )
+            changed.copy(selectedPoint = state.selectedPoint?.takeIf { it in changed.visiblePoints })
+        }
     }
 
     override suspend fun afterReduce(newState: StatisticsState, event: StatisticsEvent) {

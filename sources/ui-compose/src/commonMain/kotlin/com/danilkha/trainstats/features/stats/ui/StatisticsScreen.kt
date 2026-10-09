@@ -2,6 +2,8 @@ package com.danilkha.trainstats.features.stats.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
@@ -14,6 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
@@ -29,6 +36,8 @@ import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.navigation.api.LocalNavigator
 import com.danilkha.navigation.api.destinations.WorkoutDetailsNav
 import com.danilkha.trainstats.features.stats.domain.StatisticsMetric
+import com.danilkha.trainstats.features.stats.domain.StatisticsPoint
+import com.danilkha.trainstats.features.workout.domain.model.Workout
 import com.danilkha.trainstats.features.workout.ui.history.WorkoutCard
 import com.danilkha.trainstats.features.workout.ui.history.WorkoutHistoryModel
 import org.jetbrains.compose.resources.stringResource
@@ -68,19 +77,14 @@ fun StatisticsPage(
                 modifier = Modifier.padding(20.dp), color = Colors.text,
             )
             else -> {
-                val points = remember(state.points, state.metric) {
-                    state.points.filter { state.metric.value(it)?.let { value -> value.isFinite() && value >= 0f } == true }
-                }
+                val points = state.metricPoints
                 BoxWithConstraints(Modifier.weight(1f)) {
                     val listState = rememberLazyListState()
                     val chartHeight = (maxHeight * .5f).coerceIn(220.dp, 340.dp)
-                    LaunchedEffect(state.selectedPoint) {
-                        if (state.selectedPoint != null) listState.animateScrollToItem(3)
-                    }
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         state = listState,
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp),
+                        contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 40.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         item {
@@ -100,7 +104,7 @@ fun StatisticsPage(
                                         metric = state.metric,
                                         selectedPoint = state.selectedPoint,
                                         chartHeight = chartHeight,
-                                        hiddenSets = state.hiddenSets,
+                                        visibleSeries = state.visibleSeries,
                                         onToggleSet = { onEvent(StatisticsEvent.ToggleSet(it)) },
                                         onSelect = { onEvent(StatisticsEvent.SelectPoint(it)) },
                                     )
@@ -111,44 +115,106 @@ fun StatisticsPage(
                             item {
                                 val visiblePoints = state.visiblePoints
                                 val selectedIndex = visiblePoints.indexOf(state.selectedPoint)
-                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    TextButton(
-                                        enabled = visiblePoints.isNotEmpty(),
-                                        onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints.last())) },
-                                        modifier = Modifier.weight(1f),
-                                    ) { Text(stringResource(Res.string.stats_latest_point)) }
-                                    IconButton(
-                                        enabled = visiblePoints.isNotEmpty() && selectedIndex != 0,
-                                        onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints[if (selectedIndex < 0) visiblePoints.lastIndex else selectedIndex - 1])) },
+                                val previousEnabled = visiblePoints.isNotEmpty() && selectedIndex != 0
+                                val nextEnabled = selectedIndex in 0 until visiblePoints.lastIndex
+                                Card(Modifier.fillMaxWidth(), contentPadding = PaddingValues(8.dp)) {
+                                    Row(
+                                        Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
-                                        androidx.compose.material.Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, stringResource(Res.string.stats_previous_point))
-                                    }
-                                    IconButton(
-                                        enabled = selectedIndex in 0 until visiblePoints.lastIndex,
-                                        onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints[selectedIndex + 1])) },
-                                    ) {
-                                        androidx.compose.material.Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, stringResource(Res.string.stats_next_point))
+                                        TextButton(
+                                            enabled = visiblePoints.isNotEmpty(),
+                                            onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints.last())) },
+                                            modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                                                .background(Colors.primary.copy(alpha = .08f), RoundedCornerShape(8.dp)),
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = ButtonDefaults.textButtonColors(
+                                                contentColor = Colors.primary,
+                                                disabledContentColor = Colors.text.copy(alpha = .3f),
+                                            ),
+                                        ) {
+                                            Text(
+                                                stringResource(Res.string.stats_latest_point),
+                                                style = ThemeTypography.body2.copy(color = Color.Unspecified, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp),
+                                            )
+                                        }
+                                        IconButton(
+                                            enabled = previousEnabled,
+                                            onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints[if (selectedIndex < 0) visiblePoints.lastIndex else selectedIndex - 1])) },
+                                            modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(Colors.background),
+                                        ) {
+                                            androidx.compose.material.Icon(
+                                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                                stringResource(Res.string.stats_previous_point),
+                                                tint = Colors.primary.copy(alpha = if (previousEnabled) 1f else .3f),
+                                            )
+                                        }
+                                        IconButton(
+                                            enabled = nextEnabled,
+                                            onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints[selectedIndex + 1])) },
+                                            modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(Colors.background),
+                                        ) {
+                                            androidx.compose.material.Icon(
+                                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                                stringResource(Res.string.stats_next_point),
+                                                tint = Colors.primary.copy(alpha = if (nextEnabled) 1f else .3f),
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                         state.selectedWorkout?.let { workout ->
-                            item {
-                                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            item(key = "selected_workout") {
+                                Card(
+                                    Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(),
+                                    backgroundColor = Colors.background,
+                                    shape = RoundedCornerShape(12.dp),
+                                ) {
                                     state.selectedPoint?.let { point ->
-                                        Text(
-                                            text = stringResource(Res.string.stats_point_value, point.setNumber, state.metric.value(point)?.format2().orEmpty(), metricUnit(state.metric)),
-                                            color = setColor(point.setNumber), style = ThemeTypography.body1,
-                                        )
+                                        val color = if (MAXIMUM_SERIES in state.visibleSeries && point in state.maximumPoints)
+                                            Colors.primary else setColor(point.setNumber)
+                                        PointValueHeader(point, state.metric, color)
                                     }
-                                    WorkoutCard(
-                                        workout = WorkoutHistoryModel(
-                                            id = workout.id, date = workout.dateTime,
-                                            exercises = workout.steps.sortedBy { it.orderPosition }.map { it.exerciseData.name }.distinct(),
-                                        ),
-                                        showTime = true,
-                                        onClick = { onWorkout(workout.id) },
-                                    )
+                                    StatisticsWorkoutCard(workout, "statistics_selected_workout", onWorkout)
+                                }
+                            }
+                        }
+                        state.recordPoint?.let { record ->
+                            state.recordWorkout?.let { workout ->
+                                item(key = "record") {
+                                    Card(
+                                        Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(),
+                                        backgroundColor = Colors.background,
+                                        shape = RoundedCornerShape(12.dp),
+                                    ) {
+                                        Card(
+                                            Modifier.fillMaxWidth(),
+                                            contentPadding = PaddingValues(16.dp),
+                                            backgroundColor = Colors.primary.copy(alpha = .08f),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                                            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
+                                            strokeColor = null,
+                                        ) {
+                                            Text(stringResource(Res.string.stats_all_time_record), style = ThemeTypography.body2, color = Colors.text.copy(alpha = .65f))
+                                            Text(
+                                                buildAnnotatedString {
+                                                    withStyle(SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold)) { append(state.metric.value(record)!!.format2()) }
+                                                    withStyle(SpanStyle(fontSize = 16.sp)) { append(" ${metricUnit(state.metric)}") }
+                                                },
+                                                color = Colors.primary,
+                                            )
+                                            Text(
+                                                if (state.metric == StatisticsMetric.Volume) stringResource(Res.string.stats_volume_factors, record.weight!!.format2(), record.volumeRepetitions.format2())
+                                                else stringResource(Res.string.stats_set_number, record.setNumber),
+                                                style = ThemeTypography.body2, color = Colors.text.copy(alpha = .65f),
+                                            )
+                                        }
+                                        StatisticsWorkoutCard(workout, "statistics_record_workout", onWorkout)
+                                    }
                                 }
                             }
                         }
@@ -156,6 +222,52 @@ fun StatisticsPage(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PointValueHeader(point: StatisticsPoint, metric: StatisticsMetric, color: Color) {
+    val label = stringResource(Res.string.stats_set_number, point.setNumber)
+    val weightUnit = metricUnit(StatisticsMetric.Weight)
+    val repsUnit = metricUnit(StatisticsMetric.Repetitions)
+    Row(
+        Modifier.fillMaxWidth()
+            .background(color.copy(alpha = .08f), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(Modifier.width(3.dp).height(28.dp).background(color, RoundedCornerShape(50)))
+        Text(
+            buildAnnotatedString {
+                withStyle(SpanStyle(color = Colors.text.copy(alpha = .65f), fontSize = 14.sp)) { append("$label · ") }
+                if (metric == StatisticsMetric.Volume) {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { append(point.weight!!.format2()) }
+                    append(" $weightUnit × ")
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { append(point.volumeRepetitions.format2()) }
+                    append(" $repsUnit")
+                } else {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { append(metric.value(point)!!.format2()) }
+                    append(" ${metricUnit(metric)}")
+                }
+            },
+            color = color, style = ThemeTypography.body2.copy(fontSize = 14.sp),
+        )
+    }
+}
+
+@Composable
+private fun StatisticsWorkoutCard(workout: Workout, tag: String, onWorkout: (String) -> Unit) {
+    Box(Modifier.testTag(tag)) {
+        WorkoutCard(
+            workout = WorkoutHistoryModel(
+                id = workout.id, date = workout.dateTime,
+                exercises = workout.steps.sortedBy { it.orderPosition }.map { it.exerciseData.name }.distinct(),
+            ),
+            showTime = false,
+            onClick = { onWorkout(workout.id) },
+            shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 12.dp, bottomEnd = 12.dp),
+            strokeColor = null,
+        )
     }
 }
 

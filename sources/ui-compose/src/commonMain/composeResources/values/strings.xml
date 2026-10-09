@@ -56,20 +56,17 @@
     <string name="stats_metric">Показатель</string>
     <string name="stats_volume">Объём подхода</string>
     <string name="stats_volume_unit">кг·повт</string>
-    <string name="stats_weight_hint">Дополнительный вес в каждом подходе. Линии соответствуют номерам подходов.</string>
-    <string name="stats_repetitions_hint">Повторения в каждом подходе. Для раздельных упражнений — среднее левой и правой стороны.</string>
-    <string name="stats_volume_hint">Объём = вес × повторения. Для раздельных упражнений повторения обеих сторон суммируются. Собственный вес не учитывается.</string>
     <string name="stats_no_exercises">Добавьте упражнение и сохраните тренировку, чтобы увидеть прогресс.</string>
     <string name="stats_no_history">Пока нет тренировок с этим упражнением.</string>
-    <string name="stats_chart_info">О показателях и управлении графиком</string>
     <string name="stats_no_weight">В подходах не указан вес. Выберите «Повторения».</string>
     <string name="stats_load_failed">Не удалось загрузить данные.</string>
     <string name="stats_retry">Повторить</string>
+    <string name="stats_maximum">макс</string>
+    <string name="stats_all_time_record">Рекорд за всё время</string>
+    <string name="stats_volume_factors">%1$s кг × %2$s повт</string>
     <string name="stats_set_number">Подход %1$d</string>
-    <string name="stats_point_value">Подход %1$d · %2$s %3$s</string>
     <string name="stats_chart_description">График прогресса: даты по горизонтали, выбранный показатель по вертикали</string>
     <string name="stats_period_slider">Прокрутка периода графика</string>
-    <string name="stats_gesture_hint">Сведите или разведите пальцы для масштаба, сдвиньте график для прокрутки. Нажмите на точку, чтобы выбрать тренировку.</string>
     <string name="stats_reset_zoom">Весь период</string>
     <string name="stats_latest_point">Последний подход</string>
     <string name="stats_previous_point">Предыдущая точка</string>

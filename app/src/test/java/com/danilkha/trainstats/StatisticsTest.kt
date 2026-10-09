@@ -73,6 +73,44 @@ class StatisticsTest : BehaviorSpec({
         Then("volume uses all repetitions and the repetition chart averages the two sides") {
             points.map { it.repetitions } shouldBe listOf(10f, 10f)
             points.map { it.volume } shouldBe listOf(400f, 800f)
+            points.map { it.volumeRepetitions } shouldBe listOf(10f, 20f)
+        }
+    }
+    Given("different best approaches for each metric") {
+        val points = exerciseStatistics(listOf(workout(sets = listOf(
+            set(0, weight = 40f, reps = Repetitions.Single(10f)),
+            set(1, weight = 45f, reps = Repetitions.Single(8f)),
+            set(2, weight = 10f, reps = Repetitions.Single(15f)),
+        ))), press.id)
+        Then("maximum selects an actual approach per workout for the chosen metric") {
+            maximumStatisticsPoints(points, StatisticsMetric.Weight).single().setNumber shouldBe 2
+            maximumStatisticsPoints(points, StatisticsMetric.Repetitions).single().setNumber shouldBe 3
+            maximumStatisticsPoints(points, StatisticsMetric.Volume).single().setNumber shouldBe 1
+        }
+        Then("equal timestamps do not merge workouts and equal values pick the first approach") {
+            val tied = points + points.map { it.copy(workoutId = "second") }
+            maximumStatisticsPoints(tied, StatisticsMetric.Weight).map { it.workoutId } shouldBe listOf("second", "workout")
+            maximumStatisticsPoints(points.map { it.copy(weight = 40f) }, StatisticsMetric.Weight).single().setNumber shouldBe 1
+        }
+        Then("absent and invalid values are excluded while zero remains eligible") {
+            val invalid = points.mapIndexed { index, point -> point.copy(weight = listOf(null, Float.NaN, -1f)[index]) }
+            maximumStatisticsPoints(invalid, StatisticsMetric.Weight) shouldBe emptyList()
+            maximumStatisticsPoints(invalid + points.first().copy(weight = 0f), StatisticsMetric.Weight).single().weight shouldBe 0f
+        }
+        Then("the default shows only maxima and navigation deduplicates overlapping series") {
+            val state = StatisticsState(data = StatisticsData(listOf(press), listOf(workout(sets = listOf(set(0, weight = 40f), set(1, weight = 45f))))), exerciseId = press.id)
+            state.visibleSeries shouldBe setOf(MAXIMUM_SERIES)
+            state.visiblePoints.map { it.setNumber } shouldBe listOf(2)
+            state.copy(visibleSeries = setOf(MAXIMUM_SERIES, 1, 2)).visiblePoints.map { it.setNumber } shouldBe listOf(1, 2)
+        }
+        Then("all-time records ignore series toggles and the initial six-month viewport") {
+            val old = workout("old", listOf(set(0, weight = 80f))).copy(dateTime = Instant.parse("2023-01-01T09:00:00Z"))
+            val state = StatisticsState(data = StatisticsData(listOf(press), listOf(old, workout())), exerciseId = press.id, visibleSeries = emptySet())
+            state.visiblePoints shouldBe emptyList()
+            state.recordPoint?.weight shouldBe 80f
+            state.recordWorkout?.id shouldBe "old"
+            state.copy(metric = StatisticsMetric.Volume).recordPoint?.volume shouldBe 800f
+            state.copy(data = StatisticsData(listOf(press), emptyList())).recordPoint shouldBe null
         }
     }
     Given("a chart with several years of history") {
@@ -135,17 +173,24 @@ class StatisticsTest : BehaviorSpec({
             val selected = vm.reduce(loaded, StatisticsEvent.SelectPoint(loaded.points.first()))
             vm.reduce(selected, StatisticsEvent.SelectMetric(StatisticsMetric.Volume)).selectedPoint shouldBe null
         }
-        Then("hiding a set clears its selection and excludes it from point navigation") {
-            val selected = vm.reduce(loaded, StatisticsEvent.SelectPoint(loaded.points.first()))
-            val hidden = vm.reduce(selected, StatisticsEvent.ToggleSet(1))
-            hidden.hiddenSets shouldBe setOf(1)
+        Then("hiding the maximum clears its selection and excludes it from navigation") {
+            val selected = vm.reduce(loaded, StatisticsEvent.SelectPoint(loaded.visiblePoints.first()))
+            val hidden = vm.reduce(selected, StatisticsEvent.ToggleSet(MAXIMUM_SERIES))
+            hidden.visibleSeries shouldBe emptySet()
             hidden.selectedPoint shouldBe null
             hidden.visiblePoints shouldBe emptyList()
             vm.reduce(hidden, StatisticsEvent.ToggleSet(1)).visiblePoints shouldBe loaded.points
         }
-        Then("changing exercises restores visibility of all sets") {
-            val hidden = vm.reduce(loaded, StatisticsEvent.ToggleSet(1))
-            vm.reduce(hidden, StatisticsEvent.SelectExercise(pullup.id)).hiddenSets shouldBe emptySet()
+        Then("hiding an individual approach preserves selection when the maximum still shows it") {
+            val both = vm.reduce(loaded, StatisticsEvent.ToggleSet(1))
+            val selected = vm.reduce(both, StatisticsEvent.SelectPoint(both.visiblePoints.first()))
+            val hidden = vm.reduce(selected, StatisticsEvent.ToggleSet(1))
+            hidden.visibleSeries shouldBe setOf(MAXIMUM_SERIES)
+            hidden.selectedPoint shouldBe selected.selectedPoint
+        }
+        Then("changing exercises restores maximum-only visibility") {
+            val individual = vm.reduce(loaded, StatisticsEvent.ToggleSet(1))
+            vm.reduce(individual, StatisticsEvent.SelectExercise(pullup.id)).visibleSeries shouldBe setOf(MAXIMUM_SERIES)
         }
         Then("returning from workout details preserves a selected point while a deleted workout clears it") {
             val selected = vm.reduce(loaded, StatisticsEvent.SelectPoint(loaded.points.first()))

@@ -22,6 +22,7 @@ data class StatisticsPoint(
     val weight: Float?,
     val repetitions: Float,
     val volume: Float?,
+    val volumeRepetitions: Float = repetitions,
 )
 
 data class StatisticsData(
@@ -54,6 +55,14 @@ fun exerciseStatistics(workouts: List<Workout>, exerciseId: String): List<Statis
                         weight = set.weight?.value,
                         repetitions = repetitions,
                         volume = set.weight?.value?.times(totalReps),
+                        volumeRepetitions = totalReps,
                     )
                 }
         }.toList()
+
+/** One actual approach per workout; the winner can change when switching metrics. */
+fun maximumStatisticsPoints(points: List<StatisticsPoint>, metric: StatisticsMetric): List<StatisticsPoint> =
+    points.filter { metric.value(it)?.let { value -> value.isFinite() && value >= 0f } == true }
+        .groupBy { it.workoutId }.values
+        .map { approaches -> approaches.maxBy { metric.value(it)!! } }
+        .sortedWith(compareBy<StatisticsPoint> { it.date }.thenBy { it.workoutId })

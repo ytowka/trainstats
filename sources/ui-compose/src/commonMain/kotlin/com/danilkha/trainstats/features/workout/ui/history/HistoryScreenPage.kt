@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
@@ -36,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalFocusManager
@@ -248,6 +251,8 @@ fun WorkoutCard(
     workout: WorkoutHistoryModel,
     onClick: () -> Unit,
     showTime: Boolean = false,
+    shape: Shape = MaterialTheme.shapes.large,
+    strokeColor: Color? = Colors.outline,
 ) {
     val dateFormat = LocalDateFormat.current
 
@@ -255,6 +260,8 @@ fun WorkoutCard(
         modifier = Modifier
             .fillMaxWidth(),
         onClick = onClick,
+        shape = shape,
+        strokeColor = strokeColor,
         contentPadding = PaddingValues(
             horizontal = 10.dp,
             vertical = 10.dp

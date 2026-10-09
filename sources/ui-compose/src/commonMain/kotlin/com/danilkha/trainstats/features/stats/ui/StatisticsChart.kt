@@ -2,6 +2,8 @@ package com.danilkha.trainstats.features.stats.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -12,9 +14,8 @@ import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.IconButton
-import androidx.compose.material.DropdownMenu
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
@@ -41,6 +43,7 @@ import com.danilkha.commonds.theme.ThemeTypography
 import com.danilkha.trainstats.features.stats.domain.StatisticsMetric
 import com.danilkha.trainstats.features.stats.domain.StatisticsPoint
 import com.danilkha.trainstats.features.stats.domain.statisticsChartRange
+import com.danilkha.trainstats.features.stats.domain.maximumStatisticsPoints
 import org.jetbrains.compose.resources.stringResource
 import training_stats.shared.generated.resources.Res
 import training_stats.shared.generated.resources.*
@@ -56,14 +59,13 @@ internal fun StatisticsChart(
     selectedPoint: StatisticsPoint?,
     onSelect: (StatisticsPoint) -> Unit,
     chartHeight: Dp = 280.dp,
-    hiddenSets: Set<Int> = emptySet(),
+    visibleSeries: Set<Int> = setOf(MAXIMUM_SERIES),
     onToggleSet: (Int) -> Unit,
 ) {
     val range = remember(points) { statisticsChartRange(points) }
     var zoom by rememberSaveable(range) { mutableStateOf(range.initialZoom) }
     var start by rememberSaveable(range) { mutableStateOf(range.initialStart) }
     val maxZoom = max(20f, range.initialZoom * 20f)
-    var showInfo by remember { mutableStateOf(false) }
     val latestOnSelect by rememberUpdatedState(onSelect)
     val textMeasurer = rememberTextMeasurer()
     val textColor = Colors.text
@@ -71,8 +73,15 @@ internal fun StatisticsChart(
     val chartDescription = stringResource(Res.string.stats_chart_description)
     val periodDescription = stringResource(Res.string.stats_period_slider)
     val bounds = range.first.toEpochMilliseconds().toDouble() to range.last.toEpochMilliseconds().toDouble()
-    val visiblePoints = remember(points, hiddenSets) { points.filter { it.setNumber !in hiddenSets } }
-    val series = remember(points) { points.groupBy { it.setNumber }.entries.sortedBy { it.key } }
+    val maximumColor = Colors.primary
+    val series = remember(points, metric) {
+        listOf(MAXIMUM_SERIES to maximumStatisticsPoints(points, metric)) +
+            points.groupBy { it.setNumber }.entries.sortedBy { it.key }.map { it.key to it.value }
+    }
+    val visiblePoints = remember(series, visibleSeries) {
+        series.filter { it.first in visibleSeries }.flatMap { it.second }.distinct()
+    }
+    fun seriesColor(number: Int) = if (number == MAXIMUM_SERIES) maximumColor else setColor(number)
     val maxY = remember(points, metric) { max(points.maxOf { metric.value(it)!! } * 1.1f, 1f) }
 
     LaunchedEffect(selectedPoint) {
@@ -92,28 +101,11 @@ internal fun StatisticsChart(
     }
 
     Card(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("${metricLabel(metric)} · ${metricUnit(metric)}", Modifier.weight(1f), color = textColor, style = ThemeTypography.body2)
-            Box {
-                IconButton(onClick = { showInfo = true }, modifier = Modifier.size(32.dp)) {
-                    androidx.compose.material.Icon(Icons.Outlined.Info, stringResource(Res.string.stats_chart_info), tint = textColor.copy(alpha = .6f), modifier = Modifier.size(20.dp))
-                }
-                DropdownMenu(expanded = showInfo, onDismissRequest = { showInfo = false }) {
-                    Column(Modifier.width(260.dp).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(stringResource(when (metric) {
-                            StatisticsMetric.Weight -> Res.string.stats_weight_hint
-                            StatisticsMetric.Repetitions -> Res.string.stats_repetitions_hint
-                            StatisticsMetric.Volume -> Res.string.stats_volume_hint
-                        }), style = ThemeTypography.body2)
-                        Text(stringResource(Res.string.stats_gesture_hint), style = ThemeTypography.body2)
-                    }
-                }
-            }
-        }
+        Text("${metricLabel(metric)} · ${metricUnit(metric)}", color = textColor, style = ThemeTypography.body2)
         Canvas(
             Modifier.fillMaxWidth().height(chartHeight)
                 .semantics { contentDescription = chartDescription }
-                .pointerInput(points, metric, hiddenSets) {
+                .pointerInput(points, metric, visibleSeries) {
                     detectTransformGestures { centroid, pan, factor, _ ->
                         val left = 52.dp.toPx()
                         val width = (size.width - left - 12.dp.toPx()).coerceAtLeast(1f)
@@ -121,7 +113,7 @@ internal fun StatisticsChart(
                         start = (start - pan.x / width / zoom).coerceIn(0f, 1f - 1f / zoom)
                     }
                 }
-                .pointerInput(points, metric, hiddenSets) {
+                .pointerInput(points, metric, visibleSeries) {
                     detectTapGestures(
                         onDoubleTap = { zoom = 1f; start = 0f },
                         onTap = { tap ->
@@ -178,10 +170,10 @@ internal fun StatisticsChart(
             }
             clipRect(left, top, right, bottom) {
                 series.forEach { (number, line) ->
-                    if (number in hiddenSets) return@forEach
-                    val color = setColor(number)
+                    if (number !in visibleSeries) return@forEach
+                    val color = seriesColor(number)
                     line.zipWithNext().forEach { (a, b) ->
-                        drawLine(color, position(a), position(b), strokeWidth = 2.dp.toPx())
+                        drawLine(color, position(a), position(b), strokeWidth = (if (number == MAXIMUM_SERIES) 3.dp else 2.dp).toPx())
                     }
                     line.forEach { point ->
                         val position = position(point)
@@ -191,7 +183,8 @@ internal fun StatisticsChart(
                     }
                 }
                 selectedPoint?.takeIf { it in visiblePoints }?.let { point ->
-                    drawCircle(setColor(point.setNumber), radius = 8.dp.toPx(), center = position(point))
+                    val selectedSeries = series.first { it.first in visibleSeries && point in it.second }.first
+                    drawCircle(seriesColor(selectedSeries), radius = 8.dp.toPx(), center = position(point))
                     drawCircle(Color.White, radius = 4.dp.toPx(), center = position(point))
                 }
             }
@@ -204,18 +197,31 @@ internal fun StatisticsChart(
                 modifier = Modifier.semantics { contentDescription = periodDescription },
             )
         }
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             series.forEach { (number, _) ->
-                val enabled = number !in hiddenSets
+                val enabled = number in visibleSeries
+                val color = seriesColor(number)
+                val shape = RoundedCornerShape(50)
                 Row(
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
-                        .background(setColor(number).copy(alpha = if (enabled) .12f else .03f))
+                    modifier = Modifier.clip(shape)
+                        .background(if (enabled) color.copy(alpha = .12f) else Color.Transparent)
+                        .border(BorderStroke(1.dp, if (enabled) color.copy(alpha = .55f) else gridColor), shape)
                         .toggleable(value = enabled, role = Role.Checkbox, onValueChange = { onToggleSet(number) })
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(Modifier.size(10.dp).background(setColor(number).copy(alpha = if (enabled) 1f else .25f), CircleShape))
-                    Text(stringResource(Res.string.stats_set_number, number), color = textColor.copy(alpha = if (enabled) .9f else .4f), style = ThemeTypography.body2.copy(fontSize = 14.sp))
+                    if (enabled) {
+                        androidx.compose.material.Icon(Icons.Default.Check, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+                    } else {
+                        Box(Modifier.size(16.dp), contentAlignment = Alignment.Center) {
+                            Box(Modifier.size(8.dp).background(color.copy(alpha = .5f), CircleShape))
+                        }
+                    }
+                    Text(
+                        if (number == MAXIMUM_SERIES) stringResource(Res.string.stats_maximum) else stringResource(Res.string.stats_set_number, number),
+                        color = if (enabled) color else textColor.copy(alpha = .65f),
+                        style = ThemeTypography.body2.copy(fontSize = 14.sp, fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal),
+                    )
                 }
             }
         }

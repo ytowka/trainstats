@@ -84,9 +84,9 @@ class StatisticsScreenTest {
 
     @Test
     fun searchFiltersExercisesAndBodyweightShowsEmptyHistory() {
-        rule.onNodeWithText(press.name).performClick()
+        rule.onNodeWithTag("statistics_exercise_dropdown").performClick()
         rule.onNode(hasSetTextAction()).performTextInput("пОдТ")
-        rule.onAllNodesWithText(press.name).assertCountEquals(1)
+        rule.onNode(hasText(press.name) and hasAnyAncestor(hasTestTag("statistics_exercise_menu"))).assertDoesNotExist()
         rule.onNodeWithText(pullup.name).performClick()
         rule.onNodeWithText("Повторения").assertExists()
         rule.onNodeWithText("Пока нет тренировок с этим упражнением.").assertExists()
@@ -104,13 +104,31 @@ class StatisticsScreenTest {
     }
 
     @Test
-    fun hiddenSetsAreExcludedFromPointSelection() {
-        rule.onNodeWithText("Подход 2").performScrollTo().performClick().assertIsOff()
-        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
-        rule.onNodeWithText("Подход 1 · 40 кг").assertExists()
-        rule.onNodeWithText("Подход 2").performScrollTo().performClick().assertIsOn()
+    fun maximumIsTheOnlyDefaultAndHiddenSetsAreExcludedFromSelection() {
+        rule.onNodeWithText("макс").performScrollTo().assertIsOn()
+        rule.onNode(hasText("Подход 1") and isToggleable()).assertIsOff()
+        rule.onNode(hasText("Подход 2") and isToggleable()).assertIsOff()
         rule.onNodeWithText("Последний подход").performScrollTo().performClick()
         rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
+        rule.onNodeWithText("макс").performScrollTo().performClick().assertIsOff()
+        rule.onNodeWithText("Последний подход").performScrollTo().assertIsNotEnabled()
+        rule.onNode(hasText("Подход 1") and isToggleable()).performScrollTo().performClick().assertIsOn()
+        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
+        rule.onNodeWithText("Подход 1 · 40 кг").assertExists()
+        rule.onNode(hasText("Подход 2") and isToggleable()).performScrollTo().performClick().assertIsOn()
+        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
+        rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
+    }
+
+    @Test
+    fun allTimeRecordRemainsVisibleWhenEverySeriesIsHiddenAndOpensWorkout() {
+        rule.onNodeWithText("макс").performScrollTo().performClick()
+        rule.onNodeWithText("Рекорд за всё время").performScrollTo().assertIsDisplayed()
+        rule.onNodeWithText("45 кг").assertExists()
+        rule.onNode(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_record_workout"))).performScrollTo().performClick()
+        rule.onNodeWithText("Просмотр тренировки").assertExists()
+        rule.onNodeWithText("45 кг").assertExists()
+        coVerify(exactly = 0) { workouts.saveWorkout(any()) }
     }
 
     @Test
@@ -130,7 +148,7 @@ class StatisticsScreenTest {
         rule.onNodeWithText("Вес", useUnmergedTree = true).performScrollTo().performClick()
         rule.onNodeWithText("Объём подхода").performClick()
         rule.onNodeWithText("Последний подход").performScrollTo().performClick()
-        rule.onNodeWithText("Подход 2 · 360 кг·повт").assertExists()
+        rule.onNodeWithText("Подход 1 · 40 кг × 10 повт").assertExists()
     }
 
     @Test
@@ -146,7 +164,7 @@ class StatisticsScreenTest {
         }
         rule.waitUntil(3_000) { rule.onAllNodesWithText("Подход 2 · 45 кг").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
-        rule.onNode(hasClickAction() and hasText("•", substring = true)).performClick()
+        rule.onNode(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_selected_workout"))).performClick()
         rule.onNodeWithText("Просмотр тренировки").assertExists()
         rule.onNodeWithText("45 кг").assertExists()
         rule.onNodeWithText("8 повт").assertExists()
