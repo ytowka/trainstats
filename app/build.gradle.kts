@@ -116,6 +116,8 @@ dependencies {
     testImplementation(libs.kotest.assert)
     testImplementation(libs.kotest.property)
     testImplementation(libs.mockk)
+    testImplementation(project(":common-core"))
+    testImplementation(libs.coroutines.test)
     androidTestImplementation(platform(libs.compose.bom.artifact))
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk)

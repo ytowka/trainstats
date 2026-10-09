@@ -47,6 +47,7 @@ import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commoncore.utils.LocalDateFormat
 import com.danilkha.navigation.api.LocalNavigator
 import com.danilkha.navigation.api.destinations.WorkoutNav
+import com.danilkha.navigation.api.destinations.StatisticsNav
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.Card
 import com.danilkha.commonds.components.Fab
@@ -77,6 +78,7 @@ fun HistoryScreenPage(
         onCalendarClicked = { },
         onSearchQueryChanged = { viewModel.processEvent(HistoryEvent.ChangeSearchQuery(it)) },
         onAddClicked = { navigator.navigate(WorkoutNav(null)) },
+        onStatisticsClicked = { navigator.navigate(StatisticsNav) },
     )
 }
 
@@ -87,6 +89,7 @@ fun HistoryPage(
     onCalendarClicked: () -> Unit,
     onSearchQueryChanged: (String) -> Unit,
     onAddClicked: () -> Unit,
+    onStatisticsClicked: () -> Unit = {},
 ) {
     val listState = rememberLazyListState()
     val isScrolled by remember {
@@ -102,6 +105,7 @@ fun HistoryPage(
                 searchQuery = state.searchQuery,
                 onAddClicked = onAddClicked,
                 onSearchQueryChanged = onSearchQueryChanged,
+                onStatisticsClicked = onStatisticsClicked,
             )
         },
         workoutList = {
@@ -169,6 +173,7 @@ fun TopBar(
     onAddClicked: () -> Unit,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
+    onStatisticsClicked: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     Card(
@@ -209,7 +214,7 @@ fun TopBar(
             LargeButton(
                 painter = painterResource(Res.drawable.ic_chart),
                 contentDescription = stringResource(SharedRes.string.chart),
-                onClick = {}
+                onClick = onStatisticsClicked
             )
             LargeButton(
                 painter = rememberVectorPainter(Icons.Default.CalendarMonth),
@@ -239,9 +244,10 @@ private fun LargeButton(
 }
 
 @Composable
-private fun WorkoutCard(
+fun WorkoutCard(
     workout: WorkoutHistoryModel,
     onClick: () -> Unit,
+    showTime: Boolean = false,
 ) {
     val dateFormat = LocalDateFormat.current
 
@@ -256,7 +262,8 @@ private fun WorkoutCard(
     ) {
         Text(
             modifier = Modifier.padding(horizontal = 6.dp),
-            text = dateFormat.format(workout.date.toLocal().date),
+            text = if (showTime) dateFormat.format(workout.date.toLocal())
+                else dateFormat.format(workout.date.toLocal().date),
             style = ThemeTypography.subtitle.copy(
                 color = Colors.primary,
                 fontSize = 20.sp

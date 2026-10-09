@@ -26,6 +26,8 @@ import com.danilkha.navigation.api.destinations.ImportNav
 import com.danilkha.navigation.api.destinations.RootNav
 import com.danilkha.navigation.api.destinations.SettingsNav
 import com.danilkha.navigation.api.destinations.WorkoutNav
+import com.danilkha.navigation.api.destinations.StatisticsNav
+import com.danilkha.navigation.api.destinations.WorkoutDetailsNav
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -87,6 +89,8 @@ private val NavKeySavedStateConfiguration = SavedStateConfiguration {
             subclass(RootNav::class)
             subclass(SettingsNav::class)
             subclass(WorkoutNav::class)
+            subclass(StatisticsNav::class)
+            subclass(WorkoutDetailsNav::class)
             subclass(ImportNav::class)
             subclass(ExportNav::class)
         }

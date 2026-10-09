@@ -13,6 +13,10 @@ import androidx.navigation3.runtime.entryProvider
 import com.danilkha.navigation.api.destinations.RootNav
 import com.danilkha.navigation.api.destinations.SettingsNav
 import com.danilkha.navigation.api.destinations.WorkoutNav
+import com.danilkha.navigation.api.destinations.StatisticsNav
+import com.danilkha.navigation.api.destinations.WorkoutDetailsNav
+import com.danilkha.trainstats.features.stats.ui.StatisticsScreen
+import com.danilkha.trainstats.features.workout.ui.details.WorkoutDetailsScreen
 import com.danilkha.navigation.impl.NavHost
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListScreenPage
 import com.danilkha.trainstats.features.home.ui.HomeScreen
@@ -39,6 +43,12 @@ fun RootScreen() {
             }
             entry<WorkoutNav> { key ->
                 WorkoutScreenRoute(workoutId = key.id)
+            }
+            entry<StatisticsNav> {
+                StatisticsScreen()
+            }
+            entry<WorkoutDetailsNav> { key ->
+                WorkoutDetailsScreen(workoutId = key.id)
             }
             importExportEntries()
         }

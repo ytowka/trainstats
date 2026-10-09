@@ -2,11 +2,13 @@ package com.danilkha.trainstats.di
 
 import com.danilkha.trainstats.features.workout.domain.usecase.*
 import com.danilkha.trainstats.features.exercises.domain.usecase.*
+import com.danilkha.trainstats.features.stats.domain.GetStatisticsUseCase
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val useCaseModule: Module = module {
+    factoryOf(::GetStatisticsUseCase)
     factoryOf(::SaveWorkoutUseCase)
     factoryOf(::CommitWorkoutSaveUseCase)
     factoryOf(::GetWorkoutHistoryUseCase)
