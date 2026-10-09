@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowInsetsController
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -17,7 +18,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.statusBarColor = android.graphics.Color.BLACK
+        enableEdgeToEdge()
 
         setContent {
             setStatusBarAppearance(!isSystemInDarkTheme())
@@ -46,7 +47,12 @@ fun setStatusBarAppearance(isLightStatusBar: Boolean){
             0
         }
         LocalActivity.current?.window?.decorView?.let { decorView ->
-            decorView.systemUiVisibility = style
+            // Preserve the layout flags installed by enableEdgeToEdge on Android 8–10.
+            decorView.systemUiVisibility = if (isLightStatusBar) {
+                decorView.systemUiVisibility or style
+            } else {
+                decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+            }
         }
     }
 }

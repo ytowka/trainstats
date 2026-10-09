@@ -104,6 +104,7 @@ dependencies {
     implementation(libs.napier)
 
     // tests
+    androidTestImplementation(project(":common:bottomsheet"))
     androidTestImplementation(project(":common-core")) // supertypes (UseCase/SimpleUseCase) not visible via implementation-scope :shared
     androidTestImplementation(project(":common-db")) // TrainStatsDb/DAOs not visible via implementation-scope :shared
     testImplementation(libs.kotest.junit)

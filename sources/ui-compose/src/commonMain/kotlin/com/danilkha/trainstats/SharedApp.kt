@@ -6,6 +6,7 @@ import com.danilkha.commonds.theme.TrainingStatsTheme
 import com.danilkha.commoncore.utils.LocalDateFormat
 import com.danilkha.commoncore.utils.rememberDateTimeFormatter
 import com.danilkha.trainstats.features.navigation.RootScreen
+import com.danilkha.trainstats.bottomsheet.BottomSheetHost
 
 @Composable
 fun SharedApp() {
@@ -14,7 +15,9 @@ fun SharedApp() {
         CompositionLocalProvider(
             LocalDateFormat provides formatter,
         ) {
-            RootScreen()
+            BottomSheetHost {
+                RootScreen()
+            }
         }
     }
 }

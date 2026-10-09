@@ -206,7 +206,7 @@ class BottomSheetStateTest : BehaviorSpec({
     }
 })
 
-private fun TestScope.createSheet(
+internal fun TestScope.createSheet(
     initialValue: BottomSheetExpandState = BottomSheetExpandState.Expanded,
     canHide: () -> Boolean = { true },
     onDismiss: () -> Unit = {},
@@ -235,7 +235,7 @@ private fun moveBy(delta: Float): FlingBehavior = object : FlingBehavior {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private fun TestScope.flushSnapshots() {
+internal fun TestScope.flushSnapshots() {
     runCurrent()
     Snapshot.sendApplyNotifications()
     runCurrent()
