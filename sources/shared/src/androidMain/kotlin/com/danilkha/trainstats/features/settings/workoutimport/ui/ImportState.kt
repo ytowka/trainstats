@@ -18,5 +18,5 @@ sealed interface ImportEvent {
 
 sealed interface ImportSideEffect{
     class ImportSuccess(val exercises: Int, val workouts: Int) : ImportSideEffect
-    object Error : ImportSideEffect
+    data class Error(val throwable: Throwable) : ImportSideEffect
 }

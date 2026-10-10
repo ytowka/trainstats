@@ -35,12 +35,7 @@ class ImportWorkoutsUseCase(
             is Params.Text -> params.text
         }
 
-        val (exercises, workouts) = try{
-            workoutParser.parse(textToParse)
-        }catch (e: ParserException){
-            Napier.d(tag = "debugg") { "execute() called with: params = ${e.invalidLineIndex}" }
-            return Result.Error(e.invalidLineIndex)
-        }
+        val (exercises, workouts) = workoutParser.parse(textToParse)
 
         val exerciseIds = mutableMapOf<String, String>()
         val exerciseNames = mutableMapOf<String, ExerciseData>()
@@ -95,7 +90,7 @@ class ImportWorkoutsUseCase(
             workoutRepository.saveWorkout(it)
         }
 
-        return Result.Success(newExercises.size, workouts.size)
+        return Result(newExercises.size, workouts.size)
     }
 
     sealed interface Params {
@@ -104,8 +99,5 @@ class ImportWorkoutsUseCase(
 
         class File(val uri: Uri) : Params
     }
-    sealed interface Result{
-        class Success(val exercises: Int, val workouts: Int): Result
-        class Error(val invalidLine: Int): Result
-    }
+    data class Result(val exercises: Int, val workouts: Int)
 }

@@ -2,6 +2,7 @@ package com.danilkha.trainstats.features.settings.workoutimport.ui
 
 import com.danilkha.commoncore.viewmodel.MviViewModel
 import com.danilkha.trainstats.features.settings.workoutimport.domain.ImportWorkoutsUseCase
+import kotlinx.coroutines.CancellationException
 
 class ImportViewModel(
     private val importWorkoutsUseCase: ImportWorkoutsUseCase
@@ -15,7 +16,9 @@ class ImportViewModel(
     ): ImportState {
         return when(event) {
             is ImportEvent.ChangeImportText -> state.copy(exportText = event.text)
-            is ImportEvent.ImportFromFile -> state.copy(isLoading = true)
+            is ImportEvent.ImportFromFile -> if (event.uri != null ){
+                state.copy(isLoading = true)
+            } else state
             ImportEvent.ImportFromText -> state.copy(isLoading = true)
             is ImportEvent.ImportComplete -> state.copy(
                 isLoading = false,
@@ -30,25 +33,21 @@ class ImportViewModel(
     ) {
         when(event) {
             is ImportEvent.ImportFromFile -> event.uri?.let { uri ->
-                export(ImportWorkoutsUseCase.Params.File(uri))
+                import(ImportWorkoutsUseCase.Params.File(uri))
             }
-            ImportEvent.ImportFromText -> export(ImportWorkoutsUseCase.Params.Text(newState.exportText))
+            ImportEvent.ImportFromText -> import(ImportWorkoutsUseCase.Params.Text(newState.exportText))
             else -> {}
         }
     }
 
-    private suspend fun export(params: ImportWorkoutsUseCase.Params){
+    private suspend fun import(params: ImportWorkoutsUseCase.Params){
         importWorkoutsUseCase(params).onSuccess { result ->
-            when(result){
-                is ImportWorkoutsUseCase.Result.Error -> {
-                    showSideEffect(ImportSideEffect.Error)
-                    processEvent(ImportEvent.ImportComplete(false))
-                }
-                is ImportWorkoutsUseCase.Result.Success ->{
-                    showSideEffect(ImportSideEffect.ImportSuccess(result.exercises, result.workouts))
-                    processEvent(ImportEvent.ImportComplete(true))
-                }
-            }
+            showSideEffect(ImportSideEffect.ImportSuccess(result.exercises, result.workouts))
+            processEvent(ImportEvent.ImportComplete(true))
+        }.onFailure { t ->
+            if (t is CancellationException) throw t
+            showSideEffect(ImportSideEffect.Error(t))
+            processEvent(ImportEvent.ImportComplete(false))
         }
     }
 }

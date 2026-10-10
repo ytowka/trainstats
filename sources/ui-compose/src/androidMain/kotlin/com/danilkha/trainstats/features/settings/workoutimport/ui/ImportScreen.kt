@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
 import com.danilkha.commoncore.viewmodel.LaunchCollectEffects
 import com.danilkha.navigation.api.LocalNavigator
+import com.danilkha.trainstats.bottomsheet.rememberBottomSheetState
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import com.danilkha.commonds.components.GenericButton
@@ -45,6 +46,7 @@ fun ImportScreenRoute(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val navigator = LocalNavigator.current
+    val errorSheetState = rememberBottomSheetState()
 
     viewModel.LaunchCollectEffects { event ->
         when(event){
@@ -52,8 +54,8 @@ fun ImportScreenRoute(
                 Toast.makeText(context, "import ok exercises: ${event.exercises}, workouts: ${event.workouts}", Toast.LENGTH_SHORT).show()
             }
 
-            ImportSideEffect.Error -> {
-                Toast.makeText(context, "error parsing", Toast.LENGTH_SHORT).show()
+            is ImportSideEffect.Error -> {
+                errorSheetState.show(mapOf(ImportErrorBottomSheetArgs.THROWABLE to event.throwable))
             }
         }
     }
@@ -63,6 +65,7 @@ fun ImportScreenRoute(
         eventConsumer = viewModel::processEvent,
         onBack = { navigator.back() }
     )
+    ImportErrorBottomSheet(sheetState = errorSheetState)
 }
 
 @Composable

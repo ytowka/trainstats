@@ -26,6 +26,7 @@
     <string name="new_workout">Новая тренировка</string>
     <string name="edit_workout">Редактирование</string>
     <string name="import_workout">Импорт</string>
+    <string name="import_error">Ошибка импорта</string>
     <string name="export_workout">Экспорт</string>
     <string name="to_import">Импортировать</string>
     <string name="from_file">Из файла</string>
