@@ -249,7 +249,7 @@ private fun LargeButton(
 @Composable
 fun WorkoutCard(
     workout: WorkoutHistoryModel,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     showTime: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
     strokeColor: Color? = Colors.outline,

@@ -128,10 +128,10 @@ class StatisticsTest : BehaviorSpec({
             maximumStatisticsPoints(points, StatisticsMetric.Repetitions).single().setNumber shouldBe 3
             maximumStatisticsPoints(points, StatisticsMetric.Volume).single().setNumber shouldBe 1
         }
-        Then("equal timestamps do not merge workouts and equal values pick the first approach") {
+        Then("equal timestamps do not merge workouts and equal weights prefer more repetitions") {
             val tied = points + points.map { it.copy(workoutId = "second") }
             maximumStatisticsPoints(tied, StatisticsMetric.Weight).map { it.workoutId } shouldBe listOf("second", "workout")
-            maximumStatisticsPoints(points.map { it.copy(weight = 40f) }, StatisticsMetric.Weight).single().setNumber shouldBe 1
+            maximumStatisticsPoints(points.map { it.copy(weight = 40f) }, StatisticsMetric.Weight).single().setNumber shouldBe 3
         }
         Then("absent and invalid values are excluded while zero remains eligible") {
             val invalid = points.mapIndexed { index, point -> point.copy(weight = listOf(null, Float.NaN, -1f)[index]) }
@@ -152,6 +152,51 @@ class StatisticsTest : BehaviorSpec({
             state.recordWorkout?.id shouldBe "old"
             state.copy(metric = StatisticsMetric.Volume).recordPoint?.volume shouldBe 800f
             state.copy(data = StatisticsData(listOf(press), emptyList())).recordPoint shouldBe null
+        }
+    }
+    Given("approaches tied on the selected metric") {
+        fun stateWith(sets: List<ExerciseSet>, metric: StatisticsMetric) = StatisticsState(
+            data = StatisticsData(listOf(press), listOf(workout(sets = sets))), exerciseId = press.id, metric = metric,
+        )
+        Then("equal weights prefer more repetitions without sacrificing the primary maximum") {
+            val state = stateWith(listOf(
+                set(0, weight = 70f, reps = Repetitions.Single(2f)),
+                set(1, weight = 70f, reps = Repetitions.Single(5f)),
+                set(2, weight = 69f, reps = Repetitions.Single(100f)),
+            ), StatisticsMetric.Weight)
+            state.maximumPoints.single().setNumber shouldBe 2
+            state.visiblePoints.single().setNumber shouldBe 2
+            state.recordPoint?.setNumber shouldBe 2
+        }
+        Then("equal repetition counts prefer more weight") {
+            val state = stateWith(listOf(
+                set(0, weight = 40f), set(1, weight = 50f), set(2, weight = 70f, reps = Repetitions.Single(9f)),
+            ), StatisticsMetric.Repetitions)
+            state.maximumPoints.single().setNumber shouldBe 2
+            state.recordPoint?.setNumber shouldBe 2
+        }
+        Then("equal volumes prefer more weight and zero volumes then prefer more repetitions") {
+            val state = stateWith(listOf(set(0), set(1, weight = 50f, reps = Repetitions.Single(8f))), StatisticsMetric.Volume)
+            state.maximumPoints.single().setNumber shouldBe 2
+            state.recordPoint?.setNumber shouldBe 2
+            val zero = stateWith(listOf(set(0, weight = 0f), set(1, weight = 0f, reps = Repetitions.Single(12f))), StatisticsMetric.Volume)
+            zero.recordPoint?.setNumber shouldBe 2
+        }
+        Then("records compare the secondary value across workouts and complete ties preserve the first") {
+            val first = workout("first", listOf(set(0, weight = 70f, reps = Repetitions.Single(2f))))
+            val best = workout("best", listOf(set(0, weight = 70f, reps = Repetitions.Single(5f)), set(1, weight = 70f, reps = Repetitions.Single(5f))))
+                .copy(dateTime = date + kotlin.time.Duration.parse("1d"))
+            val tied = best.copy(id = "tied", dateTime = best.dateTime + kotlin.time.Duration.parse("1d"))
+            val state = StatisticsState(data = StatisticsData(listOf(press), listOf(tied, best, first)), exerciseId = press.id)
+            state.maximumPoints.map { it.setNumber } shouldBe listOf(1, 1, 1)
+            state.recordPoint?.workoutId shouldBe "best"
+            state.recordPoint?.setNumber shouldBe 1
+            state.recordWorkout?.id shouldBe "best"
+        }
+        Then("missing weights remain eligible for repetitions but known weights win equal counts") {
+            val state = stateWith(listOf(set(0, weight = null), set(1, weight = 0f)), StatisticsMetric.Repetitions)
+            state.recordPoint?.setNumber shouldBe 2
+            state.copy(data = state.data.copy(workouts = listOf(workout(sets = listOf(set(0, weight = null)))))).recordPoint?.setNumber shouldBe 1
         }
     }
     Given("a chart with several years of history") {

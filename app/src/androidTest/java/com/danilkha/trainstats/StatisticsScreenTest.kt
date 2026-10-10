@@ -45,6 +45,7 @@ class StatisticsScreenTest {
     private val pullup = ExerciseData("pullup", "Подтягивания", null, false, false)
     private val separated = ExerciseData("separated", "Раздельное упражнение", null, true, true)
     private val bodyweight = ExerciseData("bodyweight", "Отжимания", null, false, false)
+    private val extraExercises = (1..30).map { ExerciseData("extra-$it", "Упражнение $it", null, false, true) }
     private val workout = Workout(
         id = "test-workout",
         dateTime = Instant.parse("2026-10-09T09:00:00Z"),
@@ -62,7 +63,7 @@ class StatisticsScreenTest {
     @Before
     fun setup() {
         stopKoin()
-        coEvery { exercises.getAllExercises() } returns listOf(press, pullup, separated, bodyweight)
+        coEvery { exercises.getAllExercises() } returns listOf(press, pullup, separated, bodyweight) + extraExercises
         coEvery { workouts.getAll() } returns listOf(workout)
         coEvery { workouts.getWorkoutById(workout.id) } returns workout
         every { workouts.getWorkoutHistory() } returns flowOf(listOf(
@@ -85,9 +86,9 @@ class StatisticsScreenTest {
         rule.onNodeWithContentDescription(chartDescription).assertIsDisplayed()
     }
 
-    private fun scrollTo(matcher: SemanticsMatcher): SemanticsNodeInteraction {
-        rule.onNode(hasScrollToIndexAction()).performScrollToNode(matcher)
-        return rule.onNode(matcher)
+    private fun scrollTo(matcher: SemanticsMatcher, useUnmergedTree: Boolean = false): SemanticsNodeInteraction {
+        rule.onNode(hasScrollToIndexAction(), useUnmergedTree).performScrollToNode(matcher)
+        return rule.onNode(matcher, useUnmergedTree)
     }
 
     @After
@@ -101,6 +102,32 @@ class StatisticsScreenTest {
         rule.onNodeWithText(pullup.name).performClick()
         rule.onNodeWithText("Повторения").assertExists()
         rule.onNodeWithText("Пока нет тренировок с этим упражнением.").assertExists()
+    }
+
+    @Test
+    fun searchStaysPinnedWhileExerciseMenuScrollsAndReturnsResultsToTop() {
+        rule.onNodeWithTag("statistics_exercise_dropdown").performClick()
+        val search = rule.onNodeWithTag("statistics_exercise_search")
+        val menu = rule.onNodeWithTag("statistics_exercise_menu")
+        val searchBounds = search.fetchSemanticsNode().boundsInRoot
+        menu.performTouchInput {
+            swipe(Offset(centerX, height * .9f), Offset(centerX, height * .4f))
+        }
+        search.assertIsDisplayed()
+        assertEquals(searchBounds, search.fetchSemanticsNode().boundsInRoot)
+        rule.onNode(hasText(press.name) and hasAnyAncestor(hasTestTag("statistics_exercise_menu"))).assertIsNotDisplayed()
+        search.performTouchInput { click() }
+        search.performTextInput("Упражнение")
+        val focusedBounds = search.fetchSemanticsNode().boundsInRoot
+        menu.performTouchInput {
+            swipe(Offset(centerX, height * .9f), Offset(centerX, height * .4f))
+        }
+        search.assertIsDisplayed()
+        assertEquals(focusedBounds, search.fetchSemanticsNode().boundsInRoot)
+        search.performTextClearance()
+        search.performTextInput("Упражнение 30")
+        rule.onNode(hasText("Упражнение 30") and !hasSetTextAction()).assertIsDisplayed().performClick()
+        rule.onNodeWithTag("statistics_exercise_dropdown").assertTextContains("Упражнение 30")
     }
 
     @Test
@@ -135,10 +162,15 @@ class StatisticsScreenTest {
     fun allTimeRecordRemainsVisibleWhenEverySeriesIsHiddenAndOpensWorkout() {
         scrollTo(hasText("макс", ignoreCase = true)).performClick()
         scrollTo(hasText("Рекорд за всё время")).assertIsDisplayed()
-        rule.onNodeWithTag("statistics_record_value").assertTextEquals("45 кг × 8 повт")
-        scrollTo(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_record_workout"))).performClick()
+        rule.onNodeWithTag("statistics_record_value", useUnmergedTree = true).assertTextEquals("45 кг × 8 повт")
+        scrollTo(hasTestTag("statistics_record_value"), useUnmergedTree = true).performTouchInput { click() }
         rule.onNodeWithText("Просмотр тренировки").assertExists()
         rule.onNodeWithText("45 кг").assertExists()
+        rule.runOnIdle { rule.activity.onBackPressedDispatcher.onBackPressed() }
+        scrollTo(hasTestTag("statistics_record_workout")).performTouchInput {
+            click(Offset(centerX, height - 4 * rule.density.density))
+        }
+        rule.onNodeWithText("Просмотр тренировки").assertExists()
         coVerify(exactly = 0) { workouts.saveWorkout(any()) }
     }
 
@@ -160,7 +192,7 @@ class StatisticsScreenTest {
         assertTrue(chart.fetchSemanticsNode().boundsInRoot.top < chartTop - 40 * rule.density.density)
         assertEquals(periodAfter, slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo])
         chart.performScrollTo().performTouchInput { doubleClick() }
-        slider.assertDoesNotExist()
+        assertEquals(0f..0f, slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].range)
         scrollTo(hasTestTag("statistics_metric_dropdown")).performClick()
         rule.onNodeWithText("Объём подхода").performClick()
         scrollTo(hasText("Последний подход")).performClick()
@@ -170,13 +202,15 @@ class StatisticsScreenTest {
     @Test
     fun verticalDragFromChartScrollsPageWithoutChangingScaleOrSelectingPoint() {
         val chart = rule.onNodeWithContentDescription(chartDescription)
+        val slider = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+        val periodBefore = slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo]
         val topBefore = chart.fetchSemanticsNode().boundsInRoot.top
         chart.performTouchInput {
             swipe(Offset(centerX, height * .8f), Offset(centerX + 10f, height * .25f))
         }
         assertTrue(chart.fetchSemanticsNode().boundsInRoot.top < topBefore - 40 * rule.density.density)
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertDoesNotExist()
-        rule.onNodeWithTag("statistics_selected_point").assertDoesNotExist()
+        assertEquals(periodBefore, slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo])
+        rule.onNodeWithTag("statistics_selected_point", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -191,7 +225,7 @@ class StatisticsScreenTest {
             up()
         }
         assertEquals(topBefore, chart.fetchSemanticsNode().boundsInRoot.top, 1f)
-        rule.onNodeWithTag("statistics_selected_point").assertDoesNotExist()
+        rule.onNodeWithTag("statistics_selected_point", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -201,9 +235,9 @@ class StatisticsScreenTest {
             rule.onNode(hasText(metric) and hasAnyAncestor(hasTestTag("statistics_metric_menu"))).performClick()
             scrollTo(hasText("Последний подход")).performClick()
             val number = if (values.first == 45) 2 else 1
-            scrollTo(hasTestTag("statistics_selected_point"))
+            scrollTo(hasTestTag("statistics_selected_point"), useUnmergedTree = true)
                 .assertTextEquals("Подход $number · ${values.first} кг × ${values.second} повт")
-            scrollTo(hasTestTag("statistics_record_value"))
+            scrollTo(hasTestTag("statistics_record_value"), useUnmergedTree = true)
                 .assertTextEquals("${values.first} кг × ${values.second} повт")
             if (metric == "Объём подхода") rule.onNodeWithText("Подход 1 · 400 кг·повт").assertExists()
         }
@@ -218,8 +252,8 @@ class StatisticsScreenTest {
             scrollTo(hasTestTag("statistics_exercise_dropdown")).performClick()
             rule.onNode(hasText(exercise.name) and hasAnyAncestor(hasTestTag("statistics_exercise_menu"))).performClick()
             scrollTo(hasText("Последний подход")).performClick()
-            scrollTo(hasTestTag("statistics_selected_point")).assertTextEquals("Подход 1 · $value")
-            scrollTo(hasTestTag("statistics_record_value")).assertTextEquals(value)
+            scrollTo(hasTestTag("statistics_selected_point"), useUnmergedTree = true).assertTextEquals("Подход 1 · $value")
+            scrollTo(hasTestTag("statistics_record_value"), useUnmergedTree = true).assertTextEquals(value)
         }
     }
 
@@ -237,7 +271,7 @@ class StatisticsScreenTest {
         scrollTo(hasText("Последний подход"))
         rule.waitUntil(3_000) { rule.onAllNodesWithText("Подход 2 · 45 кг × 8 повт").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Подход 2 · 45 кг × 8 повт").assertExists()
-        scrollTo(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_selected_workout"))).performClick()
+        scrollTo(hasTestTag("statistics_selected_point"), useUnmergedTree = true).performTouchInput { click() }
         rule.onNodeWithText("Просмотр тренировки").assertExists()
         rule.onNodeWithText("45 кг").assertExists()
         rule.onNodeWithText("8 повт").assertExists()
@@ -250,6 +284,10 @@ class StatisticsScreenTest {
         rule.runOnIdle { rule.activity.onBackPressedDispatcher.onBackPressed() }
         rule.onNodeWithText("Статистика").assertExists()
         rule.onNodeWithText("Подход 2 · 45 кг × 8 повт").assertExists()
+        scrollTo(hasTestTag("statistics_selected_workout")).performTouchInput {
+            click(Offset(centerX, height - 4 * rule.density.density))
+        }
+        rule.onNodeWithText("Просмотр тренировки").assertExists()
         coVerify(exactly = 0) { workouts.saveWorkout(any()) }
         coVerify(exactly = 0) { workouts.commitWorkoutSave(any()) }
     }

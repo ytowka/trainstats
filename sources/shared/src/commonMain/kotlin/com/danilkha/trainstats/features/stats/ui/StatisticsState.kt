@@ -5,6 +5,7 @@ import com.danilkha.trainstats.features.stats.domain.StatisticsMetric
 import com.danilkha.trainstats.features.stats.domain.StatisticsPoint
 import com.danilkha.trainstats.features.stats.domain.exerciseStatistics
 import com.danilkha.trainstats.features.stats.domain.maximumStatisticsPoints
+import com.danilkha.trainstats.features.stats.domain.maximumStatisticsPoint
 
 /** Series zero is the maximum; actual approaches are numbered from one. */
 const val MAXIMUM_SERIES = 0
@@ -33,7 +34,7 @@ data class StatisticsState(
         val maxima = if (MAXIMUM_SERIES in visibleSeries) maximumPoints.toSet() else emptySet()
         metricPoints.filter { it.setNumber in visibleSeries || it in maxima }
     }
-    val recordPoint by lazy { metricPoints.maxByOrNull { metric.value(it)!! } }
+    val recordPoint by lazy { maximumStatisticsPoint(metricPoints, metric) }
     val recordWorkout get() = data.workouts.firstOrNull { it.id == recordPoint?.workoutId }
 }
 

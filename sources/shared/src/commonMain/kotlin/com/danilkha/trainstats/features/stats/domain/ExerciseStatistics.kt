@@ -65,7 +65,18 @@ fun exerciseStatistics(workouts: List<Workout>, exerciseId: String): List<Statis
 
 /** One actual approach per workout; the winner can change when switching metrics. */
 fun maximumStatisticsPoints(points: List<StatisticsPoint>, metric: StatisticsMetric): List<StatisticsPoint> =
-    points.filter { metric.value(it)?.let { value -> value.isFinite() && value >= 0f } == true }
-        .groupBy { it.workoutId }.values
-        .map { approaches -> approaches.maxBy { metric.value(it)!! } }
+    points.groupBy { it.workoutId }.values
+        .mapNotNull { approaches -> maximumStatisticsPoint(approaches, metric) }
         .sortedWith(compareBy<StatisticsPoint> { it.date }.thenBy { it.workoutId })
+
+/** Break metric ties using the other value of the approach; complete ties keep the first. */
+fun maximumStatisticsPoint(points: List<StatisticsPoint>, metric: StatisticsMetric): StatisticsPoint? =
+    points.filter { metric.value(it)?.let { value -> value.isFinite() && value >= 0f } == true }
+        .maxWithOrNull(
+            compareBy<StatisticsPoint> { metric.value(it)!! }
+                .thenBy { point ->
+                    val secondary = if (metric == StatisticsMetric.Weight) point.repetitions else point.weight
+                    secondary?.takeIf { it.isFinite() && it >= 0f } ?: Float.NEGATIVE_INFINITY
+                }
+                .thenBy { it.repetitions.takeIf { value -> value.isFinite() && value >= 0f } ?: Float.NEGATIVE_INFINITY },
+        )

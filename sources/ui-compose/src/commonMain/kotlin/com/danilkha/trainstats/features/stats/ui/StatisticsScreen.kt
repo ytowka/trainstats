@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,6 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -173,17 +176,18 @@ fun StatisticsPage(
                         state.selectedWorkout?.let { workout ->
                             item(key = "selected_workout") {
                                 Card(
-                                    Modifier.fillMaxWidth(),
+                                    Modifier.fillMaxWidth().testTag("statistics_selected_workout"),
                                     contentPadding = PaddingValues(),
                                     backgroundColor = Colors.background,
                                     shape = RoundedCornerShape(12.dp),
+                                    onClick = { onWorkout(workout.id) },
                                 ) {
                                     state.selectedPoint?.let { point ->
                                         val color = if (MAXIMUM_SERIES in state.visibleSeries && point in state.maximumPoints)
                                             Colors.primary else setColor(point.setNumber)
                                         PointValueHeader(point, color)
                                     }
-                                    StatisticsWorkoutCard(workout, "statistics_selected_workout", onWorkout)
+                                    StatisticsWorkoutCard(workout)
                                 }
                             }
                         }
@@ -191,10 +195,11 @@ fun StatisticsPage(
                             state.recordWorkout?.let { workout ->
                                 item(key = "record") {
                                     Card(
-                                        Modifier.fillMaxWidth(),
+                                        Modifier.fillMaxWidth().testTag("statistics_record_workout"),
                                         contentPadding = PaddingValues(),
                                         backgroundColor = Colors.background,
                                         shape = RoundedCornerShape(12.dp),
+                                        onClick = { onWorkout(workout.id) },
                                     ) {
                                         Card(
                                             Modifier.fillMaxWidth(),
@@ -216,7 +221,7 @@ fun StatisticsPage(
                                                 style = ThemeTypography.body2, color = Colors.text.copy(alpha = .65f),
                                             )
                                         }
-                                        StatisticsWorkoutCard(workout, "statistics_record_workout", onWorkout)
+                                        StatisticsWorkoutCard(workout)
                                     }
                                 }
                             }
@@ -276,19 +281,17 @@ private fun fullApproachValue(point: StatisticsPoint, numberSize: TextUnit): Ann
 }
 
 @Composable
-private fun StatisticsWorkoutCard(workout: Workout, tag: String, onWorkout: (String) -> Unit) {
-    Box(Modifier.testTag(tag)) {
-        WorkoutCard(
-            workout = WorkoutHistoryModel(
-                id = workout.id, date = workout.dateTime,
-                exercises = workout.steps.sortedBy { it.orderPosition }.map { it.exerciseData.name }.distinct(),
-            ),
-            showTime = false,
-            onClick = { onWorkout(workout.id) },
-            shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 12.dp, bottomEnd = 12.dp),
-            strokeColor = null,
-        )
-    }
+private fun StatisticsWorkoutCard(workout: Workout) {
+    WorkoutCard(
+        workout = WorkoutHistoryModel(
+            id = workout.id, date = workout.dateTime,
+            exercises = workout.steps.sortedBy { it.orderPosition }.map { it.exerciseData.name }.distinct(),
+        ),
+        showTime = false,
+        onClick = null,
+        shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 12.dp, bottomEnd = 12.dp),
+        strokeColor = null,
+    )
 }
 
 @Composable
@@ -309,6 +312,10 @@ private fun ExerciseDropdown(state: StatisticsState, onEvent: (StatisticsEvent) 
     var expanded by remember { mutableStateOf(false) }
     var widthPx by remember { mutableStateOf(0) }
     val density = LocalDensity.current
+    val menuScrollState = rememberScrollState()
+    LaunchedEffect(expanded, state.searchQuery) {
+        if (expanded) menuScrollState.scrollTo(0)
+    }
     Box(Modifier.fillMaxWidth().onSizeChanged { widthPx = it.width }) {
         SelectionDropdownField(
             title = stringResource(Res.string.stats_exercise),
@@ -321,13 +328,20 @@ private fun ExerciseDropdown(state: StatisticsState, onEvent: (StatisticsEvent) 
             expanded = expanded,
             onDismissRequest = { expanded = false; onEvent(StatisticsEvent.Search("")) },
             modifier = Modifier.heightIn(max = 380.dp).width(with(density) { widthPx.toDp() }).testTag("statistics_exercise_menu"),
+            scrollState = menuScrollState,
         ) {
-            GenericTextFiled(
-                modifier = Modifier.padding(10.dp).fillMaxWidth(),
-                value = state.searchQuery,
-                onValueChange = { onEvent(StatisticsEvent.Search(it)) },
-                hint = stringResource(Res.string.search),
-            )
+            // Counter the menu's scroll offset so the opaque search header stays at the top.
+            Box(
+                Modifier.fillMaxWidth().offset { IntOffset(0, menuScrollState.value) }
+                    .zIndex(1f).background(MaterialTheme.colors.surface).padding(10.dp),
+            ) {
+                GenericTextFiled(
+                    modifier = Modifier.fillMaxWidth().testTag("statistics_exercise_search"),
+                    value = state.searchQuery,
+                    onValueChange = { onEvent(StatisticsEvent.Search(it)) },
+                    hint = stringResource(Res.string.search),
+                )
+            }
             if (state.filteredExercises.isEmpty()) {
                 Text(stringResource(Res.string.empty_search), Modifier.padding(16.dp), color = Colors.text)
             }
