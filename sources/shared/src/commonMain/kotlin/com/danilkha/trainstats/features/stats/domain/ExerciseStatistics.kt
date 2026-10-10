@@ -23,6 +23,7 @@ data class StatisticsPoint(
     val repetitions: Float,
     val volume: Float?,
     val volumeRepetitions: Float = repetitions,
+    val approachRepetitions: Repetitions = Repetitions.Single(repetitions),
 )
 
 data class StatisticsData(
@@ -39,11 +40,12 @@ fun exerciseStatistics(workouts: List<Workout>, exerciseId: String): List<Statis
         .flatMap { workout ->
             workout.steps.sortedBy { it.orderPosition }
                 .filter { it.exerciseData.id == exerciseId }
-                .mapIndexed { index, set ->
+                .mapIndexedNotNull { index, set ->
                     val totalReps = when (val reps = set.reps) {
                         is Repetitions.Single -> reps.reps
                         is Repetitions.Double -> reps.left + reps.right
                     }
+                    if (totalReps == 0f) return@mapIndexedNotNull null
                     val repetitions = when (set.reps) {
                         is Repetitions.Single -> totalReps
                         is Repetitions.Double -> totalReps / 2f
@@ -56,6 +58,7 @@ fun exerciseStatistics(workouts: List<Workout>, exerciseId: String): List<Statis
                         repetitions = repetitions,
                         volume = set.weight?.value?.times(totalReps),
                         volumeRepetitions = totalReps,
+                        approachRepetitions = set.reps,
                     )
                 }
         }.toList()

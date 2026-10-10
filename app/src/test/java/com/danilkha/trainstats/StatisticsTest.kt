@@ -74,6 +74,47 @@ class StatisticsTest : BehaviorSpec({
             points.map { it.repetitions } shouldBe listOf(10f, 10f)
             points.map { it.volume } shouldBe listOf(400f, 800f)
             points.map { it.volumeRepetitions } shouldBe listOf(10f, 20f)
+            points.map { it.approachRepetitions } shouldBe listOf(Repetitions.Single(10f), Repetitions.Double(8f, 12f))
+        }
+    }
+    Given("zero-repetition approaches mixed with completed approaches") {
+        val history = workout(sets = listOf(
+            set(0, weight = 999f, reps = Repetitions.Single(0f)),
+            set(1, weight = 40f),
+            set(2, weight = 888f, reps = Repetitions.Double(0f, 0f)),
+            set(3, weight = 50f, reps = Repetitions.Double(0f, 6f)),
+        ))
+        val points = exerciseStatistics(listOf(history), press.id)
+        Then("zero repetitions are excluded without changing the original approach numbers") {
+            points.map { it.setNumber } shouldBe listOf(2, 4)
+            points.map { it.weight } shouldBe listOf(40f, 50f)
+            points.map { it.repetitions } shouldBe listOf(10f, 3f)
+            points.map { it.volume } shouldBe listOf(400f, 300f)
+        }
+        Then("zero-repetition approaches cannot become maxima or all-time records") {
+            val state = StatisticsState(data = StatisticsData(listOf(press), listOf(history)), exerciseId = press.id)
+            val expected = mapOf(StatisticsMetric.Weight to 4, StatisticsMetric.Repetitions to 2, StatisticsMetric.Volume to 2)
+            expected.forEach { (metric, number) ->
+                state.copy(metric = metric).maximumPoints.single().setNumber shouldBe number
+                state.copy(metric = metric).recordPoint?.setNumber shouldBe number
+            }
+        }
+        Then("workouts containing only empty approaches have no graph or record") {
+            val empty = workout(sets = listOf(set(0, reps = Repetitions.Single(0f)), set(1, reps = Repetitions.Double(0f, 0f))))
+            val state = StatisticsState(data = StatisticsData(listOf(press), listOf(empty)), exerciseId = press.id)
+            StatisticsMetric.entries.forEach { metric ->
+                val changed = state.copy(metric = metric)
+                changed.points shouldBe emptyList()
+                changed.visiblePoints shouldBe emptyList()
+                changed.recordPoint shouldBe null
+                changed.recordWorkout shouldBe null
+            }
+        }
+        Then("an empty workout does not extend the chart's time range") {
+            val empty = workout("empty", listOf(set(0, reps = Repetitions.Single(0f))))
+                .copy(dateTime = Instant.parse("2026-10-15T09:00:00Z"))
+            val range = statisticsChartRange(exerciseStatistics(listOf(history, empty), press.id))
+            range.last shouldBe date + kotlin.time.Duration.parse("12h")
         }
     }
     Given("different best approaches for each metric") {

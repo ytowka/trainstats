@@ -6,14 +6,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
@@ -106,8 +103,8 @@ internal fun StatisticsChart(
             Modifier.fillMaxWidth().height(chartHeight)
                 .semantics { contentDescription = chartDescription }
                 .pointerInput(points, metric, visibleSeries) {
-                    detectTransformGestures { centroid, pan, factor, _ ->
-                        val left = 52.dp.toPx()
+                    detectStatisticsChartGestures { centroid, pan, factor ->
+                        val left = 24.dp.toPx()
                         val width = (size.width - left - 12.dp.toPx()).coerceAtLeast(1f)
                         changeZoom(zoom * factor, ((centroid.x - left) / width).coerceIn(0f, 1f))
                         start = (start - pan.x / width / zoom).coerceIn(0f, 1f - 1f / zoom)
@@ -117,7 +114,7 @@ internal fun StatisticsChart(
                     detectTapGestures(
                         onDoubleTap = { zoom = 1f; start = 0f },
                         onTap = { tap ->
-                            val left = 52.dp.toPx()
+                            val left = 24.dp.toPx()
                             val right = size.width - 12.dp.toPx()
                             val top = 12.dp.toPx()
                             val bottom = size.height - 44.dp.toPx()
@@ -136,7 +133,7 @@ internal fun StatisticsChart(
                     )
                 },
         ) {
-            val left = 52.dp.toPx()
+            val left = 24.dp.toPx()
             val right = size.width - 12.dp.toPx()
             val top = 12.dp.toPx()
             val bottom = size.height - 44.dp.toPx()
@@ -189,14 +186,14 @@ internal fun StatisticsChart(
                 }
             }
         }
-        if (zoom > 1f) {
+        //if (zoom > 1f) {
             Slider(
                 value = start,
                 onValueChange = { start = it },
                 valueRange = 0f..(1f - 1f / zoom),
                 modifier = Modifier.semantics { contentDescription = periodDescription },
             )
-        }
+        //}
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             series.forEach { (number, _) ->
                 val enabled = number in visibleSeries
@@ -220,16 +217,9 @@ internal fun StatisticsChart(
                     Text(
                         if (number == MAXIMUM_SERIES) stringResource(Res.string.stats_maximum) else stringResource(Res.string.stats_set_number, number),
                         color = if (enabled) color else textColor.copy(alpha = .65f),
-                        style = ThemeTypography.body2.copy(fontSize = 14.sp, fontWeight = if (enabled) FontWeight.SemiBold else FontWeight.Normal),
+                        style = ThemeTypography.body2.copy(fontSize = 14.sp),
                     )
                 }
-            }
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { zoom = 1f; start = 0f }) { Text(stringResource(Res.string.stats_reset_zoom), fontSize = 12.sp) }
-            Row {
-                IconButton(enabled = zoom > 1f, onClick = { changeZoom(zoom / 1.5f) }) { Text("−", fontSize = 24.sp, color = textColor.copy(alpha = if (zoom > 1f) 1f else .3f)) }
-                IconButton(enabled = zoom < maxZoom, onClick = { changeZoom(zoom * 1.5f) }) { Text("+", fontSize = 24.sp, color = textColor) }
             }
         }
     }

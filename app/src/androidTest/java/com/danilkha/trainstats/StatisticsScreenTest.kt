@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -21,6 +22,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,12 +43,16 @@ class StatisticsScreenTest {
     private val workouts = mockk<WorkoutRepository>()
     private val press = ExerciseData("press", "Жим лёжа", null, false, true)
     private val pullup = ExerciseData("pullup", "Подтягивания", null, false, false)
+    private val separated = ExerciseData("separated", "Раздельное упражнение", null, true, true)
+    private val bodyweight = ExerciseData("bodyweight", "Отжимания", null, false, false)
     private val workout = Workout(
         id = "test-workout",
         dateTime = Instant.parse("2026-10-09T09:00:00Z"),
         steps = listOf(
             ExerciseSet("set-1", "test-workout", press, Repetitions.Single(10f), Kg(40f), 0),
             ExerciseSet("set-2", "test-workout", press, Repetitions.Single(8f), Kg(45f), 1),
+            ExerciseSet("set-3", "test-workout", separated, Repetitions.Double(8f, 12f), Kg(20f), 2),
+            ExerciseSet("set-4", "test-workout", bodyweight, Repetitions.Single(15f), null, 3),
         ),
         saved = false, archived = false,
     )
@@ -56,7 +62,7 @@ class StatisticsScreenTest {
     @Before
     fun setup() {
         stopKoin()
-        coEvery { exercises.getAllExercises() } returns listOf(press, pullup)
+        coEvery { exercises.getAllExercises() } returns listOf(press, pullup, separated, bodyweight)
         coEvery { workouts.getAll() } returns listOf(workout)
         coEvery { workouts.getWorkoutById(workout.id) } returns workout
         every { workouts.getWorkoutHistory() } returns flowOf(listOf(
@@ -77,6 +83,11 @@ class StatisticsScreenTest {
         rule.onNodeWithContentDescription("График").performClick()
         rule.waitUntil(5_000) { rule.onAllNodesWithText("Показатель").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithContentDescription(chartDescription).assertIsDisplayed()
+    }
+
+    private fun scrollTo(matcher: SemanticsMatcher): SemanticsNodeInteraction {
+        rule.onNode(hasScrollToIndexAction()).performScrollToNode(matcher)
+        return rule.onNode(matcher)
     }
 
     @After
@@ -105,27 +116,27 @@ class StatisticsScreenTest {
 
     @Test
     fun maximumIsTheOnlyDefaultAndHiddenSetsAreExcludedFromSelection() {
-        rule.onNodeWithText("макс").performScrollTo().assertIsOn()
+        scrollTo(hasText("макс", ignoreCase = true)).assertIsOn()
         rule.onNode(hasText("Подход 1") and isToggleable()).assertIsOff()
         rule.onNode(hasText("Подход 2") and isToggleable()).assertIsOff()
-        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
-        rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
-        rule.onNodeWithText("макс").performScrollTo().performClick().assertIsOff()
-        rule.onNodeWithText("Последний подход").performScrollTo().assertIsNotEnabled()
-        rule.onNode(hasText("Подход 1") and isToggleable()).performScrollTo().performClick().assertIsOn()
-        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
-        rule.onNodeWithText("Подход 1 · 40 кг").assertExists()
-        rule.onNode(hasText("Подход 2") and isToggleable()).performScrollTo().performClick().assertIsOn()
-        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
-        rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
+        scrollTo(hasText("Последний подход")).performClick()
+        rule.onNodeWithText("Подход 2 · 45 кг × 8 повт").assertExists()
+        scrollTo(hasText("макс", ignoreCase = true)).performClick().assertIsOff()
+        scrollTo(hasText("Последний подход")).assertIsNotEnabled()
+        scrollTo(hasText("Подход 1") and isToggleable()).performClick().assertIsOn()
+        scrollTo(hasText("Последний подход")).performClick()
+        rule.onNodeWithText("Подход 1 · 40 кг × 10 повт").assertExists()
+        scrollTo(hasText("Подход 2") and isToggleable()).performClick().assertIsOn()
+        scrollTo(hasText("Последний подход")).performClick()
+        rule.onNodeWithText("Подход 2 · 45 кг × 8 повт").assertExists()
     }
 
     @Test
     fun allTimeRecordRemainsVisibleWhenEverySeriesIsHiddenAndOpensWorkout() {
-        rule.onNodeWithText("макс").performScrollTo().performClick()
-        rule.onNodeWithText("Рекорд за всё время").performScrollTo().assertIsDisplayed()
-        rule.onNodeWithText("45 кг").assertExists()
-        rule.onNode(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_record_workout"))).performScrollTo().performClick()
+        scrollTo(hasText("макс", ignoreCase = true)).performClick()
+        scrollTo(hasText("Рекорд за всё время")).assertIsDisplayed()
+        rule.onNodeWithTag("statistics_record_value").assertTextEquals("45 кг × 8 повт")
+        scrollTo(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_record_workout"))).performClick()
         rule.onNodeWithText("Просмотр тренировки").assertExists()
         rule.onNodeWithText("45 кг").assertExists()
         coVerify(exactly = 0) { workouts.saveWorkout(any()) }
@@ -137,18 +148,79 @@ class StatisticsScreenTest {
         chart.performScrollTo().performTouchInput {
             pinch(center - Offset(35f, 0f), center + Offset(35f, 0f), center - Offset(120f, 0f), center + Offset(120f, 0f))
         }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertExists()
+        val slider = rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+        slider.assertExists()
+        val periodBefore = slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current
+        val chartTop = chart.fetchSemanticsNode().boundsInRoot.top
         chart.performTouchInput { swipeLeft() }
-        rule.onNodeWithText("Весь период").performScrollTo().performClick()
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertDoesNotExist()
-        rule.onNodeWithText("+").performScrollTo().performClick()
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertExists()
-        rule.onNodeWithText("Весь период").performClick()
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertDoesNotExist()
-        rule.onNodeWithText("Вес", useUnmergedTree = true).performScrollTo().performClick()
+        val periodAfter = slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo]
+        assertTrue(periodAfter.current > periodBefore)
+        assertEquals(chartTop, chart.fetchSemanticsNode().boundsInRoot.top, 1f)
+        chart.performTouchInput { swipeUp() }
+        assertTrue(chart.fetchSemanticsNode().boundsInRoot.top < chartTop - 40 * rule.density.density)
+        assertEquals(periodAfter, slider.fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo])
+        chart.performScrollTo().performTouchInput { doubleClick() }
+        slider.assertDoesNotExist()
+        scrollTo(hasTestTag("statistics_metric_dropdown")).performClick()
         rule.onNodeWithText("Объём подхода").performClick()
-        rule.onNodeWithText("Последний подход").performScrollTo().performClick()
+        scrollTo(hasText("Последний подход")).performClick()
         rule.onNodeWithText("Подход 1 · 40 кг × 10 повт").assertExists()
+    }
+
+    @Test
+    fun verticalDragFromChartScrollsPageWithoutChangingScaleOrSelectingPoint() {
+        val chart = rule.onNodeWithContentDescription(chartDescription)
+        val topBefore = chart.fetchSemanticsNode().boundsInRoot.top
+        chart.performTouchInput {
+            swipe(Offset(centerX, height * .8f), Offset(centerX + 10f, height * .25f))
+        }
+        assertTrue(chart.fetchSemanticsNode().boundsInRoot.top < topBefore - 40 * rule.density.density)
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertDoesNotExist()
+        rule.onNodeWithTag("statistics_selected_point").assertDoesNotExist()
+    }
+
+    @Test
+    fun horizontalDirectionStaysLockedWhenDragTurnsVertical() {
+        val chart = rule.onNodeWithContentDescription(chartDescription)
+        chart.performScrollTo()
+        val topBefore = chart.fetchSemanticsNode().boundsInRoot.top
+        chart.performTouchInput {
+            down(center)
+            moveBy(Offset(-80f, 0f), delayMillis = 100)
+            moveBy(Offset(-10f, -100f), delayMillis = 100)
+            up()
+        }
+        assertEquals(topBefore, chart.fetchSemanticsNode().boundsInRoot.top, 1f)
+        rule.onNodeWithTag("statistics_selected_point").assertDoesNotExist()
+    }
+
+    @Test
+    fun selectedAndRecordShowWholeApproachesForEveryMetric() {
+        listOf("Вес" to (45 to 8), "Повторения" to (40 to 10), "Объём подхода" to (40 to 10)).forEach { (metric, values) ->
+            scrollTo(hasTestTag("statistics_metric_dropdown")).performClick()
+            rule.onNode(hasText(metric) and hasAnyAncestor(hasTestTag("statistics_metric_menu"))).performClick()
+            scrollTo(hasText("Последний подход")).performClick()
+            val number = if (values.first == 45) 2 else 1
+            scrollTo(hasTestTag("statistics_selected_point"))
+                .assertTextEquals("Подход $number · ${values.first} кг × ${values.second} повт")
+            scrollTo(hasTestTag("statistics_record_value"))
+                .assertTextEquals("${values.first} кг × ${values.second} повт")
+            if (metric == "Объём подхода") rule.onNodeWithText("Подход 1 · 400 кг·повт").assertExists()
+        }
+    }
+
+    @Test
+    fun wholeApproachKeepsEachSideAndSupportsBodyweight() {
+        listOf(
+            separated to "20 кг × Л: 8 · П: 12 повт",
+            bodyweight to "15 повт",
+        ).forEach { (exercise, value) ->
+            scrollTo(hasTestTag("statistics_exercise_dropdown")).performClick()
+            rule.onNode(hasText(exercise.name) and hasAnyAncestor(hasTestTag("statistics_exercise_menu"))).performClick()
+            scrollTo(hasText("Последний подход")).performClick()
+            scrollTo(hasTestTag("statistics_selected_point")).assertTextEquals("Подход 1 · $value")
+            scrollTo(hasTestTag("statistics_record_value")).assertTextEquals(value)
+        }
     }
 
     @Test
@@ -162,9 +234,10 @@ class StatisticsScreenTest {
             val right = width - 12 * rule.density.density
             click(Offset(right - 8 * rule.density.density, bottom - 45f / 49.5f * (bottom - top)))
         }
-        rule.waitUntil(3_000) { rule.onAllNodesWithText("Подход 2 · 45 кг").fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
-        rule.onNode(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_selected_workout"))).performClick()
+        scrollTo(hasText("Последний подход"))
+        rule.waitUntil(3_000) { rule.onAllNodesWithText("Подход 2 · 45 кг × 8 повт").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithText("Подход 2 · 45 кг × 8 повт").assertExists()
+        scrollTo(hasClickAction() and hasAnyAncestor(hasTestTag("statistics_selected_workout"))).performClick()
         rule.onNodeWithText("Просмотр тренировки").assertExists()
         rule.onNodeWithText("45 кг").assertExists()
         rule.onNodeWithText("8 повт").assertExists()
@@ -176,7 +249,7 @@ class StatisticsScreenTest {
         rule.onNodeWithText("Просмотр тренировки").assertExists()
         rule.runOnIdle { rule.activity.onBackPressedDispatcher.onBackPressed() }
         rule.onNodeWithText("Статистика").assertExists()
-        rule.onNodeWithText("Подход 2 · 45 кг").assertExists()
+        rule.onNodeWithText("Подход 2 · 45 кг × 8 повт").assertExists()
         coVerify(exactly = 0) { workouts.saveWorkout(any()) }
         coVerify(exactly = 0) { workouts.commitWorkoutSave(any()) }
     }

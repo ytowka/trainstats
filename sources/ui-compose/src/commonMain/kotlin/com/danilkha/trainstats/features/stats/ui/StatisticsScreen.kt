@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.stats.ui
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
@@ -17,12 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -38,6 +42,7 @@ import com.danilkha.navigation.api.destinations.WorkoutDetailsNav
 import com.danilkha.trainstats.features.stats.domain.StatisticsMetric
 import com.danilkha.trainstats.features.stats.domain.StatisticsPoint
 import com.danilkha.trainstats.features.workout.domain.model.Workout
+import com.danilkha.trainstats.features.workout.domain.model.Repetitions
 import com.danilkha.trainstats.features.workout.ui.history.WorkoutCard
 import com.danilkha.trainstats.features.workout.ui.history.WorkoutHistoryModel
 import org.jetbrains.compose.resources.stringResource
@@ -176,7 +181,7 @@ fun StatisticsPage(
                                     state.selectedPoint?.let { point ->
                                         val color = if (MAXIMUM_SERIES in state.visibleSeries && point in state.maximumPoints)
                                             Colors.primary else setColor(point.setNumber)
-                                        PointValueHeader(point, state.metric, color)
+                                        PointValueHeader(point, color)
                                     }
                                     StatisticsWorkoutCard(workout, "statistics_selected_workout", onWorkout)
                                 }
@@ -201,15 +206,13 @@ fun StatisticsPage(
                                         ) {
                                             Text(stringResource(Res.string.stats_all_time_record), style = ThemeTypography.body2, color = Colors.text.copy(alpha = .65f))
                                             Text(
-                                                buildAnnotatedString {
-                                                    withStyle(SpanStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold)) { append(state.metric.value(record)!!.format2()) }
-                                                    withStyle(SpanStyle(fontSize = 16.sp)) { append(" ${metricUnit(state.metric)}") }
-                                                },
-                                                color = Colors.primary,
+                                                fullApproachValue(record, 28.sp),
+                                                modifier = Modifier.testTag("statistics_record_value"),
+                                                color = Colors.primary, style = ThemeTypography.body2.copy(fontSize = 16.sp),
                                             )
                                             Text(
-                                                if (state.metric == StatisticsMetric.Volume) stringResource(Res.string.stats_volume_factors, record.weight!!.format2(), record.volumeRepetitions.format2())
-                                                else stringResource(Res.string.stats_set_number, record.setNumber),
+                                                stringResource(Res.string.stats_set_number, record.setNumber) +
+                                                    if (state.metric == StatisticsMetric.Volume) " · ${record.volume!!.format2()} ${metricUnit(state.metric)}" else "",
                                                 style = ThemeTypography.body2, color = Colors.text.copy(alpha = .65f),
                                             )
                                         }
@@ -226,10 +229,9 @@ fun StatisticsPage(
 }
 
 @Composable
-private fun PointValueHeader(point: StatisticsPoint, metric: StatisticsMetric, color: Color) {
+private fun PointValueHeader(point: StatisticsPoint, color: Color) {
     val label = stringResource(Res.string.stats_set_number, point.setNumber)
-    val weightUnit = metricUnit(StatisticsMetric.Weight)
-    val repsUnit = metricUnit(StatisticsMetric.Repetitions)
+    val value = fullApproachValue(point, 20.sp)
     Row(
         Modifier.fillMaxWidth()
             .background(color.copy(alpha = .08f), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
@@ -240,18 +242,36 @@ private fun PointValueHeader(point: StatisticsPoint, metric: StatisticsMetric, c
         Text(
             buildAnnotatedString {
                 withStyle(SpanStyle(color = Colors.text.copy(alpha = .65f), fontSize = 14.sp)) { append("$label · ") }
-                if (metric == StatisticsMetric.Volume) {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { append(point.weight!!.format2()) }
-                    append(" $weightUnit × ")
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { append(point.volumeRepetitions.format2()) }
-                    append(" $repsUnit")
-                } else {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)) { append(metric.value(point)!!.format2()) }
-                    append(" ${metricUnit(metric)}")
-                }
+                append(value)
             },
+            modifier = Modifier.testTag("statistics_selected_point"),
             color = color, style = ThemeTypography.body2.copy(fontSize = 14.sp),
         )
+    }
+}
+
+@Composable
+private fun fullApproachValue(point: StatisticsPoint, numberSize: TextUnit): AnnotatedString {
+    val numberStyle = SpanStyle(fontSize = numberSize, fontWeight = FontWeight.Bold)
+    val kg = stringResource(Res.string.kg)
+    val repsUnit = stringResource(Res.string.reps)
+    val left = stringResource(Res.string.stats_left_short).trimEnd()
+    val right = stringResource(Res.string.stats_right_short).trimEnd()
+    return buildAnnotatedString {
+        point.weight?.let { weight ->
+            withStyle(numberStyle) { append(weight.format2()) }
+            append(" $kg × ")
+        }
+        when (val reps = point.approachRepetitions) {
+            is Repetitions.Single -> withStyle(numberStyle) { append(reps.reps.format2()) }
+            is Repetitions.Double -> {
+                append("$left ")
+                withStyle(numberStyle) { append(reps.left.format2()) }
+                append(" · $right ")
+                withStyle(numberStyle) { append(reps.right.format2()) }
+            }
+        }
+        append(" $repsUnit")
     }
 }
 
@@ -272,19 +292,31 @@ private fun StatisticsWorkoutCard(workout: Workout, tag: String, onWorkout: (Str
 }
 
 @Composable
+private fun SelectionDropdownField(title: String, value: String, expanded: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val arrowRotation by animateFloatAsState(if (expanded) 180f else 0f, label = "Dropdown arrow")
+    Column(modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp)) {
+        Text(title, style = ThemeTypography.body2.copy(fontSize = 12.sp), color = Colors.text.copy(alpha = .6f))
+        Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(value, Modifier.weight(1f), style = ThemeTypography.subtitle, color = Colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Icon(modifier = Modifier.rotate(arrowRotation), imageVector = Icons.Default.KeyboardArrowDown)
+        }
+    }
+}
+
+@Composable
 private fun ExerciseDropdown(state: StatisticsState, onEvent: (StatisticsEvent) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var widthPx by remember { mutableStateOf(0) }
     val density = LocalDensity.current
     Box(Modifier.fillMaxWidth().onSizeChanged { widthPx = it.width }) {
-        Column(Modifier.fillMaxWidth().testTag("statistics_exercise_dropdown").clickable { expanded = true }.padding(16.dp)) {
-            Text(stringResource(Res.string.stats_exercise), style = ThemeTypography.body2.copy(fontSize = 12.sp), color = Colors.text.copy(alpha = .6f))
-            Spacer(Modifier.height(6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(state.exercise?.name ?: stringResource(Res.string.stats_choose_exercise), Modifier.weight(1f), style = ThemeTypography.subtitle, color = Colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Icon(imageVector = Icons.Default.KeyboardArrowDown)
-            }
-        }
+        SelectionDropdownField(
+            title = stringResource(Res.string.stats_exercise),
+            value = state.exercise?.name ?: stringResource(Res.string.stats_choose_exercise),
+            expanded = expanded,
+            modifier = Modifier.testTag("statistics_exercise_dropdown"),
+            onClick = { expanded = true },
+        )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false; onEvent(StatisticsEvent.Search("")) },
@@ -315,12 +347,13 @@ private fun MetricDropdown(metric: StatisticsMetric, onSelect: (StatisticsMetric
     var widthPx by remember { mutableStateOf(0) }
     val density = LocalDensity.current
     Box(Modifier.fillMaxWidth().onSizeChanged { widthPx = it.width }) {
-        Row(Modifier.fillMaxWidth().testTag("statistics_metric_dropdown").clickable { expanded = true }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(Res.string.stats_metric), Modifier.weight(1f), style = ThemeTypography.body2, color = Colors.text.copy(alpha = .6f))
-            Text(metricLabel(metric), style = ThemeTypography.body1, color = Colors.primary)
-            Spacer(Modifier.width(8.dp))
-            Icon(imageVector = Icons.Default.KeyboardArrowDown, color = Colors.primary)
-        }
+        SelectionDropdownField(
+            title = stringResource(Res.string.stats_metric),
+            value = metricLabel(metric),
+            expanded = expanded,
+            modifier = Modifier.testTag("statistics_metric_dropdown"),
+            onClick = { expanded = true },
+        )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.width(with(density) { widthPx.toDp() }).testTag("statistics_metric_menu")) {
             StatisticsMetric.entries.forEach { option ->
                 DropdownMenuItem(onClick = { onSelect(option); expanded = false }) {

@@ -61,7 +61,7 @@
     <string name="stats_no_weight">В подходах не указан вес. Выберите «Повторения».</string>
     <string name="stats_load_failed">Не удалось загрузить данные.</string>
     <string name="stats_retry">Повторить</string>
-    <string name="stats_maximum">макс</string>
+    <string name="stats_maximum">Макс</string>
     <string name="stats_all_time_record">Рекорд за всё время</string>
     <string name="stats_volume_factors">%1$s кг × %2$s повт</string>
     <string name="stats_set_number">Подход %1$d</string>
