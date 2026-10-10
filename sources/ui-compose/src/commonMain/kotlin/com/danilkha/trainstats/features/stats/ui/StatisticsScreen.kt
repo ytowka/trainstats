@@ -330,27 +330,29 @@ private fun ExerciseDropdown(state: StatisticsState, onEvent: (StatisticsEvent) 
             modifier = Modifier.heightIn(max = 380.dp).width(with(density) { widthPx.toDp() }).testTag("statistics_exercise_menu"),
             scrollState = menuScrollState,
         ) {
+            Column(modifier = Modifier.background(Colors.background)) {
+                Box(
+                    Modifier.fillMaxWidth().offset { IntOffset(0, menuScrollState.value) }
+                        .zIndex(1f).background(Colors.background).padding(10.dp),
+                ) {
+                    GenericTextFiled(
+                        modifier = Modifier.fillMaxWidth().testTag("statistics_exercise_search"),
+                        value = state.searchQuery,
+                        onValueChange = { onEvent(StatisticsEvent.Search(it)) },
+                        hint = stringResource(Res.string.search),
+                    )
+                }
+                if (state.filteredExercises.isEmpty()) {
+                    Text(stringResource(Res.string.empty_search), Modifier.padding(16.dp), color = Colors.text)
+                }
+                state.filteredExercises.forEach { exercise ->
+                    DropdownMenuItem(onClick = {
+                        onEvent(StatisticsEvent.SelectExercise(exercise.id))
+                        expanded = false
+                    }) { Text(exercise.name, color = if (exercise.id == state.exerciseId) Colors.primary else Colors.text) }
+                }
+            }
             // Counter the menu's scroll offset so the opaque search header stays at the top.
-            Box(
-                Modifier.fillMaxWidth().offset { IntOffset(0, menuScrollState.value) }
-                    .zIndex(1f).background(MaterialTheme.colors.surface).padding(10.dp),
-            ) {
-                GenericTextFiled(
-                    modifier = Modifier.fillMaxWidth().testTag("statistics_exercise_search"),
-                    value = state.searchQuery,
-                    onValueChange = { onEvent(StatisticsEvent.Search(it)) },
-                    hint = stringResource(Res.string.search),
-                )
-            }
-            if (state.filteredExercises.isEmpty()) {
-                Text(stringResource(Res.string.empty_search), Modifier.padding(16.dp), color = Colors.text)
-            }
-            state.filteredExercises.forEach { exercise ->
-                DropdownMenuItem(onClick = {
-                    onEvent(StatisticsEvent.SelectExercise(exercise.id))
-                    expanded = false
-                }) { Text(exercise.name, color = if (exercise.id == state.exerciseId) Colors.primary else Colors.text) }
-            }
         }
     }
 }
