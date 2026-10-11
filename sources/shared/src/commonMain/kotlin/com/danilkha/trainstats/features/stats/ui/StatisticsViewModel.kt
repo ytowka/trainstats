@@ -28,6 +28,11 @@ class StatisticsViewModel(
     }
 
     override fun reduce(state: StatisticsState, event: StatisticsEvent): StatisticsState = when (event) {
+        is StatisticsEvent.SelectTab -> state.copy(tab = event.tab)
+        is StatisticsEvent.SelectFrequencyInterval -> state.copy(frequencyInterval = event.interval)
+        is StatisticsEvent.SelectFrequencyMetric -> state.copy(frequencyMetric = event.metric)
+        is StatisticsEvent.SelectFrequencyScope -> state.copy(frequencyScope = event.scope, frequencyDate = null)
+        is StatisticsEvent.SelectFrequencyBucket -> state.copy(frequencyDate = event.date)
         StatisticsEvent.Retry -> state.copy(loading = true, failed = false)
         StatisticsEvent.Failed -> state.copy(loading = false, failed = true)
         is StatisticsEvent.Loaded -> {

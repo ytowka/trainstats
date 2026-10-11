@@ -87,12 +87,46 @@ class StatisticsScreenTest {
     }
 
     private fun scrollTo(matcher: SemanticsMatcher, useUnmergedTree: Boolean = false): SemanticsNodeInteraction {
-        rule.onNode(hasScrollToIndexAction(), useUnmergedTree).performScrollToNode(matcher)
+        rule.onNodeWithTag("statistics_list", useUnmergedTree).performScrollToNode(matcher)
         return rule.onNode(matcher, useUnmergedTree)
     }
 
     @After
     fun teardown() { stopKoin() }
+
+    @Test
+    fun frequencySwitchesGroupingCountsAndScopeWhileKeepingProgress() {
+        rule.onNodeWithText("Частота").performClick()
+        listOf("Месяц", "Квартал", "Год", "Неделя").forEach { interval ->
+            scrollTo(hasTestTag("statistics_frequency_interval"))
+            rule.onNodeWithText(interval).performClick().assertIsSelected()
+        }
+        rule.onNodeWithText("Год").performClick()
+        val yearColumn = hasContentDescription("01.01.2026 – 31.12.2026: Тренировки — 1")
+        rule.onNodeWithTag("statistics_frequency_bars").performScrollToNode(yearColumn)
+        rule.onNode(yearColumn).performClick().assertIsSelected()
+        val period = hasAnyAncestor(hasTestTag("statistics_frequency_period_totals"))
+        scrollTo(hasTestTag("statistics_frequency_period_totals"))
+        rule.onNode(hasText("01.01.2026 – 31.12.2026") and period, useUnmergedTree = true).assertExists()
+        rule.onNode(hasText("1") and period, useUnmergedTree = true).assertExists()
+        rule.onNode(hasText("2") and period, useUnmergedTree = true).assertExists()
+        scrollTo(hasText("Подходы") and hasClickAction()).performClick().assertIsSelected()
+        rule.onNodeWithContentDescription("Гистограмма частоты: Подходы за каждый интервал").assertExists()
+        val allTime = hasAnyAncestor(hasTestTag("statistics_frequency_all_time_totals"))
+        scrollTo(hasTestTag("statistics_frequency_all_time_totals"))
+        rule.onNode(hasText("1") and allTime, useUnmergedTree = true).assertExists()
+        rule.onNode(hasText("2") and allTime, useUnmergedTree = true).assertExists()
+        scrollTo(hasTestTag("statistics_frequency_scope"))
+        rule.onNodeWithText("Все тренировки").performClick().assertIsSelected()
+        rule.onNodeWithTag("statistics_exercise_dropdown").assertDoesNotExist()
+        scrollTo(hasTestTag("statistics_frequency_all_time_totals"))
+        rule.onNode(hasText("1") and allTime, useUnmergedTree = true).assertExists()
+        rule.onNode(hasText("4") and allTime, useUnmergedTree = true).assertExists()
+        scrollTo(hasTestTag("statistics_tabs"))
+        rule.onNodeWithText("Показатели").performClick()
+        rule.onNodeWithTag("statistics_exercise_dropdown").assertTextContains(press.name)
+        rule.onNodeWithContentDescription(chartDescription).assertExists()
+    }
 
     @Test
     fun searchFiltersExercisesAndBodyweightShowsEmptyHistory() {

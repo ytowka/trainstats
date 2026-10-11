@@ -6,9 +6,18 @@ import com.danilkha.trainstats.features.stats.domain.StatisticsPoint
 import com.danilkha.trainstats.features.stats.domain.exerciseStatistics
 import com.danilkha.trainstats.features.stats.domain.maximumStatisticsPoints
 import com.danilkha.trainstats.features.stats.domain.maximumStatisticsPoint
+import com.danilkha.trainstats.features.stats.domain.FrequencyInterval
+import com.danilkha.trainstats.features.stats.domain.FrequencyMetric
+import com.danilkha.trainstats.features.stats.domain.FrequencyScope
+import com.danilkha.trainstats.features.stats.domain.frequencyStatistics
+import com.danilkha.commoncore.utils.toLocalDate
+import kotlinx.datetime.LocalDate
+import kotlin.time.Clock
 
 /** Series zero is the maximum; actual approaches are numbered from one. */
 const val MAXIMUM_SERIES = 0
+
+enum class StatisticsTab { Metrics, Frequency }
 
 data class StatisticsState(
     val data: StatisticsData = StatisticsData(emptyList(), emptyList()),
@@ -19,7 +28,19 @@ data class StatisticsState(
     val metric: StatisticsMetric = StatisticsMetric.Weight,
     val selectedPoint: StatisticsPoint? = null,
     val visibleSeries: Set<Int> = setOf(MAXIMUM_SERIES),
+    val tab: StatisticsTab = StatisticsTab.Metrics,
+    val frequencyInterval: FrequencyInterval = FrequencyInterval.Week,
+    val frequencyMetric: FrequencyMetric = FrequencyMetric.Workouts,
+    val frequencyScope: FrequencyScope = FrequencyScope.Exercise,
+    val frequencyToday: LocalDate = Clock.System.now().toLocalDate(),
+    val frequencyDate: LocalDate? = null,
 ) {
+    val frequency by lazy {
+        frequencyStatistics(data.workouts, exerciseId, frequencyScope, frequencyInterval, frequencyToday)
+    }
+    val selectedFrequencyBucket get() = frequency.buckets.firstOrNull {
+        frequencyDate?.let { date -> date >= it.start && date < it.endExclusive } == true
+    } ?: frequency.buckets.last()
     val exercise get() = data.exercises.firstOrNull { it.id == exerciseId }
     val filteredExercises get() = data.exercises.filter { it.name.contains(searchQuery.trim(), ignoreCase = true) }
     val points: List<StatisticsPoint> by lazy {
@@ -39,6 +60,11 @@ data class StatisticsState(
 }
 
 sealed interface StatisticsEvent {
+    data class SelectTab(val tab: StatisticsTab) : StatisticsEvent
+    data class SelectFrequencyInterval(val interval: FrequencyInterval) : StatisticsEvent
+    data class SelectFrequencyMetric(val metric: FrequencyMetric) : StatisticsEvent
+    data class SelectFrequencyScope(val scope: FrequencyScope) : StatisticsEvent
+    data class SelectFrequencyBucket(val date: LocalDate) : StatisticsEvent
     data object Retry : StatisticsEvent
     data class Loaded(val data: StatisticsData) : StatisticsEvent
     data object Failed : StatisticsEvent

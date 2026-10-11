@@ -76,4 +76,18 @@
     <string name="stats_split_reps">Л: %1$s · П: %2$s повт</string>
     <string name="stats_left_short">Л: </string>
     <string name="stats_right_short">П: </string>
+    <string name="stats_tab_metrics">Показатели</string>
+    <string name="stats_tab_frequency">Частота</string>
+    <string name="stats_by_exercise">По упражнению</string>
+    <string name="stats_all_workouts">Все тренировки</string>
+    <string name="stats_interval_week">Неделя</string>
+    <string name="stats_interval_month">Месяц</string>
+    <string name="stats_interval_quarter">Квартал</string>
+    <string name="stats_interval_year">Год</string>
+    <string name="stats_count_workouts">Тренировки</string>
+    <string name="stats_count_sets">Подходы</string>
+    <string name="stats_selected_period">За выбранный период</string>
+    <string name="stats_all_time">За всё время</string>
+    <string name="stats_frequency_chart_description">Гистограмма частоты: %1$s за каждый интервал</string>
+    <string name="stats_frequency_no_history">Пока нет выполненных тренировок.</string>
 </resources>

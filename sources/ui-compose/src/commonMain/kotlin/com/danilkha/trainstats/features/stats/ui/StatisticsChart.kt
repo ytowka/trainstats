@@ -216,7 +216,7 @@ internal fun StatisticsChart(
                     }
                     Text(
                         if (number == MAXIMUM_SERIES) stringResource(Res.string.stats_maximum) else stringResource(Res.string.stats_set_number, number),
-                        color = if (enabled) color else textColor.copy(alpha = .65f),
+                        color = if (enabled) color else textColor,
                         style = ThemeTypography.body2.copy(fontSize = 14.sp),
                     )
                 }
