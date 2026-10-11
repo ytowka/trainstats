@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -71,6 +72,8 @@ internal fun StatisticsChart(
     val periodDescription = stringResource(Res.string.stats_period_slider)
     val bounds = range.first.toEpochMilliseconds().toDouble() to range.last.toEpochMilliseconds().toDouble()
     val maximumColor = Colors.primary
+    val pointCenterColor = Colors.surface
+    val selectionAlpha = if (Colors.isLight) .12f else .24f
     val series = remember(points, metric) {
         listOf(MAXIMUM_SERIES to maximumStatisticsPoints(points, metric)) +
             points.groupBy { it.setNumber }.entries.sortedBy { it.key }.map { it.key to it.value }
@@ -182,7 +185,7 @@ internal fun StatisticsChart(
                 selectedPoint?.takeIf { it in visiblePoints }?.let { point ->
                     val selectedSeries = series.first { it.first in visibleSeries && point in it.second }.first
                     drawCircle(seriesColor(selectedSeries), radius = 8.dp.toPx(), center = position(point))
-                    drawCircle(Color.White, radius = 4.dp.toPx(), center = position(point))
+                    drawCircle(pointCenterColor, radius = 4.dp.toPx(), center = position(point))
                 }
             }
         }
@@ -192,6 +195,7 @@ internal fun StatisticsChart(
                 onValueChange = { start = it },
                 valueRange = 0f..(1f - 1f / zoom),
                 modifier = Modifier.semantics { contentDescription = periodDescription },
+                colors = SliderDefaults.colors(thumbColor = maximumColor, activeTrackColor = maximumColor, inactiveTrackColor = gridColor),
             )
         //}
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -201,7 +205,7 @@ internal fun StatisticsChart(
                 val shape = RoundedCornerShape(50)
                 Row(
                     modifier = Modifier.clip(shape)
-                        .background(if (enabled) color.copy(alpha = .12f) else Color.Transparent)
+                        .background(if (enabled) color.copy(alpha = selectionAlpha) else Color.Transparent)
                         .border(BorderStroke(1.dp, if (enabled) color.copy(alpha = .55f) else gridColor), shape)
                         .toggleable(value = enabled, role = Role.Checkbox, onValueChange = { onToggleSet(number) })
                         .padding(horizontal = 12.dp, vertical = 10.dp),

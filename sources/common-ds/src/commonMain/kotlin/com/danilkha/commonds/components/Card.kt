@@ -22,7 +22,7 @@ import com.danilkha.commonds.theme.Colors
 fun Card(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(10.dp),
-    backgroundColor: Color = MaterialTheme.colors.surface,
+    backgroundColor: Color = Colors.surface,
     strokeColor: Color? = Colors.outline,
     shape: Shape = MaterialTheme.shapes.large,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,

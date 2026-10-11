@@ -24,6 +24,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.draw.clip
@@ -73,7 +74,7 @@ fun StatisticsPage(
     onBack: () -> Unit,
     onWorkout: (String) -> Unit,
 ) {
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().background(Colors.background)) {
         TextToolbar(title = stringResource(Res.string.navigation_item_stats), onBack = onBack)
         when {
             state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -145,7 +146,7 @@ fun StatisticsPage(
                                                 enabled = visiblePoints.isNotEmpty(),
                                                 onClick = { onEvent(StatisticsEvent.SelectPoint(visiblePoints.last())) },
                                                 modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                                                    .background(Colors.primary.copy(alpha = .08f), RoundedCornerShape(8.dp)),
+                                                    .background(Colors.selectionBackground, RoundedCornerShape(8.dp)),
                                                 shape = RoundedCornerShape(8.dp),
                                                 colors = ButtonDefaults.textButtonColors(
                                                     contentColor = Colors.primary,
@@ -188,7 +189,7 @@ fun StatisticsPage(
                                     Card(
                                         Modifier.fillMaxWidth().testTag("statistics_selected_workout"),
                                         contentPadding = PaddingValues(),
-                                        backgroundColor = Colors.background,
+                                        backgroundColor = Colors.surface,
                                         shape = RoundedCornerShape(12.dp),
                                         onClick = { onWorkout(workout.id) },
                                     ) {
@@ -207,14 +208,14 @@ fun StatisticsPage(
                                         Card(
                                             Modifier.fillMaxWidth().testTag("statistics_record_workout"),
                                             contentPadding = PaddingValues(),
-                                            backgroundColor = Colors.background,
+                                            backgroundColor = Colors.surface,
                                             shape = RoundedCornerShape(12.dp),
                                             onClick = { onWorkout(workout.id) },
                                         ) {
                                             Card(
                                                 Modifier.fillMaxWidth(),
                                                 contentPadding = PaddingValues(16.dp),
-                                                backgroundColor = Colors.primary.copy(alpha = .08f),
+                                                backgroundColor = Colors.selectionBackground,
                                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                                 shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
                                                 strokeColor = null,
@@ -250,7 +251,7 @@ private fun PointValueHeader(point: StatisticsPoint, color: Color) {
     val value = fullApproachValue(point, 20.sp)
     Row(
         Modifier.fillMaxWidth()
-            .background(color.copy(alpha = .08f), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+            .background(color.copy(alpha = if (Colors.isLight) .08f else .24f).compositeOver(Colors.surface), RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -338,13 +339,13 @@ internal fun ExerciseDropdown(state: StatisticsState, onEvent: (StatisticsEvent)
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false; onEvent(StatisticsEvent.Search("")) },
-            modifier = Modifier.heightIn(max = 380.dp).width(with(density) { widthPx.toDp() }).testTag("statistics_exercise_menu"),
+            modifier = Modifier.heightIn(max = 380.dp).width(with(density) { widthPx.toDp() }).background(Colors.surface).testTag("statistics_exercise_menu"),
             scrollState = menuScrollState,
         ) {
-            Column(modifier = Modifier.background(Colors.background)) {
+            Column(modifier = Modifier.background(Colors.surface)) {
                 Box(
                     Modifier.fillMaxWidth().offset { IntOffset(0, menuScrollState.value) }
-                        .zIndex(1f).background(Colors.background).padding(10.dp),
+                        .zIndex(1f).background(Colors.surface).padding(10.dp),
                 ) {
                     GenericTextFiled(
                         modifier = Modifier.fillMaxWidth().testTag("statistics_exercise_search"),
@@ -381,7 +382,7 @@ private fun MetricDropdown(metric: StatisticsMetric, onSelect: (StatisticsMetric
             modifier = Modifier.testTag("statistics_metric_dropdown"),
             onClick = { expanded = true },
         )
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.width(with(density) { widthPx.toDp() }).testTag("statistics_metric_menu")) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.width(with(density) { widthPx.toDp() }).background(Colors.surface).testTag("statistics_metric_menu")) {
             StatisticsMetric.entries.forEach { option ->
                 DropdownMenuItem(onClick = { onSelect(option); expanded = false }) {
                     Text(metricLabel(option), color = Colors.text)
@@ -409,6 +410,6 @@ internal fun metricUnit(metric: StatisticsMetric): String = stringResource(when 
 internal fun StatisticsError(onRetry: () -> Unit) {
     Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(Res.string.stats_load_failed), color = Colors.text)
-        TextButton(onClick = onRetry) { Text(stringResource(Res.string.stats_retry)) }
+        TextButton(onClick = onRetry, colors = ButtonDefaults.textButtonColors(contentColor = Colors.primary)) { Text(stringResource(Res.string.stats_retry)) }
     }
 }

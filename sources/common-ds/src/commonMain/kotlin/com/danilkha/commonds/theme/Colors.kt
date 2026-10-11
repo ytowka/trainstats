@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 
 class DesignColors(
     val primary: Color,
@@ -12,6 +13,7 @@ class DesignColors(
     val secondaryVariant: Color,
     val background: Color,
     val surface: Color,
+    val selectionBackground: Color,
     val error: Color,
     val onPrimary: Color,
     val onSecondary: Color,
@@ -31,6 +33,7 @@ val lightDesignColors = DesignColors(
     secondaryVariant = Color(0xFFCE4317),
     background = Color(0xFFF7F7F7),
     surface = Color(0xFFFFFFFF),
+    selectionBackground = Color(0xFFF3F5F6),
     error = Color(0xFFA81414),
     onPrimary =Color(0xFFFFFFFF) ,
     onSecondary = Color(0xFFBDBDBD),
@@ -50,6 +53,7 @@ val darkDesignColors = DesignColors(
     secondaryVariant = Color(0xFFE05B31),
     background = Color(0xFF1F1F1F),
     surface = Color(0xFF000000),
+    selectionBackground = Color(0xFF1D262A),
     error = Color(0xFF9E1212),
     onPrimary = Color(0xFF000000),
     onSecondary = Color(0xFF212121),

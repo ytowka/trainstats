@@ -16,7 +16,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -58,14 +57,14 @@ internal fun <T> StatisticsSegments(
 ) {
     val shape = MaterialTheme.shapes.large
     Row(
-        modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colors.surface)
+        modifier.fillMaxWidth().clip(shape).background(Colors.surface)
             .border(1.dp, Colors.outline, shape).selectableGroup(),
     ) {
         options.forEachIndexed { index, option ->
             if (index > 0) Box(Modifier.width(1.dp).height(52.dp).background(Colors.outline))
             Box(
                 Modifier.weight(1f).heightIn(min = 52.dp)
-                    .background(if (selected == option) Colors.primary.copy(alpha = .08f) else Color.Transparent)
+                    .background(if (selected == option) Colors.selectionBackground else Color.Transparent)
                     .selectable(selected = selected == option, role = Role.Tab, onClick = { onSelect(option) })
                     .padding(horizontal = 4.dp, vertical = 16.dp),
                 contentAlignment = Alignment.Center,
@@ -141,10 +140,9 @@ private fun FrequencyChart(state: StatisticsState, height: Dp, onEvent: (Statist
     val grid = Colors.outline
     val textColor = Colors.text
     val primary = Colors.primary
-    val listState = rememberLazyListState()
-    LaunchedEffect(Unit) {
-        listState.scrollToItem(buckets.indexOf(selected))
-    }
+    val selectionBackground = Colors.selectionBackground
+    // Position the new interval before its first frame, so older columns never flash.
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = buckets.indexOf(selected))
     val labelStyle = TextStyle(color = textColor.copy(alpha = .65f), fontSize = 10.sp)
     val chartDescription = frequencyChartDescription(metric)
     Card(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -177,7 +175,7 @@ private fun FrequencyChart(state: StatisticsState, height: Dp, onEvent: (Statist
                         ) {
                             val top = 24.dp.toPx()
                             val bottom = size.height - 42.dp.toPx()
-                            if (active) drawRoundRect(primary.copy(alpha = .06f), cornerRadius = CornerRadius(6.dp.toPx()))
+                            if (active) drawRoundRect(selectionBackground, cornerRadius = CornerRadius(6.dp.toPx()))
                             for (tick in 0..4) {
                                 val y = bottom - (bottom - top) * tick / 4
                                 drawLine(grid, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx())
@@ -208,7 +206,7 @@ private fun FrequencyChart(state: StatisticsState, height: Dp, onEvent: (Statist
                 val shape = RoundedCornerShape(50)
                 Row(
                     Modifier.clip(shape)
-                        .background(if (active) primary.copy(alpha = .12f) else Color.Transparent)
+                        .background(if (active) selectionBackground else Color.Transparent)
                         .border(1.dp, if (active) primary.copy(alpha = .55f) else grid, shape)
                         .selectable(selected = active, role = Role.RadioButton,
                             onClick = { onEvent(StatisticsEvent.SelectFrequencyMetric(option)) })

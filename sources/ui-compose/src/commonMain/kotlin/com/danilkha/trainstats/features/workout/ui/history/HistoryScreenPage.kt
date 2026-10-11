@@ -143,7 +143,9 @@ fun HistoryPageLayout(
 ) {
     val scope = rememberCoroutineScope()
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .background(color = Colors.background)
+            .fillMaxSize(),
     ) {
         Column {
             topBar()
