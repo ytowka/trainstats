@@ -1,72 +1,103 @@
 # Прогресс: KMP + нативный SwiftUI на iOS
 
-> Трекер перезапущен 15.09.2026 при смене курса на SwiftUI (план v2).
-> Прогресс предыдущего плана (Compose-MP, фазы 0–7) удалён; история — в git.
+> Обновлён 11.10.2026 под [план v3](KMP_MIGRATION_PLAN.md).
+> Статусы сверены с кодом; новых build/test прогонов при обновлении документов нет.
+> Исторические результаты Ф1 сохранены ниже и не подтверждают текущий checkout.
 
 ## Сводка
 
 | Фаза | Описание | Статус |
-|------|----------|--------|
-| **Ф1** | Расщепление `:shared` → `:shared` (ядро) + `:ui-compose` | ✅ Завершено |
-| **Ф2** | iOS-компиляция ядра (Dispatchers.IO, actual'ы, lifecycle) | ⬜ Не начато |
-| **Ф3** | Interop-инфраструктура (SKIE, ViewModelProvider, initKoin) | ⬜ Не начато |
-| **Ф4** | `iosApp`: Xcode-проект, каркас TabView | ⬜ Не начато |
-| **Ф5** | Экраны SwiftUI (5.1 Workout → 5.5 Profile) | ⬜ Не начато |
-| **Ф6** | QA и финализация | ⬜ Не начато |
+|---|---|---|
+| **Ф1** | Разделение `:shared` (ядро) / `:ui-compose` (UI), common-core без Compose | ✅ Реализовано; исторические проверки ниже |
+| **Ф2** | Native compile/link, числовой/датный формат, persistent Room path | ⬜ Не завершено; IO wrappers и actual-заглушки остаются |
+| **Ф3** | SKIE, Swift exports, 7 VM provider, bootstrap, ownership/flush | ⬜ Не начато |
+| **Ф4** | Xcode-проект, integration, вкладки История / Упражнения / Профиль | ⬜ Не начато |
+| **Ф5** | SwiftUI-экраны, включая Details и оба таба Statistics | ⬜ Не начато |
+| **Ф6** | QA Android/iOS, сохранность данных и статистический паритет | ⬜ Не начато |
 
 ## Контрольные точки
 
-### Ф1
+### Ф1 — фактическое состояние
 
-- [x] `:ui-compose` создан (compose-setup), `:app` переключён
-- [x] Compose-экраны/ресурсы перенесены в `:ui-compose` (пакеты сохранены)
-- [x] `expect availableSettingsOptions` упразднён; `ImportExportNavigation.ios` удалён
-- [x] `:shared` → `multiplatform-library`, Compose-deps убраны
-- [x] `commonds.components.move` отсоединён от `WorkoutViewModel`
-- [x] `common-core` без Compose; чистая `createDateTimeFormatter()` expect/actual
-- [x] `:app:assembleDebug`, `:app:test`, `:app:lint` — зелёные
-- [x] `connectedAndroidTest` HappyPathTest — 3/3
-- [x] `:shared:compileKotlinMetadata`, `:common-core:compileKotlinMetadata` — зелёные
+- [x] `:ui-compose` создан на `compose-setup`, `:app` подключает его и `:shared`.
+- [x] Compose-экраны/ресурсы перенесены; package Res сохранён как
+  `training_stats.shared.generated.resources`.
+- [x] `:shared` и `:common-core` без Compose, на `multiplatform-library`.
+- [x] Compose VM helpers и LocalDateFormat находятся в `:ui-compose`;
+  в common-core есть `createDateTimeFormatter(localeTag, use24HourFormat)`.
+- [x] `availableSettingsOptions` — обычный список Import/Export.
+- [x] Platform `expect importExportEntries()` и пустой iOS actual остаются в
+  `:ui-compose`; прежняя запись об удалении actual была неточной.
 
-На эмуляторе Pixel_9_proxyman (API 35) все три сценария проверены: сценарии
-создания упражнения и тренировки прошли в составе класса,
-`scenario3_exerciseHistory` — отдельным запуском. Полный запуск класса дважды
-таймаутился в `createWorkoutViaUi()` при ожидании экрана «История»; по принятому
-решению это не блокирует фазу 1. iOS-компиляция ядра дошла до ожидаемого блокера
-Ф2: 12 вызовов `withContext(Dispatchers.IO)` в репозиториях (6 в
-`WorkoutRepositoryImpl`, 6 в `ExerciseRepositoryImpl`).
+Историческая запись от 15.09.2026: `:app:assembleDebug`, `:app:test`, `:app:lint`,
+`:shared:compileKotlinMetadata`, `:common-core:compileKotlinMetadata` проходили.
+На Pixel_9_proxyman (API 35) три happy-path сценария проходили: первые два в
+составе класса, `scenario3_exerciseHistory` — отдельно. Полный класс дважды
+таймаутился в `createWorkoutViaUi()` при ожидании «Истории»; тогда принято решение
+не блокировать Ф1. Native compile дошёл до 12 `Dispatchers.IO` wrappers в
+репозиториях (6 Workout + 6 Exercise). Эти wrappers всё ещё есть в коде.
+
+### Изменения после исходного плана
+
+Уже реализованы в общем ядре и Android UI, **не в SwiftUI**:
+
+- [x] Statistics: метрики Weight/Repetitions/Volume, максимум по тренировке,
+  отдельные подходы, all-time рекорд, выбор точки, viewport/жесты.
+- [x] Frequency: календарные Week/Month/Quarter/Year, Exercise/AllWorkouts,
+  Workouts/Sets, выбранный период и all-time totals.
+- [x] `WorkoutDetailsViewModel` и read-only экран, переход из точки/рекорда.
+- [x] Корневой `BottomSheetHost` с вложенными sheets и модальным input/back.
+- [x] `WorkoutStopwatch` от `lastEdited`, открытие selector новой тренировки,
+  refresh списка/selector через события результата и dismiss.
+- [x] Unit/UI coverage статистики/частоты и host tests bottom sheet добавлены.
+
+Будущие hints, variations, позиция в истории, calendar drill-down и notes не
+считаются выполненными. Feature-module декомпозиция также не реализована.
 
 ### Ф2
 
-- [ ] `withContext(Dispatchers.IO)` убран из репозиториев
-- [ ] `TextUtils.ios` реализован
-- [ ] iOS `DateTimeFormatter` actual (NSDateFormatter)
-- [ ] `:shared:compileKotlinIosSimulatorArm64` — зелёный
-- [ ] `:shared:linkDebugFrameworkIosSimulatorArm64` — зелёный (lifecycle-конфликт закрыт)
+- [ ] Убрать IO wrappers из commonMain репозиториев с проверкой поведения Room.
+- [ ] Реализовать `TextUtils.ios.format1/format2`.
+- [ ] Реализовать iOS formatter с locale, текущим годом и 12/24 часами.
+- [ ] Настроить устойчивый writable Room path; проверить сохранность в Ф4.
+- [ ] Native compile ядра и simulator framework link; перепроверить lifecycle tree.
+- [ ] Android build/unit/lint regression после изменений.
 
 ### Ф3
 
-- [ ] SKIE подключён к `:shared` (версия зафиксирована)
-- [ ] `ViewModelProvider` + `initKoin()` в iosMain
-- [ ] Smoke-check Swift-API фреймворка (Flow → AsyncSequence, sealed → плоские имена)
+- [ ] Зафиксировать совместимую SKIE-версию в каталоге и подключить к `:shared`.
+- [ ] Настроить необходимые `api`/framework exports без Compose.
+- [ ] Добавить `initKoin()`/Napier и provider всех 7 commonMain VM.
+- [ ] Создать явный VM lifecycle owner; проверить clear/отмену подписок.
+- [ ] Добавить/проверить flush редактора при back/background до debounce.
+- [ ] Swift wrapper по `startState` / `state` / `sideEffects` / `processEvent`,
+  стабильный flow и поддержка VM без эффектов (`Nothing`).
+- [ ] Swift compile-smoke всех VM, включая Statistics/WorkoutDetails.
 
 ### Ф4
 
-- [ ] Xcode-проект создан, исходники в git
-- [ ] `sharedKit` подключён (build phase)
-- [ ] `MviViewModelWrapper` добавлен
-- [ ] Запуск на симуляторе: Koin стартует, БД создаётся, табы работают
+- [ ] Xcode-проект/Swift исходники в git, platform/configuration-aware integration.
+- [ ] Static `sharedKit` линкуется для simulator/device, Debug/Release.
+- [ ] Bootstrap, wrapper/ownership, правильные вкладки и отдельные editor/details routes.
+- [ ] RU String Catalog и SwiftUI дизайн-система.
+- [ ] Simulator startup и DB persistence после перезапуска.
 
 ### Ф5
 
-- [ ] 5.1 Workout
-- [ ] 5.2 History
-- [ ] 5.3 ExerciseList + Selector + Editor
-- [ ] 5.4 ExerciseHistory
-- [ ] 5.5 Profile
+- [ ] 5.1 ExerciseList + Selector + Editor, nested sheet/result/refresh.
+- [ ] 5.2 Workout editor: reorder/undo, autosave/flush, stopwatch.
+- [ ] 5.3 History: поиск, new/edit workout, статистика.
+- [ ] 5.4 ExerciseHistory.
+- [ ] 5.5 WorkoutDetails: read-only, loading/error/retry.
+- [ ] 5.6 Statistics: показатели, viewport/selection, рекорд → details → back.
+- [ ] 5.7 Statistics: частота, calendar intervals/totals/scope и scroll position.
+- [ ] 5.8 Profile без неподдерживаемых backup/account функций.
 
 ### Ф6
 
-- [ ] Полный Android-гейт (assembleDebug, test, lint, connectedAndroidTest, benchmark)
-- [ ] iOS: clean build + ручной happy path
-- [ ] `AGENTS.md`, `BOARD.md` обновлены
+- [ ] Android build/unit/lint, device regression и benchmark build.
+- [ ] iOS clean build, device/Release framework и полный happy path.
+- [ ] Сохранность данных при быстром back/background/перезапуске; VM ownership QA.
+- [ ] Одинаковые статистические fixtures/расчёты и UI паритет обоих табов.
+- [x] `AGENTS.md`, план и трекер обновлены по коду 11.10.2026.
+- [ ] Документы/`BOARD.md` отражают окончательный результат после реализации iOS.

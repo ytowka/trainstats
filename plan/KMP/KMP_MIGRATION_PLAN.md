@@ -1,251 +1,265 @@
-# План: KMP + нативный SwiftUI на iOS (v2)
+# План: KMP + нативный SwiftUI на iOS (v3)
 
-> Переработан 15.09.2026. Предыдущий план предполагал Compose Multiplatform на обеих
-> платформах; его фазы 0–7 (Dagger→Koin, Room KMP, VM, UI в `:shared`, slim `:app`)
-> завершены и удалены из плана. Новый курс: **iOS — нативный SwiftUI**, Compose
-> остаётся только для Android.
+> Обновлён 11.10.2026 по текущему коду. Курс прежний: Android — Compose,
+> iOS — SwiftUI, общее KMP-ядро. Ф1 (разделение ядра и UI) уже выполнена;
+> оставшиеся фазы учитывают статистику, просмотр тренировки и новые UI-сценарии.
+> Это план работ, а не подтверждение успешной iOS-сборки текущего checkout.
 
-## Принятые решения
+## Решения и границы
 
-- **Концепция:** Android — Compose (как сейчас), iOS — нативный SwiftUI. Общее
-  KMP-ядро без единой Compose-зависимости в iOS-пути сборки.
-- **Расщепление `:shared`:** ядро (domain + data + ViewModel'ы + DI, без Compose)
-  остаётся в `:shared`; весь Compose-UI выносится в новый модуль `:ui-compose`.
-- **`common-core` очищается от Compose** (`LocalDateFormat`, `ViewModels.kt`-хелперы →
-  `:ui-compose`), иначе Compose попадал бы в iOS-фреймворк транзитивно.
-- **ARCH_REFACTOR** (`plan/features/ARCH_REFACTOR_PLAN.md`, декомпозиция на feature-модули)
-  — **параллельный трек, не смешивается** с этим планом. Новый план строится от текущей
-  структуры; ui-модули будущей декомпозиции станут android-only.
-- **`Dispatchers.IO`:** убрать `withContext(Dispatchers.IO)` из репозиториев — Room
-  suspend-методы dispatcher-агностичны (на Native `Dispatchers.IO` —
-  `@ExperimentalCoroutinesApi`, из-за этого iOS-компиляция падает).
-- **iOS interop:** SKIE + `MviViewModelWrapper` по `KMP_VIEWMODEL_IOS_INTEROP.md`
-  (документ — рабочий референс, не меняется).
-- **Навигация:** Navigation 3 (`:navigation:api`/`:navigation:impl`) и JB-порт
-  lifecycle — **только в `:ui-compose`** (Android UI). На iOS — SwiftUI NavigationStack.
-- **backup (import/export):** на iOS не поддерживается, код остаётся в androidMain.
-- **Строки на iOS:** дублируются в String Catalog (осознанно; Compose Resources на
-  SwiftUI не работают). Локализация — RU, паритет с `strings.xml`.
-- **`iosApp/`:** Xcode-проект создаётся с нуля, исходники коммитятся (сейчас в git
-  только build-артефакты от пробных сборок).
+- `:shared` содержит domain/data, общие MVI VM/State/Event/SideEffect и Koin DSL.
+  `:common-core` не зависит от Compose. SwiftUI использует это ядро через `sharedKit`.
+- Compose UI, Navigation 3, `koin-compose`, ресурсы и bottom sheet компоненты
+  остаются в `:ui-compose` и его зависимостях. Эти модули пока имеют iOS targets,
+  но не должны попадать в дерево зависимостей iOS-приложения.
+- iOS навигация — SwiftUI `NavigationStack`, модальные сценарии — нативные sheet.
+  Вкладки как на Android: **История / Упражнения / Профиль**. Редактор тренировки
+  и статистика открываются из истории, просмотр тренировки — из статистики.
+- SKIE + Swift-обёртка MVI остаются выбранным направлением interop. Версию и
+  совместимость с Kotlin 2.3.21 проверяем при реализации; SKIE ещё не подключён.
+- Import/export на iOS вне текущего объёма. Android-файловые службы/VM остаются
+  в `:shared/androidMain`, UI — в `:ui-compose/androidMain`. Общий парсер остаётся
+  в commonMain. На iOS не показываем неработающие пункты backup.
+- RU-локализация в String Catalog; значения цветов/типографики переносим из
+  `:common-ds` в SwiftUI. Источник строк —
+  `sources/ui-compose/src/commonMain/composeResources/values/strings.xml`
+  и ресурсы общих компонентов. Compose Resources не подключаем к SwiftUI.
+- Декомпозиция по `ARCH_REFACTOR_PLAN.md` — отдельный, ещё не реализованный трек.
+  При его реализации VM/state должны остаться доступны iOS без Compose.
+  Старое предложение `ui = Compose + VM` и `:shared` как агрегатор всех UI-модулей
+  необходимо согласовать с этим ограничением до переноса. Учесть также новую
+  фичу `stats` и `workout/ui/details`, отсутствующие в старом списке модулей.
+- Server sync/backend, hints прошлого подхода, вариации, позиция упражнения в
+  истории, календарь с тренировками и заметки не входят в текущий iOS-паритет:
+  в приложении эти фичи ещё не реализованы. Их спецификации в `plan/` — backlog.
 
----
+## Текущее состояние
 
-## Текущее состояние (baseline, сентябрь 2026)
+Модули под `sources/` подключаются через `includeSourceModule()`.
 
-### Структура
+| Модуль | Фактическое содержимое |
+|---|---|
+| `:app` | Android shell, `App.kt` с Koin/Napier, `MainActivity → SharedApp`, тесты |
+| `:shared` | Чистый KMP без Compose: exercises/workout/stats, 7 общих VM, `WorkoutSaver`, Koin; androidMain — backup |
+| `:ui-compose` | Все Compose-экраны, RootScreen/nav3, графики, `WorkoutStopwatch`, UI helpers/resources; androidMain — backup UI |
+| `:common-core` | Use case bases, lifecycle MVI, дата/текст/UUID; Compose-хелперы уже перенесены в UI |
+| `:common-db` / `:common-db-api` | Room KMP, DAO/конвертеры/платформенные builders / entities/views; версия 1, tracked schemas в `sources/common-db/schemas/` |
+| `:common-ds`, `:common-date-picker`, `:common:alertdialog`, `:common:bottomsheet` | Compose-компоненты; общий host вложенных sheets уже работает в Android UI |
+| `:navigation:api` / `:navigation:impl` | Compose Navigation 3, включая `StatisticsNav` и `WorkoutDetailsNav` |
+| `iosApp/` | Нет tracked Xcode-проекта и Swift-исходников |
+| `backend/trainstats` | Отдельный Spring Boot build, вне объёма адаптации |
 
-Модули живут в `sources/` и подключаются через `includeSourceModule()` в
-`settings.gradle.kts`:
+Конвенция `multiplatform-library` создаёт static frameworks для `iosArm64` и
+`iosSimulatorArm64`; имя `:shared` — `sharedKit`. JVM и `iosX64` targets,
+XCFramework aggregation, Swift API export зависимостей и SKIE сейчас не настроены.
 
-| Модуль | Тип | Содержимое |
-|---|---|---|
-| `:app` | android-app | `App.kt` (Koin `startKoin`), `MainActivity` (`SharedApp()`), androidTest |
-| `:shared` | KMP + Compose | domain/data обеих фич, все VM + State/Event, `WorkoutSaver`, все Compose-экраны, Koin-модули; androidMain: export/import; iosMain: `PlatformModule.ios`, `ImportExportNavigation.ios` |
-| `:common-core` | KMP + Compose-runtime | usecase-базы, `MviViewModel`/`IMviViewModel` (androidx.lifecycle), `LocalDateFormat` (Compose), TextUtils/DateFormats/Ids(UUID), Napier |
-| `:common-db` | KMP | Room: `TrainStatsDb` (**`@ConstructedBy` уже настроен**), DAO, конвертеры, `DatabaseDriverFactory` expect/actual (android + ios), `schemas/1.json`, KSP на Android и iOS-таргетах, `sqlite-bundled` в iosMain |
-| `:common-db-api` | KMP | entities/views (+`PendingUpdateEntity` — задел под server-sync) |
-| `:common-ds`, `:common-date-picker`, `:common:alertdialog`, `:common:bottomsheet` | KMP + Compose | дизайн-система и компоненты |
-| `:navigation:api` / `:navigation:impl` | KMP + Compose | Navigation 3: `Navigator`, destinations, `NavHost` |
-| `:features:exercises` | — | пустая заготовка под ARCH_REFACTOR (не регистрирован) |
-| `:benchmark` | com.android.test | без изменений |
-| `iosApp/` | — | только build-артефакты, исходников нет |
-| `backend/trainstats` | Spring Boot | отдельный проект, вне скоупа |
+Версии: Kotlin 2.3.21, AGP 8.9.3, Gradle 8.11.1, KSP 2.3.5, Room 2.8.4,
+Koin 4.0.0, coroutines 1.10.1, Compose MP 1.10.0, lifecycle 2.9.2,
+nav3 runtime/UI 1.1.7/1.1.1, JB lifecycle nav3 2.10.0, datetime 0.7.1,
+sqlite-bundled 2.5.0. Источник версий — `gradle/libs.versions.toml`.
 
-### Версии (актуальные)
+### Контракты, которые переиспользует iOS
 
-Kotlin 2.3.21, AGP 8.9.3, KSP 2.3.5, Room 2.8.4, Koin 4.0.0, coroutines 1.10.1,
-Compose MP 1.10.0, nav3 1.1.7 / nav3-ui 1.1.1 / lifecycle-viewmodel-nav3 2.10.0,
-kotlinx-datetime 0.7.1, sqlite-bundled 2.5.0, Napier 2.7.1.
+- `MviViewModel<State, Event, SideEffect>` / `IMviViewModel`:
+  **`startState`, `state`, `sideEffects`, `processEvent(event)`**.
+  State — преимущественно data class, события/эффекты — sealed interface;
+  `StatisticsViewModel` и `WorkoutDetailsViewModel` используют `Nothing` для эффектов.
+- Koin — явный DSL (`factoryOf`, `singleOf`), без annotations/Koin KSP.
+  `viewModelModule` регистрирует 7 VM: Workout, History, ExerciseList,
+  ExerciseEditor, ExerciseHistory, Statistics, WorkoutDetails.
+- Инициализация через события: `WorkoutEvent.RequestInit(editingId?)`,
+  `ExerciseEditorEvent.Init(editingId?)`, `ExerciseHistoryEvent.Init(exerciseId)`,
+  `WorkoutDetailsEvent.Load(workoutId)`. Не придумывать конструкторные параметры,
+  которых нет в VM. Statistics/History/List запускают загрузку через сбор state.
+- Getter `state` создаёт `stateIn(WhileSubscribed(5_000))`; Swift-адаптер должен
+  сохранить один экземпляр flow. Повторные обращения/подписки и возобновление
+  загрузки проверяются отдельно, включая возврат со страницы просмотра.
+- `WorkoutSaver` — singleton с debounce 5 секунд. `WorkoutViewModel.onCleared()`
+  вызывает commit; Swift `onDisappear` не эквивалентен завершению VM.
 
-### Что уже работает
+### Оставшиеся задачи iOS-ядра
 
-- Android собирается и проходит гейты (`assembleDebug`, `test`, `lint`,
-  `connectedAndroidTest` HappyPathTest 3/3, `:benchmark:assembleBenchmark`).
-- MVI-VM отвязана от Compose: `IMviViewModel` (интерфейс) + `MviViewModel`
-  (androidx.lifecycle.ViewModel, KMP). Все State/Event/SideEffect — `sealed interface`
-  → SKIE даст плоский Swift-API из коробки.
-- Room полностью KMP: `@ConstructedBy` + KSP на iOS-таргетах + Native-драйвер.
-- UUID-генерация (`Ids.kt`), конвертеры на kotlinx-datetime.
+| Задача | Текущее состояние |
+|---|---|
+| `Dispatchers.IO` | 12 `withContext` в двух commonMain репозиториях; прежний прогон зафиксировал Native opt-in блокер, нового прогона здесь нет |
+| Числовой формат | `TextUtils.ios.format1/format2` — `TODO("ios")`; используется и просмотром/статистикой |
+| Формат даты | `createDateTimeFormatter(localeTag, use24HourFormat)` на iOS возвращает ISO строки |
+| Lifecycle линковка | Исторический klib-конфликт; после разделения модулей статус требует свежей проверки, исчезновение не предполагаем |
+| Room файл | iOS builder использует bare `DB_NAME`; нужен устойчивый путь в writable sandbox и проверка перезапуска |
+| Swift API | `:shared` использует `implementation` зависимостей, framework export не настроен; публичные supertype/model типы нужно проверить из Swift |
+| Bootstrap/ownership | Есть `platformModule.ios`, но нет `initKoin`, VM provider, Swift wrapper и владельца lifecycle |
 
-### Известные блокеры/заглушки iOS-пути
+## Целевая схема
 
-| # | Проблема | Где |
-|---|---|---|
-| 1 | `withContext(Dispatchers.IO)` — на Native `@ExperimentalCoroutinesApi`, компиляция iOS падает | `WorkoutRepositoryImpl`, `ExerciseRepositoryImpl` (12 вызовов) |
-| 2 | Lifecycle klib-конфликт: дубликаты `lifecycle-viewmodel-savedstate` 2.8.4/2.9.0, downgrade `org.jetbrains.androidx.lifecycle 2.9.6 → 2.8.4` (следы дебага в `tmp/`) | линковка iOS-фреймворка; ожидание — уйдёт после Ф1 (JB-порт уйдёт из дерева `:shared`) |
-| 3 | `TextUtils.ios` = `TODO("ios")` — упадёт в рантайме | `common-core/iosMain` |
-| 4 | `LocalDateFormat.ios` — ISO-заглушка вместо форматтера | `common-core/iosMain` |
-| 5 | Xcode-проекта нет | `iosApp/` |
+```text
+Android :app -> :ui-compose -> :shared -> :common-core + :common-db -> :common-db-api
+                    |
+                    +-> Compose DS/components + :navigation:api/impl
 
----
-
-## Целевая архитектура
-
+iOS iosApp (SwiftUI) -> sharedKit (:shared + необходимые экспортируемые типы ядра)
 ```
-:app          — тонкая Android-оболочка (App.kt startKoin, MainActivity → SharedApp())
-:ui-compose   — НОВЫЙ: весь Compose-UI (экраны, SharedApp, RootScreen/nav3, SettingsScreen,
-                bottomsheet'ы, LocalDateFormat-обёртка, Compose-ресурсы, koin-compose)
-:shared       — KMP-ядро БЕЗ Compose (multiplatform-library): domain, data, VM+State+Event,
-                WorkoutSaver, Koin-модули, ViewModelProvider, SKIE, initKoin для iOS
-:common-core  — чистый KMP (без Compose): usecase-базы, MVI, DateTimeFormatter-фабрика,
-                TextUtils, Ids, DateUtils
-:common-db / :common-db-api / :common-ds / :common-date-picker /
-:common:alertdialog / :common:bottomsheet / :navigation:api|impl — как сейчас
-                (Compose-модули потребляются только :ui-compose и :app)
-:benchmark    — без изменений
-iosApp/       — SwiftUI Xcode-проект, линкует ТОЛЬКО sharedKit (транзитивно :shared-дерево)
-```
 
-**iOS-путь сборки = дерево `:shared`**: без Compose, без JB-lifecycle → лёгкий фреймворк,
-конфликт №2 выпадает из пути.
+В iOS-пути остаётся KMP `androidx.lifecycle.ViewModel`; условие — отсутствие
+Compose и UI navigation, а не отсутствие lifecycle вообще. Выравнивание lifecycle
+проверяем на реальном dependency tree и линковке.
 
----
+## Ф1 — Разделение ядра и Compose UI: выполнено
 
-## Фазы
+Повторный перенос не нужен: `:shared`/`:common-core` уже используют
+`multiplatform-library`, экраны и ресурсы находятся в `:ui-compose`.
+`Res` package сознательно сохранён как `training_stats.shared.generated.resources`.
+`expect importExportEntries()` и пустой iOS actual **сохранились в UI**;
+`availableSettingsOptions` — обычный список Import/Export. Это не iOS backup.
 
-### Ф1 — Расщепление `:shared` → `:shared` (ядро) + `:ui-compose`
+Исторические Android-гейты Ф1 записаны в [PROGRESS.md](PROGRESS.md), включая
+таймауты полного HappyPathTest. Они не заменяют проверки после следующих изменений.
 
-Android-гейты после каждого шага. Пакеты при переносе не меняем (кроме явно
-указанного).
+## Ф2 — Компиляция и платформа ядра
 
-1. **Скелет `:ui-compose`** (`sources/ui-compose`, convention `compose-setup`,
-   регистрация через `includeSourceModule`):
-   deps: `api(project(":shared"))`, `:common-ds`, `:common-date-picker`,
-   `:common:alertdialog`, `:common:bottomsheet`, `:navigation:api`, `:navigation:impl`,
-   nav3-runtime/ui, koin-compose, koin-compose-viewmodel.
-   `:app`: `implementation(project(":ui-compose"))` (плюс существующий
-   `implementation(project(":shared"))` для `App.kt`).
-2. **Перенос Compose-кода `:shared` → `:ui-compose`** (пакеты те же):
-   - commonMain: `SharedApp.kt`, `features/navigation/RootScreen.kt`, `HomeScreen`,
-     `NavBar`, `ProfileScreen`, `WorkoutScreen`, `ExerciseGroupCard`,
-     `HistoryScreenPage`, `ExerciseListScreenPage`(+Preview), selector/editor
-     bottomsheet'ы, `ExerciseHistoryBottomSheet`, `SettingsScreen`,
-     `ImportExportNavigation.kt` (expect).
-   - androidMain: `ExportScreen`, `ImportScreen`, `ImportExportNavigation.android`.
-   - `ImportExportNavigation.ios` — удалить; `expect val availableSettingsOptions`
-     упразднить → обычный `val` в androidMain `:ui-compose`.
-   - `core/viewmodel/ViewModels.kt` (Compose-хелперы) и `LocalDateFormat`
-     (Compose-обёртка) → `:ui-compose` (см. шаг 4).
-   - `composeResources/` (strings.xml и пр.) → `:ui-compose`; при переезде проверить
-     generated-Res импорты (sed-проход, как в старой Фазе 6).
-3. **Очистка `:shared`**: convention `compose-setup` → `multiplatform-library`; убрать
-   deps `:common-ds`, `:common-date-picker`, `:common:alertdialog`, `:common:bottomsheet`,
-   `:navigation:*`, nav3, koin-compose/viewmodel. Остаются: `:common-db`,
-   `:common-core` (транзитивно), coroutines, datetime, koin-core, room-runtime.
-4. **`common-core` без Compose**: перенести `LocalDateFormat.kt` (composition local +
-   `rememberDateTimeFormatter` expect) и Compose-actual'ы в `:ui-compose`; в commonMain
-   добавить **чистую** `expect fun createDateTimeFormatter(): DateTimeFormatter`
-   (android actual — `JvmDateTimeFormatter`, ios actual — NSDateFormatter, см. Ф2);
-   убрать плагины `composeMultiplatform`/`compose.compiler` и deps `compose.runtime`/
-   `compose.ui`. Проверить, что `common-ds`/`common-date-picker` (зависят от common-core)
-   собираются.
-5. **`:app`**: Compose-библиотеки экранов (foundation/material/ui/icons/resources)
-   переносятся в `:ui-compose`; в `:app` остаются activity-compose, tooling,
-   test-депы, koin-android. `HappyPathTest` — обновить импорт `SharedApp`.
-6. **`:ui-compose` iOS-таргеты**: convention создаёт iosArm64/… задачи. В iosMain
-   положить тривиальные stub-actual'ы (`rememberDateTimeFormatter` и др.), чтобы
-   `compileKotlinIos*` оставались зелёными; iOS-приложение этот модуль не линкует.
+1. Убрать ненужные IO wrappers вокруг Room suspend-вызовов в
+   `WorkoutRepositoryImpl` и `ExerciseRepositoryImpl`; подтвердить, что нет
+   блокирующих платформенных операций, требующих собственного dispatcher.
+   Android-only FileReader/FileWriter/export при этом не переносить.
+2. Реализовать `format1/format2` на Native с паритетом Android, проверить дробные
+   значения и форматирование без лишних нулей; исключить runtime TODO.
+3. Реализовать actual `createDateTimeFormatter(localeTag, use24HourFormat)`:
+   учитывать locale, текущий год, 12/24 часа и локальный timezone. Android-эталон:
+   `EEEE, d MMMM[ yyyy]`, время `HH:mm` либо `h:mm a`, разделитель ` • `.
+4. Для Room задать путь файла в каталоге приложения, проверить создание пустой
+   БД и сохранность после перезапуска. `BundledSQLiteDriver` уже подключён;
+   prebuilt Android asset не является источником iOS seed.
+   Схему/версию менять только при реальном изменении entities/views с миграцией.
+5. Проверить compile/link и dependency tree. Если lifecycle-конфликт остаётся,
+   исправить точную несовместимость версий; не обновлять весь nav3/UI стек вслепую.
 
-**Гейты Ф1:** `:app:assembleDebug`, `:app:test`, `:app:lint`, `connectedAndroidTest`
-(HappyPathTest), `:shared:compileKotlinMetadata`, `:common-core:compileKotlinMetadata`.
+Гейты: `:common-core:compileKotlinIosSimulatorArm64`,
+`:shared:compileKotlinIosSimulatorArm64`, `:shared:linkDebugFrameworkIosSimulatorArm64`,
+`:app:assembleDebug`, `:app:testDebugUnitTest`, `:app:lintDebug`.
+Сохранность БД дополнительно проверяется в приложении в Ф4.
 
-### Ф2 — iOS-компиляция ядра
+## Ф3 — Swift API, DI и lifecycle
 
-1. Убрать `withContext(Dispatchers.IO)` в `WorkoutRepositoryImpl` /
-   `ExerciseRepositoryImpl` (12 вызовов; Room сам переключает контекст).
-   `ExportWorkoutUseCase` (androidMain) не трогаем — JVM-`Dispatchers.IO` стабилен.
-2. `TextUtils.ios`: реальная реализация (`String.format("%.1f"/"%.2f")`).
-3. `createDateTimeFormatter()` ios actual: `NSDateFormatter` с паттернами,
-   идентичными `JvmDateTimeFormatter`.
-4. Lifecycle klib-конфликт: проверить линковкой. Ожидание — после Ф1 из дерева
-   `:shared` ушли JB-lifecycle/compose. Если остался — выровнять версии
-   (resolutionStrategy / обновление lifecycleViewmodelNav3) до зелёной линковки.
+1. Подключить совместимую SKIE-версию через каталог к `:shared`; проверить Flow,
+   sealed events и фактический Swift API. Не подключать несколько Flow-мостов.
+2. Настроить `api`/framework `export` для необходимых публичных типов (MVI
+   supertype из common-core, domain/state модели и их зависимости). `api()` само
+   по себе не экспортирует классы в Swift. Не экспортировать Compose или весь
+   граф автоматически; валидировать небольшим Swift compile-smoke.
+3. В iosMain добавить `initKoin()` и Napier bootstrap с общими модулями и
+   `platformModule`. `androidSharedModule` не подключать. Provider должен покрыть
+   все 7 VM, включая **Statistics** и **WorkoutDetails**.
+4. Ввести Kotlin владельца VM/`ViewModelStore` либо эквивалентный lifecycle handle
+   с явным освобождением. VM создаётся на экран/модальную сессию, а не каждый
+   SwiftUI render; временное перекрытие экраном не очищает её. После окончательного
+   pop/dismiss отменяются подписки и очищается VM; редактор завершает commit.
+5. Предусмотреть flush редактора при уходе приложения в background, не полагаясь
+   только на `onCleared`. При необходимости добавить общий явный save/flush API,
+   сохраняющий Android-поведение. Проверить быстрый уход до 5 секунд debounce.
+6. Swift wrapper: `@MainActor`, начальное значение из `startState`, стабильный
+   flow, сбор `state`/`sideEffects`, отправка `processEvent`. Для VM с `Nothing`
+   не требовать несуществующий поток эффектов. Подписки отменяются и возобновляются
+   с экраном; события selector/editor и открытие selector новой тренировки не теряются.
 
-**Гейты Ф2:** `:shared:compileKotlinIosSimulatorArm64`,
-`:common-core:compileKotlinIosSimulatorArm64`,
-`:shared:linkDebugFrameworkIosSimulatorArm64` — все зелёные.
+[KMP_VIEWMODEL_IOS_INTEROP.md](KMP_VIEWMODEL_IOS_INTEROP.md) — концептуальный
+референс. Его примеры `accept`, `initialState`, `sideEffect`, порядок generic
+параметров, `@Factory`, `import shared` **не совпадают с этим репозиторием**;
+адаптировать к текущему контракту, DSL и `import sharedKit`, не копировать буквально.
 
-### Ф3 — Interop-инфраструктура (SKIE)
+Гейты: simulator framework link + Swift compile-smoke для каждой VM, включая
+Statistics/Details; создание/закрытие VM без утечек, повторной загрузки на каждый
+render и потери финальных правок; Android unit/build regression.
 
-1. `gradle/libs.versions.toml`: плагин `co.touchlab.skie` — зафиксировать версию,
-   совместимую с Kotlin 2.3.21 (проверить на момент реализации).
-2. `:shared`: применить SKIE-плагин. Никаких иных Flow-мостов.
-3. `:shared/iosMain`:
-   - `object ViewModelProvider : KoinComponent` — по одной функции на commonMain-VM
-     (Workout, ExerciseList, History, ExerciseEditor, ExerciseHistory).
-   - `fun initKoin()` — `startKoin { modules(platformModule, dataModule,
-     repositoryModule, useCaseModule, viewModelModule) }` + Napier-инициализация.
-4. Проверить сгенерированный API фреймворка: `StateFlow` → `AsyncSequence`,
-   sealed → плоские имена, `suspend` → `async`.
+## Ф4 — Xcode-каркас
 
-**Гейты Ф3:** линковка framework зелёная; smoke-check заголовков
-(DerivedData/headers или `swift-api-export`).
+1. Создать tracked `iosApp` (SwiftUI lifecycle, baseline iOS 16+), хранить исходники
+   и project configuration в git, исключить build/DerivedData/user-state.
+2. Настроить Xcode/Gradle integration с выбором simulator/device и Debug/Release.
+   Использовать подходящую integration task после проверки доступных Gradle задач;
+   не привязывать build phase только к `linkDebugFrameworkIosSimulatorArm64`.
+   Framework static: не настраивать embed как для dynamic framework.
+3. До создания экранов вызвать bootstrap; добавить wrapper/VM ownership из Ф3,
+   `TabView` История / Упражнения / Профиль и маршруты new/edit workout,
+   statistics, read-only workout details. Тип маршрута и workoutId различать явно.
+4. Добавить RU String Catalog, тему/цвета, типографику, safe-area/keyboard поведение,
+   нативный DatePicker. Если графики требуют API новее iOS 16, отдельно согласовать
+   baseline или использовать доступный renderer; не повышать deployment target молча.
+5. Smoke: startup → Koin → Room → вкладки; запись/перезапуск/чтение БД;
+   сборка симулятора и device framework.
 
-### Ф4 — `iosApp`: Xcode-каркас
+## Ф5 — SwiftUI-экраны и паритет
 
-1. Создать Xcode-проект (SwiftUI App lifecycle, min iOS 16+), таргет `iosApp`,
-   исходники в git (`.gitignore`: `iosApp/build/` уже покрыт глобальным `build/`).
-2. Подключение `sharedKit`: build phase → `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
-   (конвенция уже даёт `baseName = "sharedKit"`), embed framework.
-3. `MviViewModelWrapper<Intent, State, SideEffect>` (код из
-   `KMP_VIEWMODEL_IOS_INTEROP.md` §5) — единственный interop-файл.
-4. `@main` + AppDelegate: `ViewModelProvider`-независимый `initKoin()` до первого
-   экрана.
-5. Каркас UI: `TabView` — История (Home) / Тренировка / Профиль; пустые placeholder-View.
-6. Минимальная SwiftUI-дизайн-система: Assets (цвета) + модификаторы типографики,
-   значения из `common-ds` (дублирование осознанное). Strings — String Catalog (RU).
+Порядок учитывает зависимости: selector/editor → workout → history → exercise
+history → details → statistics. Profile завершает оболочку. Каждый шаг проверяется
+на симуляторе и Android build; UI не переносит бизнес-расчёты из Kotlin в Swift.
 
-**Гейты Ф4:** запуск на симуляторе: Koin стартует, Room создаёт пустую БД
-(NativeSqliteDriver), табы переключаются, без крэшей.
+| Шаг | Содержимое и критерий |
+|---|---|
+| 5.1 Exercises + Selector + Editor | Список, поиск, создание/правка/удаление; hasWeight/separated. Вложенный selector → editor, результат/refresh после сохранения и dismiss. Состояние selector не теряется при открытии editor |
+| 5.2 Workout editor | New/edit по id, автоматический selector новой тренировки, дата, группы/подходы, ввод дробных весов/повторов и двух сторон, reorder, collapse, delete/undo, save/autosave. Таймер от lastEdited только для текущего дня; lifecycle/background flush из Ф3 |
+| 5.3 History | Список/поиск, создание новой тренировки и открытие существующей в редакторе, кнопка статистики. Не добавлять пустой календарь и неподдерживаемые действия только ради визуального совпадения |
+| 5.4 ExerciseHistory | Нативная sheet из редактора, дата и подходы упражнения, корректное состояние при смене упражнения |
+| 5.5 WorkoutDetails | `WorkoutDetailsViewModel`, `Load(id)`, loading/error/retry; весь workout, группы по orderPosition, вес/две стороны повторов. Без editor/save/delete и записи данных |
+| 5.6 Statistics: показатели | Exercise search, Weight/Repetitions/Volume, default maximum series, отдельные подходы, рекорд, viewport/жесты/выбор точки и переход в details; loading/empty/error/retry |
+| 5.7 Statistics: частота | Вкладка Frequency; Week/Month/Quarter/Year, Exercise/AllWorkouts, Workouts/Sets, нулевые интервалы, выбор периода, totals за период/всё время, прокрутка к актуальным столбцам |
+| 5.8 Profile | Текущий профиль-заглушка; скрытые backup-настройки, без выдуманных account/sync возможностей |
 
-### Ф5 — Экраны SwiftUI (по одному)
+### Правила статистики для обеих платформ
 
-Каждый подэтап — отдельная итерация. Гейт: экран работает на симуляторе
-(+ ручной смоук пути) и Android-регрессия не тронута (`:app:assembleDebug`).
+- Источник — `GetStatisticsUseCase`, `StatisticsState`, `ExerciseStatistics.kt`,
+  `FrequencyStatistics.kt`, `StatisticsChartRange.kt`. Android Canvas/gesture code
+  из `StatisticsChart*.kt` и `FrequencyStatisticsContent.kt` служит UI-эталоном,
+  но не экспортируется в iOS; выбрать нативный renderer и обеспечить поведение.
+- Неархивные тренировки; `saved=false` не исключает запись. Порядок подходов
+  локален выбранному упражнению, включая повторные группы. Нули повторов пропускаем
+  без сдвига номеров; отсутствие веса отличается от нулевого веса.
+- Раздельные повторы: среднее для Repetitions, сумма сторон для Volume.
+  Карточка точки/рекорда показывает полный реальный подход с обеими сторонами.
+- Максимум по каждой тренировке — series 0, включён по умолчанию. Рекорд за всю
+  историю независим от viewport/видимых линий, tie-break берём из общего ядра.
+- Начальный viewport — последние 6 календарных месяцев истории упражнения;
+  zoom/pan/full-history reset, выбор совпадающих точек и вертикальный scroll
+  страницы. Скрытые серии не участвуют в выборе точек.
+- Частота — календарные интервалы (неделя с понедельника), в текущем timezone;
+  считаются подходы с конечной положительной суммой повторов. Пустые интервалы
+  сохраняются. Выбор упражнения/метрики/точки сохраняется при смене вкладки
+  статистики и после возврата из details.
 
-| # | Экран | Содержимое |
-|---|---|---|
-| 5.1 | Workout (главный) | группы упражнений/подходов, редактирование веса/повторов, DatePicker (нативный), удаление сетов/групп, добавление упражнения → selector, undo; логика `WorkoutSaver` уже в VM |
-| 5.2 | History (Home tab) | список тренировок, архивирование, удаление, confirm-диалоги |
-| 5.3 | ExerciseList + Selector + Editor | список/поиск/создание/редактирование упражнений |
-| 5.4 | ExerciseHistory | `.sheet` по упражнению из Workout/History |
-| 5.5 | Profile | профиль; настройки — скрыть (backup на iOS вне скоупа) |
+## Ф6 — QA и завершение
 
-### Ф6 — QA и финализация
+- Android: assembleDebug, unit tests, lintDebug; device suites HappyPathTest,
+  StatisticsScreenTest, FrequencyChartPositionTest, BottomSheetHostTest,
+  Room/backup regression; `:benchmark:assembleBenchmark`.
+- iOS clean simulator build и device/Release framework; smoke на устройстве при
+  наличии. Happy path: exercise → workout с двумя сторонами/без веса → сохранение
+  → история → exercise history → metrics → точка/рекорд → details → back → frequency.
+- Проверить nested sheet dismissal/клавиатуру/отмену, быстрый back/background до
+  debounce, перезапуск и сохранность БД, отсутствие записей из details,
+  отсутствие повторных VM/subscription после возврата.
+- Расчёты сравнить на одинаковых fixtures: несколько групп одного упражнения,
+  одинаковые даты, архив/`saved=false`, пустые подходы, нулевой/отсутствующий вес,
+  равные рекорды, нулевые интервалы, границы года/квартала/недели/timezone.
+  Эталон — Kotest `StatisticsTest`/`FrequencyStatisticsTest` и
+  [STATS_CASE.md](../QA/STATS_CASE.md); renderer проверять SwiftUI UI/snapshot
+  тестами или воспроизводимым ручным сценарием, зафиксировать способ и результат.
+- Обновлять `PROGRESS.md` фактическими результатами, а `AGENTS.md` — при изменении
+  архитектуры. Не отмечать фазы завершёнными только по наличию файлов.
 
-1. Android-гейты: `:app:assembleDebug`, `test`, `lint`, `connectedAndroidTest`
-   (HappyPathTest), `:benchmark:assembleBenchmark`.
-2. iOS: clean build + ручной happy path (создать упражнение → собрать тренировку →
-   история → история упражнения).
-3. Документация: обновить `AGENTS.md` (модульная структура устарела), `BOARD.md`
-   (статус эпика KMP), при желании почистить `tmp/`.
+## Риски и контроль
 
----
-
-## Рекомендуемый порядок
-
-Ф1 → Ф2 → Ф3 → Ф4 → Ф5.1…Ф5.5 → Ф6. Ф1 — самая механическая и защищена
-Android-гейтами; Ф2/Ф3 небольшие; Ф5 — основной объём, наращивается по экранам.
-
----
-
-## Риски и сложности
-
-| # | Риск | Митигация |
-|---|---|---|
-| 1 | Lifecycle klib-конфликт на линковке iOS | Уходит из `:shared` после Ф1 (JB-порт/compose только в `:ui-compose`); fallback — выравнивание версий lifecycle в Ф2 |
-| 2 | SKIE ↔ Kotlin 2.3.21 / Koin 4.0.0 | Зафиксировать совместимую версию SKIE в Ф3; fallback — KMP-NativeCoroutines (менять только одно решение) |
-| 3 | `common-core` без Compose ломает `common-ds`/`common-date-picker` | Чистый KMP-dep безопасен; проверить на шаге 4 гейтами |
-| 4 | Переезд `strings.xml` ломает `Res`-импорты | Sed-проход по образцу старой Фазы 6; компиляция ловит все случаи |
-| 5 | `:ui-compose` iOS-таргеты падают (JB-lifecycle) | Stub-actual'ы в iosMain; модуль не входит в iOS-путь линковки; при желании — отключить iOS-таргеты отдельным convention'ом позже |
-| 6 | `HappyPathTest`/`ExportImportTest` завязаны на перемещаемые классы | Обновить импорты (`SharedApp` из `:ui-compose`, `ImportExportNavigation`); androidTest-депы `:common-core`/`:common-db` в `:app` уже скомпенсированы |
-| 7 | Room Native-драйвер на симуляторе | Уже настроен в `:common-db` (BundledSQLiteDriver); в Ф4 только verify |
-
----
+| Риск | Проверка/решение |
+|---|---|
+| Lifecycle/Native dependency conflict | Свежий dependency tree и compile/link в Ф2, Compose не входит в shared tree |
+| SKIE/Swift generics, Nothing, неполный экспорт | Проверка совместимой версии и Swift compile-smoke 7 VM в Ф3 |
+| Потеря autosave или утечки VM | Явное ownership/clear и background flush; проверка до/после debounce |
+| Отличающиеся расчёты/даты статистики | Общие Kotlin расчёты, одинаковые fixtures, timezone и calendar QA |
+| Вложенные sheet теряют результат/selector state | Владение модальной сессией, обработка dismiss/cancel и refresh |
+| ARCH_REFACTOR возвращает Compose в iOS | Согласовать границы shared presentation и UI до декомпозиции |
+| Xcode integration работает только на debug simulator | Проверка platform/configuration-aware сборки и static linking |
 
 ## Связанные документы
 
-- `KMP_VIEWMODEL_IOS_INTEROP.md` — референс interop-слоя (SKIE, MviViewModelWrapper, ViewModelProvider).
-- `../features/ARCH_REFACTOR_PLAN.md` — параллельный трек декомпозиции на feature-модули (не смешивать).
-- `PROGRESS.md` — трекер этого плана.
+- [PROGRESS.md](PROGRESS.md) — текущий статус фаз и проверок.
+- [KMP_VIEWMODEL_IOS_INTEROP.md](KMP_VIEWMODEL_IOS_INTEROP.md) — общий interop референс с адаптацией контракта по Ф3.
+- [ARCH_REFACTOR_PLAN.md](../features/ARCH_REFACTOR_PLAN.md) — отдельная будущая декомпозиция.
+- [BOTTOM_SHEET_REFACTOR.md](../BOTTOM_SHEET_REFACTOR.md) — исходное предложение, не описание текущего host.
+- [STATS_CASE.md](../QA/STATS_CASE.md) — Android поведение показателей и крайние случаи.
