@@ -144,6 +144,8 @@ feature, logic/VM live in `sources/shared/src/commonMain/kotlin/`, screens in
 - Exercise variations belong to an exercise; `null` means ordinary. Names are
   unique within an exercise; use cases store `trim + lowercase + capitalize`
   (including Russian), with a unique index on `(exerciseId, name)`.
+  At most one named variation has `isDefault = true`; none means ordinary.
+  Card selection uses the default; variation chips select explicitly, including null.
   Groups merge only consecutive `(exerciseId, variationId)` pairs. Exercise and
   variation drafts save atomically; deleting a variation uses `ON DELETE SET NULL`.
   Selectors offer only the current exercise’s variations. Workout writes clear
@@ -169,7 +171,7 @@ feature, logic/VM live in `sources/shared/src/commonMain/kotlin/`, screens in
 
 - **Room KMP via KSP**, no kapt. Database:
   `sources/common-db/src/commonMain/kotlin/com/danilkha/trainstats/db/TrainStatsDb.kt`.
-  Version 3, `exportSchema = true`, `@ConstructedBy(TrainStatsDbConstructor::class)`.
+  Version 4, `exportSchema = true`, `@ConstructedBy(TrainStatsDbConstructor::class)`.
   KSP runs for Android and both iOS targets. Schemas are tracked in
   `sources/common-db/schemas/com.danilkha.trainstats.db.TrainStatsDb/`.
 - Entities/views are in `:common-db-api`; DAO/converters/builders in `:common-db`.

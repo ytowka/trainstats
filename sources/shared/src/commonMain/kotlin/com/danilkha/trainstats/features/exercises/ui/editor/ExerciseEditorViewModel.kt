@@ -29,13 +29,19 @@ class ExerciseEditorViewModel(
         ))
         is ExerciseEditorEvent.RenameVariation -> state.copy(variations = state.variations.map {
             if (it.id == event.id) it.copy(name = event.name) else it
+        }, validatedVariationIds = state.validatedVariationIds + event.id)
+        is ExerciseEditorEvent.SetDefaultVariation -> state.copy(variations = state.variations.map {
+            it.copy(isDefault = it.id == event.id)
         })
-        is ExerciseEditorEvent.RemoveVariation -> state.copy(variations = state.variations.filterNot { it.id == event.id })
+        is ExerciseEditorEvent.RemoveVariation -> state.copy(
+            variations = state.variations.filterNot { it.id == event.id },
+            validatedVariationIds = state.validatedVariationIds - event.id,
+        )
         is ExerciseEditorEvent.ExerciseLoaded -> state.copy(
             mode = ExerciseEditorMode.Edit(event.data.toModel()), name = event.data.name,
             separated = event.data.separated, withWeight = event.data.hasWeight, variations = event.data.variations,
         )
-        ExerciseEditorEvent.Save -> state
+        ExerciseEditorEvent.Save -> state.copy(validatedVariationIds = state.variations.mapTo(mutableSetOf()) { it.id })
         ExerciseEditorEvent.Delete -> state
     }
 

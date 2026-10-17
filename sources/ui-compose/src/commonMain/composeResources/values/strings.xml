@@ -104,4 +104,7 @@
     <string name="only_current_variation">Только текущая вариация</string>
     <string name="all_variations">Все</string>
     <string name="choose_variation">Выберите вариацию</string>
+    <string name="default_variation">По умолчанию</string>
+    <string name="make_default_variation">По умолчанию: %1$s</string>
+    <string name="variation_swipe_delete">Свайп влево — удалить</string>
 </resources>

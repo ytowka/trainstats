@@ -1,6 +1,16 @@
 package com.danilkha.trainstats.features.exercises.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -101,7 +111,8 @@ fun ExerciseListScreen(
 @Composable
 fun ExerciseList(
     items: List<ExerciseModel>,
-    onClick: (ExerciseModel) -> Unit
+    onClick: (ExerciseModel) -> Unit,
+    onVariationClick: ((ExerciseModel, ExerciseVariation?) -> Unit)? = null,
 ){
     val state = rememberLazyListState()
     LaunchedEffect(items.size) {
@@ -119,10 +130,11 @@ fun ExerciseList(
         ),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        items(items = items , key = { it.id }){
+        items(items = items, key = { it.id }) { exercise ->
             ExerciseCard(
-                exerciseModel =  it,
-                onClick = { onClick(it) }
+                exerciseModel = exercise,
+                onClick = { onClick(exercise) },
+                onVariationClick = onVariationClick?.let { select -> { variation -> select(exercise, variation) } },
             )
         }
     }
@@ -187,10 +199,11 @@ fun ExerciseSearchBar(
 fun ExerciseCard(
     exerciseModel: ExerciseModel,
     onClick: () -> Unit,
+    onVariationClick: ((ExerciseVariation?) -> Unit)? = null,
 ){
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth().testTag("exercise_card_${exerciseModel.id}"),
         onClick = onClick,
         contentPadding = PaddingValues(horizontal = 15.dp, vertical = 10.dp)
     ) {
@@ -228,6 +241,51 @@ fun ExerciseCard(
                 color = Colors.text.copy(alpha = 0.6f),
                 modifier = Modifier.padding(top = 4.dp)
             )
+        }
+        if (onVariationClick != null && exerciseModel.variations.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("exercise_variations_${exerciseModel.id}"),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                item(key = "ordinary") {
+                    ExerciseVariationChip(
+                        name = stringResource(Res.string.ordinary_variation),
+                        isDefault = exerciseModel.variations.none { it.isDefault },
+                        modifier = Modifier.testTag("exercise_variation_${exerciseModel.id}_ordinary"),
+                        onClick = { onVariationClick(null) },
+                    )
+                }
+                items(exerciseModel.variations, key = { "variation_${it.id}" }) { variation ->
+                    ExerciseVariationChip(
+                        name = variation.name, isDefault = variation.isDefault,
+                        modifier = Modifier.testTag("exercise_variation_${exerciseModel.id}_${variation.id}"),
+                        onClick = { onVariationClick(variation) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun ExerciseVariationChip(
+    name: String,
+    isDefault: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = modifier.clickable(role = Role.Button, onClick = onClick),
+        shape = RoundedCornerShape(50),
+        color = if (isDefault) Colors.selectionBackground else Colors.background,
+        border = BorderStroke(1.dp, if (isDefault) Colors.primary else Colors.outline),
+    ) {
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (isDefault) androidx.compose.material.Icon(Icons.Default.Star,
+                stringResource(Res.string.default_variation), tint = Colors.primary, modifier = Modifier.size(14.dp))
+            Text(name, style = MaterialTheme.typography.body2, color = if (isDefault) Colors.primary else Colors.text)
         }
     }
 }

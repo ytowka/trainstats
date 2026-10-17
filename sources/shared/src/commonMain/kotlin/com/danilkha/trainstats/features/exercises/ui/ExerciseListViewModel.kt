@@ -42,7 +42,7 @@ class ExerciseListViewModel(
         when(event) {
             ExerciseListEvent.UpdateList -> updateList(prevState.searchQuery)
             is ExerciseListEvent.OnExerciseClicked -> {
-                showSideEffect(ExerciseListSideEffect.ExerciseClicked(event.exerciseModel))
+                showSideEffect(ExerciseListSideEffect.ExerciseClicked(event.exerciseModel, event.variation))
             }
             else -> {}
         }

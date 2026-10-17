@@ -124,6 +124,23 @@ class ExerciseVariationDatabaseTest {
         } finally { db.close() }
     }
 
+    @Test fun savingAndDeletingADefaultPreservesIdsAndFallsBackToOrdinary() = runTest {
+        val db = createTestDb(context)
+        try {
+            val exercises = RoomExerciseDatasource(db)
+            exercises.createExercise(pull.copy(variations = listOf(narrow.copy(isDefault = true), wide)))
+            assertEquals(listOf(narrow.id), exercises.getExercise(pull.id).variations.filter { it.isDefault }.map { it.id })
+            assertTrue(exercises.getAllExercises().single().variations.first { it.id == narrow.id }.isDefault)
+            assertTrue(exercises.findExercise(pull.name).single().variations.first { it.id == narrow.id }.isDefault)
+            exercises.updateExercise(pull.copy(variations = listOf(narrow, wide.copy(isDefault = true))))
+            assertEquals(listOf(wide.id), exercises.getExercise(pull.id).variations.filter { it.isDefault }.map { it.id })
+            exercises.createVariation(pull.id, "Новая")
+            assertEquals(listOf(wide.id), exercises.getExercise(pull.id).variations.filter { it.isDefault }.map { it.id })
+            exercises.updateExercise(pull.copy(variations = listOf(narrow)))
+            assertTrue(exercises.getExercise(pull.id).variations.none { it.isDefault })
+        } finally { db.close() }
+    }
+
     @Test fun exportImportRetainsVariationBlocksAndReusesExistingNormalizedNames() = runTest {
         val db = createTestDb(context)
         try {

@@ -1,5 +1,7 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
+
 
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
@@ -59,7 +61,10 @@ sealed interface WorkoutEvent {
 
     data class ToggleGroup(val groupIndex: Int) : WorkoutEvent
 
-    data class AddExercise(val exercise: ExerciseModel) : WorkoutEvent
+    data class AddExercise(
+        val exercise: ExerciseModel,
+        val variation: ExerciseVariation? = exercise.variations.firstOrNull { it.isDefault },
+    ) : WorkoutEvent
 
     data class EditWeight(
         val groupIndex: Int,

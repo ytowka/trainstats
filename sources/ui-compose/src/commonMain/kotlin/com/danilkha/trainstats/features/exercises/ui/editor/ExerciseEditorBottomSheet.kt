@@ -112,6 +112,7 @@ fun ExerciseEditorBottomSheet(
                 onAddVariation = { viewModel.processEvent(ExerciseEditorEvent.AddVariation) },
                 onRenameVariation = { id, name -> viewModel.processEvent(ExerciseEditorEvent.RenameVariation(id, name)) },
                 onDeleteVariation = { id -> deletingVariationId = id; variationDeleteSheet.show() },
+                onDefaultVariation = { viewModel.processEvent(ExerciseEditorEvent.SetDefaultVariation(it)) },
                 onSaveClick = { viewModel.processEvent(ExerciseEditorEvent.Save) },
                 onDeleteClick = {
                     deleteAlertDialogBottomSheet.show()
@@ -141,6 +142,7 @@ private fun ExerciseEditorBottomSheet(
     onAddVariation: () -> Unit = {},
     onRenameVariation: (String, String) -> Unit = { _, _ -> },
     onDeleteVariation: (String) -> Unit = {},
+    onDefaultVariation: (String?) -> Unit = {},
     onSaveClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onCloseClicked: () -> Unit,
@@ -182,6 +184,8 @@ private fun ExerciseEditorBottomSheet(
                 onAdd = onAddVariation,
                 onRename = onRenameVariation,
                 onDelete = onDeleteVariation,
+                onDefault = onDefaultVariation,
+                invalidIds = state.invalidVariationIds,
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(

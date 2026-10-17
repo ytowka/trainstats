@@ -31,7 +31,8 @@ fun ExerciseSelectorBottomSheet(
     openExerciseEditor: () -> Unit,
 ) {
     val viewModel: ExerciseListViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState()
+    val stateFlow = remember(viewModel) { viewModel.state }
+    val state by stateFlow.collectAsState()
 
     BottomSheetScreen(
         state = sheetState
@@ -62,6 +63,9 @@ fun ExerciseSelectorBottomSheet(
                 ExerciseList(
                     items = state.exerciseList,
                     onClick = { viewModel.processEvent(ExerciseListEvent.OnExerciseClicked(it)) },
+                    onVariationClick = { exercise, variation ->
+                        viewModel.processEvent(ExerciseListEvent.OnExerciseClicked(exercise, variation))
+                    },
                 )
             }
         }

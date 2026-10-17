@@ -106,7 +106,7 @@ fun WorkoutScreenRoute(
     exerciseSelectorViewModel.LaunchCollectEffects {
         when (it) {
             is ExerciseListSideEffect.ExerciseClicked -> {
-                viewModel.processEvent(WorkoutEvent.AddExercise(it.exerciseModel))
+                viewModel.processEvent(WorkoutEvent.AddExercise(it.exerciseModel, it.variation))
                 exerciseSelectorBottomSheet.hide()
             }
         }

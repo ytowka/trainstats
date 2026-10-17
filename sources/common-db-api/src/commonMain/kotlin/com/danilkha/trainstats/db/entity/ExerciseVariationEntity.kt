@@ -16,4 +16,5 @@ data class ExerciseVariationEntity(
     @PrimaryKey val id: String,
     val exerciseId: String,
     val name: String,
+    val isDefault: Boolean = false,
 )

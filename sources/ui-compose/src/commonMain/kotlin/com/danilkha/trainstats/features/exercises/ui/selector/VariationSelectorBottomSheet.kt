@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.danilkha.commonds.components.Card
@@ -59,7 +60,10 @@ fun VariationSelectorBottomSheet(sheetState: BottomSheetState, onSelected: (Long
             }
             if (state.loading) CircularProgressIndicator(color = Colors.primary)
             if (state.name == null) {
-                TextButton(onClick = { viewModel.processEvent(VariationSelectorEvent.Add) }) {
+                TextButton(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onClick = { viewModel.processEvent(VariationSelectorEvent.Add) }
+                ) {
                     Text(stringResource(Res.string.add_variation), color = Colors.primary)
                 }
             } else {

@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
 import androidx.lifecycle.viewModelScope
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commoncore.viewmodel.MviViewModel
@@ -49,7 +50,7 @@ class WorkoutViewModel(
                 if (group.groupTempId == event.groupId)
                     group.copy(variationId = event.variationId, variationName = event.variationName) else group
             })
-            is WorkoutEvent.AddExercise -> state.reduceAddExercise(event.exercise)
+            is WorkoutEvent.AddExercise -> state.reduceAddExercise(event.exercise, event.variation)
             is WorkoutEvent.ChangeDate -> state.copy(date = event.date)
             is WorkoutEvent.DeleteGroup -> state.copy(
                 groups = state.groups.filterIndexed { index, exerciseGroup -> index != event.groupIndex }
@@ -183,7 +184,7 @@ class WorkoutViewModel(
         )
     }
 
-    private fun WorkoutState.reduceAddExercise(exercise: ExerciseModel): WorkoutState {
+    private fun WorkoutState.reduceAddExercise(exercise: ExerciseModel, variation: ExerciseVariation?): WorkoutState {
         val group = ExerciseGroup(
             groupTempId = tempIndexes,
             exerciseId = exercise.id,
@@ -191,7 +192,9 @@ class WorkoutViewModel(
             imageUrl = exercise.imageUrl,
             hasWeight = exercise.hasWeight,
             separated = exercise.separated,
-            sets = listOf(ExerciseSetSlot.Stub(tempIndexes))
+            sets = listOf(ExerciseSetSlot.Stub(tempIndexes)),
+            variationId = variation?.id,
+            variationName = variation?.name,
         )
         return copy(
             groups = groups + group

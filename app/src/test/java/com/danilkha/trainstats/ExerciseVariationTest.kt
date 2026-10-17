@@ -5,6 +5,7 @@ import com.danilkha.trainstats.features.exercises.data.FakeExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.*
 import com.danilkha.trainstats.features.exercises.domain.usecase.*
 import com.danilkha.trainstats.features.exercises.ui.editor.*
+import com.danilkha.trainstats.features.exercises.ui.toModel
 import com.danilkha.trainstats.features.exercises.ui.selector.*
 import com.danilkha.trainstats.features.settings.workoutimport.data.WorkoutParserImpl
 import com.danilkha.trainstats.features.settings.workoutimport.domain.exerciseHeader
@@ -206,6 +207,71 @@ class ExerciseVariationTest : BehaviorSpec({
                     created.name shouldBe "Ручка 45° :: ($)"
                     selections.last().variation shouldBe created
                 } finally { collector.cancel(); effects.cancel(); vm.viewModelScope.cancel(); advanceUntilIdle(); Dispatchers.resetMain() }
+            }
+        }
+    }
+    Given("default variations edited as a draft") {
+        Then("a new row is quiet, editing validates it, and Save reveals untouched blanks") {
+            runTest {
+                Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+                val vm = ExerciseEditorViewModel(mockk(), mockk(), mockk(), mockk())
+                try {
+                    var state = vm.reduce(ExerciseEditorState(name = "Тяга"), ExerciseEditorEvent.AddVariation)
+                    val id = state.variations.single().id
+                    state.invalidVariationIds shouldBe emptySet()
+                    state.isValid shouldBe false
+                    state = vm.reduce(state, ExerciseEditorEvent.Save)
+                    state.invalidVariationIds shouldBe setOf(id)
+                    state = vm.reduce(state, ExerciseEditorEvent.RenameVariation(id, "Узкая"))
+                    state.invalidVariationIds shouldBe emptySet()
+                } finally { vm.viewModelScope.cancel(); advanceUntilIdle(); Dispatchers.resetMain() }
+            }
+        }
+        Then("choosing a default is exclusive and deleting it or choosing ordinary clears it") {
+            runTest {
+                Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+                val vm = ExerciseEditorViewModel(mockk(), mockk(), mockk(), mockk())
+                try {
+                    var state = ExerciseEditorState(name = "Тяга", variations = listOf(narrow, wide))
+                    state = vm.reduce(state, ExerciseEditorEvent.SetDefaultVariation(narrow.id))
+                    state.variations.filter { it.isDefault }.map { it.id } shouldBe listOf(narrow.id)
+                    state = vm.reduce(state, ExerciseEditorEvent.SetDefaultVariation(wide.id))
+                    state.variations.filter { it.isDefault }.map { it.id } shouldBe listOf(wide.id)
+                    state = vm.reduce(state, ExerciseEditorEvent.SetDefaultVariation(null))
+                    state.variations.none { it.isDefault } shouldBe true
+                    state = vm.reduce(state, ExerciseEditorEvent.SetDefaultVariation(narrow.id))
+                    state = vm.reduce(state, ExerciseEditorEvent.RemoveVariation(narrow.id))
+                    state.variations.none { it.isDefault } shouldBe true
+                } finally { vm.viewModelScope.cancel(); advanceUntilIdle(); Dispatchers.resetMain() }
+            }
+        }
+        Then("multiple defaults are rejected before saving") {
+            val repo = FakeExerciseRepository()
+            val invalid = pull.copy(variations = listOf(narrow.copy(isDefault = true), wide.copy(isDefault = true)))
+            CreateExercisesUseCase(repo)(invalid).isFailure shouldBe true
+            repo.getAllExercises() shouldBe emptyList()
+        }
+    }
+    Given("an exercise with a named default") {
+        Then("a card uses it but an explicit ordinary choice overrides it for the added group") {
+            runTest {
+                Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+                val vm = WorkoutViewModel(mockk(relaxed = true), mockk(), mockk(), mockk())
+                try {
+                    val exercise = pull.copy(variations = listOf(narrow.copy(isDefault = true), wide)).toModel()
+                    var state = vm.reduce(WorkoutState(), WorkoutEvent.AddExercise(exercise))
+                    state.groups.last().variationId shouldBe narrow.id
+                    state.groups.last().variationName shouldBe narrow.name
+                    state = vm.reduce(state, WorkoutEvent.AddExercise(exercise, null))
+                    state.groups.last().variationId shouldBe null
+                    state.groups.last().variationName shouldBe null
+                    state = vm.reduce(state, WorkoutEvent.AddExercise(exercise, wide))
+                    state.groups.last().variationId shouldBe wide.id
+                    state.groups.last().variationName shouldBe wide.name
+                    val ordinary = pull.toModel()
+                    state = vm.reduce(state, WorkoutEvent.AddExercise(ordinary))
+                    state.groups.last().variationId shouldBe null
+                } finally { vm.viewModelScope.cancel(); advanceUntilIdle(); Dispatchers.resetMain() }
             }
         }
     }

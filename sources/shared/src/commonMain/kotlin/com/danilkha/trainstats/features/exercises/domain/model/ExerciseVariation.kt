@@ -1,6 +1,11 @@
 package com.danilkha.trainstats.features.exercises.domain.model
 
-data class ExerciseVariation(val id: String, val exerciseId: String, val name: String)
+data class ExerciseVariation(
+    val id: String,
+    val exerciseId: String,
+    val name: String,
+    val isDefault: Boolean = false,
+)
 
 fun normalizedVariationName(name: String): String = name.trim().lowercase()
 

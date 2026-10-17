@@ -33,5 +33,5 @@ fun ExerciseWithLastUsed.toDomain() = ExerciseData(
     variations = variations.map { it.toDomain() }
 )
 
-fun ExerciseVariationEntity.toDomain() = ExerciseVariation(id, exerciseId, name)
-fun ExerciseVariation.toEntity() = ExerciseVariationEntity(id, exerciseId, name)
+fun ExerciseVariationEntity.toDomain() = ExerciseVariation(id, exerciseId, name, isDefault)
+fun ExerciseVariation.toEntity() = ExerciseVariationEntity(id, exerciseId, name, isDefault)
