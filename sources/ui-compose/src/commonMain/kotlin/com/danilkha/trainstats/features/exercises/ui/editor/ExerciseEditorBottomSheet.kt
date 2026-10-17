@@ -11,6 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -21,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.danilkha.trainstats.bottomsheet.BottomSheetScreen
 import com.danilkha.trainstats.bottomsheet.BottomSheetState
-import com.danilkha.trainstats.bottomsheet.initOnArgs
 import com.danilkha.trainstats.bottomsheet.rememberBottomSheetState
 import com.danilkha.commoncore.viewmodel.collectSingleEvents
 import com.danilkha.commonds.components.BottomSheetContent
@@ -57,12 +62,8 @@ fun ExerciseEditorBottomSheet(
 ) {
     val viewModel = koinViewModel<ExerciseEditorViewModel>()
 
-    sheetState.initOnArgs {
-        val id = it[ExerciseEditorBottomSheetArgs.editingIdArg] as? String
-        viewModel.processEvent(ExerciseEditorEvent.Init(id))
-    }
-
-    val state by viewModel.state.collectAsState()
+    val stateFlow = remember(viewModel) { viewModel.state }
+    val state by stateFlow.collectAsState()
 
     viewModel.collectSingleEvents {
         when (it) {
@@ -75,7 +76,7 @@ fun ExerciseEditorBottomSheet(
 
     val deleteAlertDialogBottomSheet = rememberBottomSheetState(
         onResult = {
-            val button = it?.get(AlertDialogArgs.RESULT_BUTTON_ID)
+            val button = it[AlertDialogArgs.RESULT_BUTTON_ID]
             when (button) {
                 AlertDialogArgs.CONFIRM_ID -> {
                     viewModel.processEvent(ExerciseEditorEvent.Delete)
@@ -87,15 +88,31 @@ fun ExerciseEditorBottomSheet(
         }
     )
 
+    var deletingVariationId by remember { mutableStateOf<String?>(null) }
+    val variationDeleteSheet = rememberBottomSheetState(onResult = {
+        if (it[AlertDialogArgs.RESULT_BUTTON_ID] == AlertDialogArgs.CONFIRM_ID) {
+            deletingVariationId?.let { id -> viewModel.processEvent(ExerciseEditorEvent.RemoveVariation(id)) }
+        }
+        deletingVariationId = null
+    })
+
     Box {
         BottomSheetScreen(
             state = sheetState
         ) {
+            LaunchedEffect(Unit) {
+                val id = sheetState.args?.get(ExerciseEditorBottomSheetArgs.editingIdArg) as? String
+                viewModel.processEvent(ExerciseEditorEvent.Init(id))
+            }
             ExerciseEditorBottomSheet(
                 state = state,
                 onNameChange = { viewModel.processEvent(ExerciseEditorEvent.EditName(it)) },
                 onSplitChange = { viewModel.processEvent(ExerciseEditorEvent.SetSeparated(it)) },
                 onWeightChange = { viewModel.processEvent(ExerciseEditorEvent.SetWithWeight(it)) },
+                onAddVariation = { viewModel.processEvent(ExerciseEditorEvent.AddVariation) },
+                onRenameVariation = { id, name -> viewModel.processEvent(ExerciseEditorEvent.RenameVariation(id, name)) },
+                onDeleteVariation = { id -> deletingVariationId = id; variationDeleteSheet.show() },
+                onDefaultVariation = { viewModel.processEvent(ExerciseEditorEvent.SetDefaultVariation(it)) },
                 onSaveClick = { viewModel.processEvent(ExerciseEditorEvent.Save) },
                 onDeleteClick = {
                     deleteAlertDialogBottomSheet.show()
@@ -103,6 +120,11 @@ fun ExerciseEditorBottomSheet(
                 onCloseClicked = { sheetState.hide() },
             )
         }
+        AlertBottomSheetDialog(
+            sheetState = variationDeleteSheet,
+            title = stringResource(Res.string.delete_variation_title),
+            text = stringResource(Res.string.delete_variation_warning),
+        )
         AlertBottomSheetDialog(
             sheetState = deleteAlertDialogBottomSheet,
             title = stringResource(Res.string.delete_exercise_title),
@@ -117,6 +139,10 @@ private fun ExerciseEditorBottomSheet(
     onNameChange: (String) -> Unit,
     onSplitChange: (Boolean) -> Unit,
     onWeightChange: (Boolean) -> Unit,
+    onAddVariation: () -> Unit = {},
+    onRenameVariation: (String, String) -> Unit = { _, _ -> },
+    onDeleteVariation: (String) -> Unit = {},
+    onDefaultVariation: (String?) -> Unit = {},
     onSaveClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onCloseClicked: () -> Unit,
@@ -125,7 +151,7 @@ private fun ExerciseEditorBottomSheet(
         LocalTextStyle provides ThemeTypography.body1
     ) {
         BottomSheetContent(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(10.dp),
             title = stringResource(when (state.mode) {
                     is ExerciseEditorMode.Edit -> Res.string.edit_exercise
                     ExerciseEditorMode.New -> Res.string.new_exercise
@@ -151,6 +177,15 @@ private fun ExerciseEditorBottomSheet(
                 enabled = state.withWeight,
                 text = stringResource(Res.string.has_weight),
                 onValueChanged = onWeightChange
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            ExerciseVariationsEditor(
+                variations = state.variations,
+                onAdd = onAddVariation,
+                onRename = onRenameVariation,
+                onDelete = onDeleteVariation,
+                onDefault = onDefaultVariation,
+                invalidIds = state.invalidVariationIds,
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(

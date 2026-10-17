@@ -10,6 +10,8 @@ data class ExerciseSet(
     val reps: Repetitions,
     val weight: Kg?,
     val orderPosition: Int,
+    val variationId: String? = null,
+    val variationName: String? = null,
 )
 
 sealed interface Repetitions{

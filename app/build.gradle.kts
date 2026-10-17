@@ -1,3 +1,5 @@
+import com.android.build.api.variant.impl.VariantOutputImpl
+
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.com.android.application)
@@ -21,7 +23,7 @@ android {
         applicationId = "com.danilkha.trainstats"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
+        versionCode = 3
         versionName = libs.versions.app.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -64,7 +66,7 @@ android {
     }
 
     sourceSets["androidTest"].assets {
-        srcDirs("src/androidTest/assets")
+        srcDirs("src/androidTest/assets", "../sources/common-db/schemas")
     }
 
     testOptions {
@@ -78,6 +80,17 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             merges += "META-INF/LICENSE.md"
             merges += "META-INF/LICENSE-notice.md"
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            // AGP 8.9 exposes APK file names only through its implementation API.
+            (output as VariantOutputImpl).outputFileName.set(
+                "trainstats-${libs.versions.app.get()}-${output.baseName}.apk"
+            )
         }
     }
 }
@@ -110,6 +123,7 @@ dependencies {
 
     // tests
     androidTestImplementation(project(":common:bottomsheet"))
+    androidTestImplementation(project(":common-ds"))
     androidTestImplementation(project(":common-core")) // supertypes (UseCase/SimpleUseCase) not visible via implementation-scope :shared
     androidTestImplementation(project(":common-db")) // TrainStatsDb/DAOs not visible via implementation-scope :shared
     testImplementation(libs.kotest.junit)

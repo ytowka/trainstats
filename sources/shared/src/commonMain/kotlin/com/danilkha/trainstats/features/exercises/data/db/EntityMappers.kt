@@ -1,5 +1,7 @@
 package com.danilkha.trainstats.features.exercises.data.db
 
+import com.danilkha.trainstats.db.entity.ExerciseVariationEntity
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
 import com.danilkha.trainstats.db.entity.ExerciseEntity
 import com.danilkha.trainstats.db.entity.ExerciseWithLastUsed
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
@@ -27,5 +29,9 @@ fun ExerciseWithLastUsed.toDomain() = ExerciseData(
     imageUrl = exercise.imageUrl,
     separated = exercise.separated,
     hasWeight = exercise.hasWeight,
-    lastUsedDate = lastUsed?.lastUsed
+    lastUsedDate = lastUsed?.lastUsed,
+    variations = variations.map { it.toDomain() }
 )
+
+fun ExerciseVariationEntity.toDomain() = ExerciseVariation(id, exerciseId, name, isDefault)
+fun ExerciseVariation.toEntity() = ExerciseVariationEntity(id, exerciseId, name, isDefault)

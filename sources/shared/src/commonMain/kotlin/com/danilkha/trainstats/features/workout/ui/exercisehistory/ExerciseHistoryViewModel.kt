@@ -15,11 +15,12 @@ class ExerciseHistoryViewModel(
         event: ExerciseHistoryEvent
     ): ExerciseHistoryState {
         return when (event) {
+            is ExerciseHistoryEvent.Init -> startState.copy(currentVariationId = event.variationId)
+            is ExerciseHistoryEvent.OnlyCurrentVariation -> state.copy(onlyCurrentVariation = event.checked)
             is ExerciseHistoryEvent.HistoryLoaded -> state.copy(
                 exerciseName = event.exerciseName,
                 list = event.list
             )
-            else -> state
         }
     }
 
@@ -30,12 +31,17 @@ class ExerciseHistoryViewModel(
                     val list = workouts.exercises.map { set ->
                         ExerciseHistoryModel(
                             date = set.date.toLocal().date,
-                            sets = set.sets.map {
+                            sets = set.sets.mapIndexed { index, item ->
+                                val previous = set.sets.getOrNull(index - 1)
                                 ExerciseSetHistoryModel(
-                                    id = it.id,
-                                    workoutId = it.workoutId,
-                                    reps = it.reps.toModel(),
-                                    weight = it.weight
+                                    id = item.id,
+                                    workoutId = item.workoutId,
+                                    reps = item.reps.toModel(),
+                                    weight = item.weight,
+                                    variationId = item.variationId,
+                                    variationName = item.variationName,
+                                    startsGroup = previous == null || previous.variationId != item.variationId ||
+                                        previous.orderPosition + 1 != item.orderPosition
                                 )
                             }
                         )

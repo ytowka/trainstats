@@ -36,6 +36,9 @@ class ExerciseRepositoryImpl(
         withContext(Dispatchers.IO){ exerciseLocalDatasource.updateExercise(exerciseData) }
     }
 
+    override suspend fun createVariation(exerciseId: String, name: String) =
+        exerciseLocalDatasource.createVariation(exerciseId, name)
+
     override suspend fun deleteExercise(id: String) {
         withContext(Dispatchers.IO){ exerciseLocalDatasource.deleteExercise(id) }
     }

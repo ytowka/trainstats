@@ -52,7 +52,8 @@ fun ExerciseSet.toEntity() =  ExerciseSetEntity(
     exerciseId = exerciseData.id,
     reps = reps.toEntity(),
     weightKg = weight?.value,
-    orderPosition = orderPosition
+    orderPosition = orderPosition,
+    variationId = variationId
 )
 
 fun ExerciseSetWithData.toDomain() = ExerciseSet(
@@ -61,7 +62,9 @@ fun ExerciseSetWithData.toDomain() = ExerciseSet(
     exerciseData = exercise.toDomain(),
     reps = setEntity.reps.toDomain(),
     weight = setEntity.weightKg?.let { Kg(it) },
-    orderPosition = setEntity.orderPosition
+    orderPosition = setEntity.orderPosition,
+    variationId = variation?.id,
+    variationName = variation?.name
 )
 
 fun WorkoutWithExercises.toDomain() = Workout(

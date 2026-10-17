@@ -1,7 +1,8 @@
 package com.danilkha.trainstats.features.workout.data.db
 
 import com.danilkha.commoncore.utils.generateId
-import com.danilkha.trainstats.db.WorkoutDao
+import com.danilkha.trainstats.db.TrainStatsDb
+import com.danilkha.trainstats.db.writeTransaction
 import com.danilkha.trainstats.db.entity.RepetitionsDb
 import com.danilkha.trainstats.db.entity.WorkoutEntity
 import com.danilkha.trainstats.db.entity.WorkoutWithExercises
@@ -21,8 +22,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 class RoomWorkoutDatasource(
-    private val workoutDao: WorkoutDao
+    private val db: TrainStatsDb
 ): WorkoutLocalDatasource {
+    private val workoutDao = db.workoutDao()
     private val timeZone = TimeZone.currentSystemDefault()
     
     override fun getWorkoutHistory(): Flow<List<WorkoutPreview>> {
@@ -39,13 +41,16 @@ class RoomWorkoutDatasource(
         return workoutDao.getWorkoutById(id).toDomain()
     }
 
-    override suspend fun saveWorkout(workout: Workout): String {
+    override suspend fun saveWorkout(workout: Workout): String = db.writeTransaction {
         val id = workout.id.ifEmpty { generateId() }
-        workoutDao.updateWorkout(
-            workout.copy(id = id).toEntity(),
-            workout.steps.map { it.toEntity().copy(id = generateId(), workoutId = id) }
-        )
-        return id
+        val variationIds = workout.steps.mapNotNull { it.variationId }.distinct()
+        val existingIds = db.exerciseDao().getExistingVariationIds(variationIds).toSet()
+        val sets = workout.steps.map {
+            // The editor may still hold a variation deleted after its last edit.
+            it.toEntity().copy(id = generateId(), workoutId = id, variationId = it.variationId?.takeIf(existingIds::contains))
+        }
+        workoutDao.updateWorkout(workout.copy(id = id).toEntity(), sets)
+        id
     }
 
     override suspend fun commitWorkoutSave(id: String) {
@@ -79,7 +84,9 @@ class RoomWorkoutDatasource(
                     exerciseData = exerciseData,
                     reps = set.reps.toDomain(),
                     weight = set.weightKg?.let { Kg(it) },
-                    orderPosition = set.orderPosition
+                    orderPosition = set.orderPosition,
+                    variationId = set.variationId,
+                    variationName = set.variationName
                 )
             }
             ExerciseWorkout(

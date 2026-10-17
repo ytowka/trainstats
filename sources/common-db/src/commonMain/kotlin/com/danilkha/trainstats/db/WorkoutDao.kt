@@ -20,6 +20,7 @@ interface WorkoutDao {
     @Query("""
 select * from workoutentity where archived = 0 order by dateTime desc
     """)
+    @Transaction
     suspend fun getAll(): List<WorkoutWithExercises>
 
     @Query("select * from workoutentity where id = :id")
@@ -55,11 +56,12 @@ select * from workoutentity where archived = 0 order by dateTime desc
     suspend fun deleteWorkout(id: String)
 
     @Query("""
-select s.*, w.dateTime, e.name as exerciseName  from ExerciseSetEntity as s
+select s.*, w.dateTime, e.name as exerciseName, v.name as variationName  from ExerciseSetEntity as s
 inner join WorkoutEntity w on w.id = s.workoutId
 inner join ExerciseEntity e on e.id = s.exerciseId
-where exerciseId = :exerciseId
-order by dateTime desc
+LEFT JOIN ExerciseVariationEntity v ON v.id = s.variationId
+where s.exerciseId = :exerciseId
+order by dateTime desc, s.orderPosition
     """)
     suspend fun getHistoryByExercise(exerciseId: String): List<ExerciseWorkoutRelation>
 }

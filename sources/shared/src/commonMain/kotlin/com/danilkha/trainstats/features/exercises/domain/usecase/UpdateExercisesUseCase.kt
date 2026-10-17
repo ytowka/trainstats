@@ -8,7 +8,7 @@ class UpdateExercisesUseCase(
     private val exerciseRepository: ExerciseRepository,
 ) : UseCase<ExerciseData, Unit>(){
     override suspend fun execute(params: ExerciseData) {
-        exerciseRepository.updateExercise(params)
+        exerciseRepository.updateExercise(params.withNormalizedVariations())
     }
 
 }

@@ -24,6 +24,8 @@ data class StatisticsPoint(
     val volume: Float?,
     val volumeRepetitions: Float = repetitions,
     val approachRepetitions: Repetitions = Repetitions.Single(repetitions),
+    val variationId: String? = null,
+    val variationName: String? = null,
 )
 
 data class StatisticsData(
@@ -32,14 +34,14 @@ data class StatisticsData(
 )
 
 /** Set numbers belong to the selected exercise, even if it occurs in several groups. */
-fun exerciseStatistics(workouts: List<Workout>, exerciseId: String): List<StatisticsPoint> =
+fun exerciseStatistics(workouts: List<Workout>, exerciseId: String, variationIds: Set<String?>? = null): List<StatisticsPoint> =
     workouts.asSequence()
         // The editor persists history with saved=false; this flag is not a history filter.
         .filter { !it.archived }
         .sortedWith(compareBy<Workout> { it.dateTime }.thenBy { it.id })
         .flatMap { workout ->
             workout.steps.sortedBy { it.orderPosition }
-                .filter { it.exerciseData.id == exerciseId }
+                .filter { it.exerciseData.id == exerciseId && (variationIds == null || it.variationId in variationIds) }
                 .mapIndexedNotNull { index, set ->
                     val totalReps = when (val reps = set.reps) {
                         is Repetitions.Single -> reps.reps
@@ -59,6 +61,8 @@ fun exerciseStatistics(workouts: List<Workout>, exerciseId: String): List<Statis
                         volume = set.weight?.value?.times(totalReps),
                         volumeRepetitions = totalReps,
                         approachRepetitions = set.reps,
+                        variationId = set.variationId,
+                        variationName = set.variationName,
                     )
                 }
         }.toList()

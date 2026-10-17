@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.exercises.ui
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
 
 data class ExerciseListState(
     val searchQuery: String = "",
@@ -7,5 +8,8 @@ data class ExerciseListState(
 )
 
 sealed interface ExerciseListSideEffect{
-    class ExerciseClicked(val exerciseModel: ExerciseModel) : ExerciseListSideEffect
+    class ExerciseClicked(
+        val exerciseModel: ExerciseModel,
+        val variation: ExerciseVariation?,
+    ) : ExerciseListSideEffect
 }

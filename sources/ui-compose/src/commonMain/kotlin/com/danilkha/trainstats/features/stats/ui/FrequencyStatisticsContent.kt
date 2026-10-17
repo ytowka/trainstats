@@ -94,6 +94,7 @@ internal fun LazyListScope.frequencyItems(
         item(key = "frequency_exercise") {
             Card(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large), contentPadding = PaddingValues()) {
                 ExerciseDropdown(state, onEvent)
+                VariationDropdown(state, onEvent)
             }
         }
     }
@@ -105,8 +106,12 @@ internal fun LazyListScope.frequencyItems(
             onSelect = { onEvent(StatisticsEvent.SelectFrequencyInterval(it)) },
         )
     }
+    if (state.frequencyScope == FrequencyScope.Exercise && state.needsVariationSelection) {
+        item { Text(stringResource(Res.string.choose_variation), Modifier.padding(16.dp), color = Colors.text) }
+        return
+    }
     item(key = "frequency_chart") {
-        key(state.exerciseId, state.frequencyScope, state.frequencyInterval) {
+        key(state.exerciseId, state.frequencyScope, state.frequencyInterval, state.selectedVariationIds.takeIf { state.frequencyScope == FrequencyScope.Exercise }) {
             FrequencyChart(state, chartHeight, onEvent)
         }
     }

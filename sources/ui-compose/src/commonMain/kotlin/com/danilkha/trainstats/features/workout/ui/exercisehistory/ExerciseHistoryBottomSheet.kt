@@ -16,7 +16,11 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Checkbox
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.remember
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -68,8 +72,8 @@ object ExerciseHistoryBottomSheetArgs {
 
     const val exerciseIdArg = "exerciseId"
 
-    fun buildArgs(exerciseId: String): Map<String, Any> {
-        return mapOf(exerciseIdArg to exerciseId)
+    fun buildArgs(exerciseId: String, variationId: String? = null): Map<String, Any> {
+        return mapOf(exerciseIdArg to exerciseId) + (variationId?.let { mapOf("variationId" to it) } ?: emptyMap())
     }
 }
 
@@ -78,11 +82,12 @@ fun ExerciseHistoryBottomSheet(
     sheetState: BottomSheetState
 ) {
     val viewModel = koinViewModel<ExerciseHistoryViewModel>()
-    val state by viewModel.state.collectAsState()
+    val stateFlow = remember(viewModel) { viewModel.state }
+    val state by stateFlow.collectAsState()
 
     sheetState.initOnArgs { args ->
         val exerciseId = args[exerciseIdArg] as String
-        viewModel.processEvent(ExerciseHistoryEvent.Init(exerciseId))
+        viewModel.processEvent(ExerciseHistoryEvent.Init(exerciseId, args["variationId"] as? String))
     }
 
     BottomSheetScreen(
@@ -90,6 +95,7 @@ fun ExerciseHistoryBottomSheet(
     ) {
         ExerciseHistoryBottomSheet(
             state = state,
+            onOnlyCurrent = { viewModel.processEvent(ExerciseHistoryEvent.OnlyCurrentVariation(it)) },
             onDismiss = { sheetState.hide() }
         )
     }
@@ -100,7 +106,9 @@ fun ExerciseHistoryBottomSheet(
 private fun ExerciseHistoryBottomSheet(
     state: ExerciseHistoryState,
     onDismiss: () -> Unit,
+    onOnlyCurrent: (Boolean) -> Unit = {},
 ){
+    val list = state.visibleList
     BottomSheetContent(
         title = buildString {
             append(stringResource(Res.string.history) )
@@ -108,10 +116,18 @@ private fun ExerciseHistoryBottomSheet(
             append(state.exerciseName)
 
         },
-        subtitle = stringResource(Res.string.total_entries) +": "+state.list.size,
+        subtitle = stringResource(Res.string.total_entries) +": "+list.size,
         onCloseClicked = { onDismiss() }
     ) {
-        val pagerState = rememberPagerState(pageCount = { state.list.size })
+        Row(Modifier.fillMaxWidth().clickable { onOnlyCurrent(!state.onlyCurrentVariation) }, verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = state.onlyCurrentVariation, onCheckedChange = onOnlyCurrent)
+            Text(stringResource(Res.string.only_current_variation), color = Colors.text)
+        }
+        if (list.isEmpty()) {
+            Text(stringResource(Res.string.stats_no_history), Modifier.padding(16.dp), color = Colors.text)
+            return@BottomSheetContent
+        }
+        val pagerState = rememberPagerState(pageCount = { list.size })
 
         val coroutineScope = rememberCoroutineScope()
 
@@ -125,10 +141,10 @@ private fun ExerciseHistoryBottomSheet(
             verticalAlignment = Alignment.Top
 
         ) {
-            val sets = state.list[it]
+            val sets = list[it]
             ExerciseSetsHistoryCard(
                 date = sets.date,
-                index = state.list.size - it,
+                index = list.size - it,
                 sets = sets.sets
             )
         }
@@ -149,7 +165,7 @@ private fun ExerciseHistoryBottomSheet(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     onClick = {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(pagerState.targetPage - 1)
+                            pagerState.animateScrollToPage((pagerState.targetPage - 1).coerceAtLeast(0))
                         }
                     }
                 )
@@ -157,7 +173,7 @@ private fun ExerciseHistoryBottomSheet(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     onClick = {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(pagerState.targetPage + 1)
+                            pagerState.animateScrollToPage((pagerState.targetPage + 1).coerceAtMost(list.lastIndex))
                         }
                     }
                 )
@@ -165,7 +181,7 @@ private fun ExerciseHistoryBottomSheet(
                     imageVector = Icons.Default.KeyboardDoubleArrowRight,
                     onClick = {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(state.list.size-1)
+                            pagerState.animateScrollToPage(list.size-1)
                         }
                     }
                 )
@@ -230,7 +246,18 @@ fun ExerciseSetsHistoryCard(
                 fontSize = 16.sp,
             )
 
-            sets.forEachIndexed { index,  set ->
+            sets.forEachIndexed { index, set ->
+                if (index == 0 || set.startsGroup) {
+                    Spacer(Modifier.height(10.dp))
+                    if (set.variationId != null) Text(
+                        set.variationName.orEmpty(),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                            .background(Colors.selectionBackground, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        color = Colors.primary,
+                        style = ThemeTypography.body1.copy(fontWeight = FontWeight.SemiBold),
+                    )
+                }
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         modifier = Modifier

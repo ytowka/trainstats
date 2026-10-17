@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -74,6 +75,8 @@ import training_stats.shared.generated.resources.*
 @Composable
 fun ExerciseGroupCard(
     title: String,
+    variationName: String? = null,
+    onTitleClick: () -> Unit = {},
     expanded: Boolean,
     sets: List<ExerciseSetSlot>,
     deleted: Set<Long>,
@@ -103,11 +106,10 @@ fun ExerciseGroupCard(
             )
             Spacer(modifier = Modifier.size(10.dp))
             Row(modifier = Modifier.weight(1f)) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = title,
-                    style = ThemeTypography.title
-                )
+                Column(Modifier.weight(1f).clickable(onClick = onTitleClick)) {
+                    Text(text = title, style = ThemeTypography.title)
+                    variationName?.let { Text(it, style = ThemeTypography.body2, color = Colors.text.copy(alpha = .6f)) }
+                }
                 Spacer(modifier = Modifier.size(10.dp))
                 Icon(
                     modifier = Modifier.padding(end = 10.dp),

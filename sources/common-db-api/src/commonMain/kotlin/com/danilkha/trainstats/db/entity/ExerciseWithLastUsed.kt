@@ -10,5 +10,7 @@ data class ExerciseWithLastUsed(
         entityColumn = "exerciseId",
         entity = ExerciseLastUsedView::class
     )
-    val lastUsed: ExerciseLastUsedView?
+    val lastUsed: ExerciseLastUsedView?,
+    @Relation(parentColumn = "id", entityColumn = "exerciseId")
+    val variations: List<ExerciseVariationEntity> = emptyList()
 )

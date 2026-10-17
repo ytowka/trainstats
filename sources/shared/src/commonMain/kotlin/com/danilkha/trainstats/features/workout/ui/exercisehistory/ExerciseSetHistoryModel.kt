@@ -9,6 +9,9 @@ data class ExerciseSetHistoryModel(
     val workoutId: String,
     val reps: RepetitionsModel,
     val weight: Kg?,
+    val variationId: String? = null,
+    val variationName: String? = null,
+    val startsGroup: Boolean = false,
 )
 
 data class ExerciseHistoryModel(

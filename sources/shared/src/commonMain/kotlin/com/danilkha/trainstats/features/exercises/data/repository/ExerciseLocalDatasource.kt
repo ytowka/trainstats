@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.exercises.data.repository
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 
 interface ExerciseLocalDatasource {
@@ -11,4 +12,5 @@ interface ExerciseLocalDatasource {
     suspend fun createExercise(exerciseData: ExerciseData): String
     suspend fun updateExercise(exerciseData: ExerciseData)
     suspend fun deleteExercise(id: String)
+    suspend fun createVariation(exerciseId: String, name: String): ExerciseVariation
 }

@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.settings.export.domain
 
+import com.danilkha.trainstats.features.settings.workoutimport.domain.exerciseHeader
 import com.danilkha.commoncore.usecase.SimpleUseCase
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.commoncore.utils.format1
@@ -31,13 +32,14 @@ class ExportWorkoutUseCase(
             val content = buildString {
                 workoutRepository.getAll().forEach {
                     appendLine(it.dateTime.toLocal().date.format(dateFormatter))
-                    var lastExercise: String? = null
-                    it.steps.forEach { step ->
+                    var lastExercise: Pair<String, String?>? = null
+                    it.steps.sortedBy { step -> step.orderPosition }.forEach { step ->
                         val currentExerciseName = step.exerciseData.name
-                        if(currentExerciseName != lastExercise) {
+                        val key = step.exerciseData.id to step.variationId
+                        if(key != lastExercise) {
                             appendLine()
-                            lastExercise = currentExerciseName
-                            appendLine(currentExerciseName)
+                            lastExercise = key
+                            appendLine(exerciseHeader(currentExerciseName, step.variationName.takeIf { step.variationId != null }))
                         }
                         if(step.weight != null) {
                             append(step.weight.value.format2().replace(".", ","))

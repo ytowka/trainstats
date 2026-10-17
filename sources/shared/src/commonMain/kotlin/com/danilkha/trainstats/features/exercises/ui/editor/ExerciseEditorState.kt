@@ -1,5 +1,8 @@
 package com.danilkha.trainstats.features.exercises.ui.editor
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
+import com.danilkha.trainstats.features.exercises.domain.model.validVariationNames
+import com.danilkha.trainstats.features.exercises.domain.model.normalizedVariationName
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 
@@ -8,15 +11,27 @@ data class ExerciseEditorState(
     val name: String = "",
     val separated: Boolean = false,
     val withWeight: Boolean = true,
+    val variations: List<ExerciseVariation> = emptyList(),
+    val validatedVariationIds: Set<String> = emptySet(),
 ) {
-    val isValid = name.isNotBlank()
+    val invalidVariationIds: Set<String>
+        get() = variations.filter { variation ->
+            variation.id in validatedVariationIds && (
+                variation.name.isBlank() || variations.any {
+                    it.id != variation.id &&
+                        normalizedVariationName(it.name) == normalizedVariationName(variation.name)
+                }
+            )
+        }.mapTo(mutableSetOf()) { it.id }
+
+    val isValid = name.isNotBlank() && validVariationNames(variations)
 
     val isChanged by lazy {
         if (mode is ExerciseEditorMode.Edit){
             mode.initial.let {
                 it.name != name ||
                         it.hasWeight != withWeight ||
-                        it.separated != separated
+                        it.separated != separated || it.variations != variations
             }
         }else true
     }
@@ -37,6 +52,10 @@ sealed interface ExerciseEditorEvent {
     data class EditName(val name: String) : ExerciseEditorEvent
     data class SetSeparated(val separated: Boolean) : ExerciseEditorEvent
     data class SetWithWeight(val withWeight: Boolean) : ExerciseEditorEvent
+    data object AddVariation : ExerciseEditorEvent
+    data class RenameVariation(val id: String, val name: String) : ExerciseEditorEvent
+    data class SetDefaultVariation(val id: String?) : ExerciseEditorEvent
+    data class RemoveVariation(val id: String) : ExerciseEditorEvent
     object Save : ExerciseEditorEvent
     object Delete : ExerciseEditorEvent
     data class ExerciseLoaded(val data: ExerciseData) : ExerciseEditorEvent
