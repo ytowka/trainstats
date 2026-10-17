@@ -1,3 +1,5 @@
+import com.android.build.api.variant.impl.VariantOutputImpl
+
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.com.android.application)
@@ -78,6 +80,17 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             merges += "META-INF/LICENSE.md"
             merges += "META-INF/LICENSE-notice.md"
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            // AGP 8.9 exposes APK file names only through its implementation API.
+            (output as VariantOutputImpl).outputFileName.set(
+                "trainstats-${libs.versions.app.get()}-${output.baseName}.apk"
+            )
         }
     }
 }
