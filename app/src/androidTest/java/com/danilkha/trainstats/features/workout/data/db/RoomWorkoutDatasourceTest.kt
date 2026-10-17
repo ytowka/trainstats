@@ -20,7 +20,7 @@ class RoomWorkoutDatasourceTest {
         val db = createTestDb(context)
         db.populateDb()
 
-        roomWorkoutDatasource = RoomWorkoutDatasource(db.workoutDao())
+        roomWorkoutDatasource = RoomWorkoutDatasource(db)
     }
 
 

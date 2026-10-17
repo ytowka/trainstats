@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.di
 
+import com.danilkha.trainstats.features.exercises.ui.selector.VariationSelectorViewModel
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
 import com.danilkha.trainstats.features.exercises.ui.editor.ExerciseEditorViewModel
 import com.danilkha.trainstats.features.workout.ui.exercisehistory.ExerciseHistoryViewModel
@@ -22,4 +23,5 @@ val viewModelModule: Module = module {
     factoryOf(::HistoryViewModel)
     factoryOf(::ExerciseHistoryViewModel)
     factoryOf(::ExerciseEditorViewModel)
+    factoryOf(::VariationSelectorViewModel)
 }

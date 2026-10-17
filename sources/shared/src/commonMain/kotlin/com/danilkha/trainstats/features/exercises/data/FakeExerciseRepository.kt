@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.exercises.data
 
+import com.danilkha.trainstats.features.exercises.domain.model.ExerciseVariation
 import com.danilkha.commoncore.utils.generateId
 import com.danilkha.trainstats.features.exercises.domain.ExerciseRepository
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
@@ -39,7 +40,7 @@ class FakeExerciseRepository() : ExerciseRepository{
 
     override suspend fun createExercise(exerciseData: ExerciseData): String {
         val id = exerciseData.id.ifEmpty { generateId() }
-        exercises.add(exerciseData.copy(id = id))
+        exercises.add(exerciseData.copy(id = id, variations = exerciseData.variations.map { it.copy(exerciseId = id) }))
         return id
     }
 
@@ -49,6 +50,14 @@ class FakeExerciseRepository() : ExerciseRepository{
             exercises.removeAt(added)
             exercises.add(added, exerciseData)
         }
+    }
+
+    override suspend fun createVariation(exerciseId: String, name: String): ExerciseVariation {
+        val exercise = getExercise(exerciseId)
+        require(name.isNotBlank() && exercise.variations.none { it.name.trim().lowercase() == name.trim().lowercase() })
+        val variation = ExerciseVariation(generateId(), exerciseId, name)
+        updateExercise(exercise.copy(variations = exercise.variations + variation))
+        return variation
     }
 
     override suspend fun deleteExercise(id: String) {

@@ -2,124 +2,77 @@ package com.danilkha.trainstats.features.settings.workoutimport.data
 
 import com.danilkha.trainstats.features.exercises.domain.model.ExerciseData
 import com.danilkha.trainstats.features.settings.workoutimport.domain.WorkoutParser
-import com.danilkha.trainstats.features.workout.domain.model.Kg
-import com.danilkha.trainstats.features.workout.domain.model.Repetitions
-import com.danilkha.trainstats.features.workout.domain.model.SetParams
-import com.danilkha.trainstats.features.workout.domain.model.WorkoutParams
+import com.danilkha.trainstats.features.settings.workoutimport.domain.parseExerciseHeader
+import com.danilkha.trainstats.features.workout.domain.model.*
 import kotlinx.datetime.LocalDate
 
-class WorkoutParserImpl() : WorkoutParser {
-    override fun parse(text: String):  Pair<List<ExerciseData>,List<WorkoutParams>> {
-        val exercises = mutableListOf<ExerciseData>()
-        val paramsList = mutableListOf<WorkoutParams>()
-
-        val addedExerciseNames = mutableSetOf<String>()
-
-        val entries = text.split(ENTRY_SEPARATOR)
-        var totalLines = 0
-        entries.forEach {
-            if(it.isNotBlank()){
-                val (params, lines) = parseWorkout(it, totalLines)
-                totalLines += lines
-                params.steps.forEach { step ->
-                    if(step.exerciseName !in addedExerciseNames){
-                        val isSeparated = step.reps is Repetitions.Double
-                        val hasWeight = step.weight != null
-                        val exerciseDate = ExerciseData(
-                            id = "",
-                            name = step.exerciseName,
-                            imageUrl = null,
-                            separated = isSeparated,
-                            hasWeight = hasWeight
-                        )
-                        exercises.add(exerciseDate)
-                        addedExerciseNames.add(step.exerciseName)
-                    }
-                }
-                paramsList.add(params)
-            }
+class WorkoutParserImpl : WorkoutParser {
+    override fun parse(text: String): Pair<List<ExerciseData>, List<WorkoutParams>> {
+        val exercises = linkedMapOf<String, ExerciseData>()
+        val workouts = mutableListOf<WorkoutParams>()
+        var date: LocalDate? = null
+        var exerciseName = ""
+        var variationName: String? = null
+        val sets = mutableListOf<SetParams>()
+        fun finish() {
+            date?.let { workouts.add(WorkoutParams(id = null, date = it, steps = sets.toList())) }
+            date = null
+            exerciseName = ""
+            variationName = null
+            sets.clear()
         }
-
-        return exercises to paramsList
-    }
-
-    private fun parseWorkout(string: String, totalLines: Int): Pair<WorkoutParams, Int>{
-        val lines = string.split(Regex("\n+"))
-        val dateString = lines.first().split(".")
-        var lastExerciseName = ""
-        val exerciseSets = mutableListOf<SetParams>()
-        lines.subList(1, lines.size).forEachIndexed { index, it ->
+        text.lineSequence().forEachIndexed { lineIndex, raw ->
+            val line = raw.trim()
+            if (line.isEmpty()) return@forEachIndexed
+            if (separator.matches(line)) { finish(); return@forEachIndexed }
             try {
-                if(exerciseNameRegex.matches(it)){
-                    lastExerciseName = it.lowercase().trim()
-                }else if(setRegex.matches(it)){
-                    val setParams = it.split(setSeparatorRegex)
-                    val set = if(setParams.size == 1){
-                        val reps = setParams[0].split(" ")[0]
-                        SetParams(
-                            exerciseId = "",
-                            exerciseName = lastExerciseName,
-                            reps = Repetitions.Single(reps.toFloat()),
-                            weight = null
+                if (date == null) {
+                    val parts = line.split('.')
+                    require(parts.size == 3)
+                    val year = parts[2].toInt().let { if (it < 2000) it + 2000 else it }
+                    date = LocalDate(year, parts[1].toInt(), parts[0].toInt())
+                } else {
+                    val match = weightedSet.matchEntire(line)
+                    val reps = singleSet.matchEntire(line)
+                    if (match != null || reps != null) {
+                        require(exerciseName.isNotBlank())
+                        val repetitions = if (match != null) parseReps(match.groupValues[2]) else parseReps(reps!!.groupValues[1])
+                        val weight = match?.groupValues?.get(1)?.replace(',', '.')?.toFloat()?.let(::Kg)
+                        require(weight == null || weight.value.isFinite())
+                        sets.add(SetParams("", exerciseName, repetitions, weight, variationName = variationName))
+                        val previous = exercises[exerciseName]
+                        exercises[exerciseName] = ExerciseData(
+                            id = "", name = exerciseName, imageUrl = null,
+                            separated = previous?.separated == true || repetitions is Repetitions.Double,
+                            hasWeight = previous?.hasWeight == true || weight != null,
                         )
-                    }else{
-                        val weight = setParams.first().replace(",", ".").toFloat()
-                        val repsParts = setParams[1].split(repsSeparatorRegex)
-                        val reps = if(repsParts.size == 1){
-
-                            Repetitions.Single(repsParts[0].toFloatOrNull() ?: 0f)
-                        }else{
-
-                            val left = repsParts[0].toFloatOrNull() ?: 0f
-                            val right = repsParts[1].toFloatOrNull() ?: 0f
-                            Repetitions.Double(left, right)
-                        }
-                        SetParams(
-                            exerciseId = "",
-                            exerciseName = lastExerciseName,
-                            reps = reps,
-                            weight = Kg(weight)
-                        )
+                    } else {
+                        val header = parseExerciseHeader(line)
+                        require(header.first.isNotBlank())
+                        exerciseName = header.first.lowercase()
+                        variationName = header.second
                     }
-                    exerciseSets.add(set)
                 }
-            }catch (e: Exception){
-                throw ParserException(totalLines + index + 1)
+            } catch (error: Exception) {
+                throw ParserException(lineIndex)
             }
         }
-        try {
-            val day = dateString[0].toInt()
-            val month = dateString[1].toInt()
-            val year = dateString[2].toInt().let {
-                if(it < 2000){
-                    it + 2000
-                }else{
-                    it
-                }
-            }
-            return WorkoutParams(
-                id = null,
-                date = LocalDate(
-                    year = year,
-                    monthNumber = month,
-                    dayOfMonth = day
-                ),
-                steps = exerciseSets.toList()
-            ) to lines.size
-        } catch (e: Exception){
-            throw ParserException(totalLines)
-        }
+        finish()
+        return exercises.values.toList() to workouts
     }
 
-    companion object{
-        private val ENTRY_SEPARATOR = Regex("\n+---+\n\n+")
+    private fun parseReps(text: String): Repetitions {
+        val parts = text.split(',').map { it.trim().replace(',', '.').toFloat() }
+        require(parts.all { it.isFinite() })
+        return if (parts.size == 1) Repetitions.Single(parts[0]) else Repetitions.Double(parts[0], parts[1])
+    }
 
-        private val dateRegex = Regex("[0-9]+\\.[0-9]+\\.[0-9]+")
-        private val exerciseNameRegex = Regex("[A-zА-яё() ]+")
-        private val setRegex = Regex("[0-9][0-9A-zА-я,. ]*")
-
-        private val setSeparatorRegex = Regex(" *([ек]г)? *[xх] *")
-        private val repsSeparatorRegex = Regex(" *, *")
+    companion object {
+        private val separator = Regex("---+")
+        private const val NUMBER = "[0-9]+(?:\\.[0-9]+)?"
+        private const val REPS = "$NUMBER(?:\\s*,\\s*$NUMBER)?"
+        private val weightedSet = Regex("([0-9]+(?:[.,][0-9]+)?)\\s*(?:[кk]г|kg)?\\s*[xх×]\\s*($REPS)(?:\\s*(?:повт|раз))?", RegexOption.IGNORE_CASE)
+        private val singleSet = Regex("($REPS)(?:\\s*(?:повт|раз))?", RegexOption.IGNORE_CASE)
     }
 }
 

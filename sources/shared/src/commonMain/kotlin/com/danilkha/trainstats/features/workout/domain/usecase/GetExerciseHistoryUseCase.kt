@@ -11,11 +11,11 @@ class GetExerciseHistoryUseCase(
     override suspend fun execute(params: String): Result {
         val workouts = workoutRepository.getExerciseHistory(params)
 
-        val exerciseName = workouts.first().sets.first().exerciseData.name
+        val exerciseName = workouts.firstOrNull()?.sets?.firstOrNull()?.exerciseData?.name.orEmpty()
         val exercises = workouts.map { workout ->
             ExerciseWorkout(
                 date = workout.date,
-                sets = workout.sets
+                sets = workout.sets.sortedBy { it.orderPosition }
             )
         }
         return Result(

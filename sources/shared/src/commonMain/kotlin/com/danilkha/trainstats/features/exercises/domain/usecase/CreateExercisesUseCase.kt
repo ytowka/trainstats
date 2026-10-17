@@ -10,7 +10,7 @@ class CreateExercisesUseCase(
 
     override suspend fun execute(params: ExerciseData) {
         exerciseRepository.createExercise(
-            params.copy(
+            params.withNormalizedVariations().copy(
                 name = params.name.lowercase().trim()
             )
         )

@@ -141,6 +141,18 @@ feature, logic/VM live in `sources/shared/src/commonMain/kotlin/`, screens in
   zero weight is valid. Zero repetitions are excluded without renumbering sets.
   Maximum series (`MAXIMUM_SERIES = 0`) is enabled by default; all-time record
   is independent of visible series/time range. Reuse shared tie-breaking logic.
+- Exercise variations belong to an exercise; `null` means ordinary. Names are
+  unique within an exercise; use cases store `trim + lowercase + capitalize`
+  (including Russian), with a unique index on `(exerciseId, name)`.
+  Groups merge only consecutive `(exerciseId, variationId)` pairs. Exercise and
+  variation drafts save atomically; deleting a variation uses `ON DELETE SET NULL`.
+  Selectors offer only the current exercise’s variations. Workout writes clear
+  deleted IDs from pending autosaves; groups retain the selected ID and name
+  without subscribing to dictionary changes.
+  Both statistics tabs share variation selection; filtering happens before series
+  numbering and affects all-time records/totals. All-workouts frequency ignores it.
+  Export headers use `$` as delimiter and `$$` for literal dollars. See
+  `plan/features/EXERCISE_VARIATION.md`.
 - Frequency calculations live in `FrequencyStatistics.kt`: calendar week
   (Monday start), month, quarter, year; exercise/all-workouts scope;
   workout/set counts, empty intervals and all-time totals. Count approaches with
@@ -148,7 +160,7 @@ feature, logic/VM live in `sources/shared/src/commonMain/kotlin/`, screens in
 - Chart drawing, viewport gestures and histogram scroll position are Compose
   UI concerns. `StatisticsChartRange.kt` contains shared range calculations.
   Behavior and edge cases are documented in `plan/QA/STATS_CASE.md`.
-- Previous-set hints, exercise variations, exercise position in history,
+- Previous-set hints, exercise position in history,
   calendar drill-down and workout notes are **not implemented**. Calendar
   button currently has an empty callback. Do not treat `plan/BOARD.md` or
   feature requests as evidence of shipped behavior.
@@ -157,14 +169,15 @@ feature, logic/VM live in `sources/shared/src/commonMain/kotlin/`, screens in
 
 - **Room KMP via KSP**, no kapt. Database:
   `sources/common-db/src/commonMain/kotlin/com/danilkha/trainstats/db/TrainStatsDb.kt`.
-  Version 1, `exportSchema = true`, `@ConstructedBy(TrainStatsDbConstructor::class)`.
+  Version 3, `exportSchema = true`, `@ConstructedBy(TrainStatsDbConstructor::class)`.
   KSP runs for Android and both iOS targets. Schemas are tracked in
   `sources/common-db/schemas/com.danilkha.trainstats.db.TrainStatsDb/`.
 - Entities/views are in `:common-db-api`; DAO/converters/builders in `:common-db`.
   `PendingUpdateEntity` is a sync scaffold and is not in `TrainStatsDb.entities`.
-- Handle schema changes explicitly: bump version and provide migration, or
-  deliberately reset schemas as agreed. Existing destructive-migration fallback
-  is not permission to discard user data silently.
+- The variation review explicitly chose development database resets instead of
+  migrations: both builders use `fallbackToDestructiveMigration(true)`. Updating
+  from older schemas recreates the database; use export/import to transfer data.
+  Preserve historical tracked schemas. Reconsider migrations before release.
 - `app/src/main/assets/trainstatsDb.db` exists, but the current Android builder
   does not call `createFromAsset`. Do not assume it seeds production data.
 - iOS builder uses `BundledSQLiteDriver`; its current bare database name needs

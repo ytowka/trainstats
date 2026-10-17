@@ -25,7 +25,9 @@ class SaveWorkoutUseCase(
                 exerciseData = ExerciseData.stub(item.exerciseId, item.exerciseName),
                 reps = item.reps,
                 weight = item.weight,
-                orderPosition = index
+                orderPosition = index,
+                variationId = item.variationId,
+                variationName = item.variationName
             )
         }
         val now = Clock.System.now().toLocal().time

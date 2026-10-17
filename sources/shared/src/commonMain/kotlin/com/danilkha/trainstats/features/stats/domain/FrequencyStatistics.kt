@@ -56,6 +56,7 @@ fun frequencyStatistics(
     interval: FrequencyInterval,
     today: LocalDate,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    variationIds: Set<String?>? = null,
 ): FrequencyStatistics {
     val completed = workouts.asSequence().filter { !it.archived }.mapNotNull { workout ->
         val sets = workout.steps.count { set ->
@@ -63,7 +64,7 @@ fun frequencyStatistics(
                 is Repetitions.Single -> reps.reps
                 is Repetitions.Double -> reps.left + reps.right
             }
-            (scope == FrequencyScope.AllWorkouts || set.exerciseData.id == exerciseId) &&
+            (scope == FrequencyScope.AllWorkouts || (set.exerciseData.id == exerciseId && (variationIds == null || set.variationId in variationIds))) &&
                 repetitions.isFinite() && repetitions > 0f
         }
         if (sets == 0) null else workout.dateTime.toLocalDateTime(timeZone).date to sets

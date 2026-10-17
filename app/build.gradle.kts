@@ -64,7 +64,7 @@ android {
     }
 
     sourceSets["androidTest"].assets {
-        srcDirs("src/androidTest/assets")
+        srcDirs("src/androidTest/assets", "../sources/common-db/schemas")
     }
 
     testOptions {
@@ -110,6 +110,7 @@ dependencies {
 
     // tests
     androidTestImplementation(project(":common:bottomsheet"))
+    androidTestImplementation(project(":common-ds"))
     androidTestImplementation(project(":common-core")) // supertypes (UseCase/SimpleUseCase) not visible via implementation-scope :shared
     androidTestImplementation(project(":common-db")) // TrainStatsDb/DAOs not visible via implementation-scope :shared
     testImplementation(libs.kotest.junit)

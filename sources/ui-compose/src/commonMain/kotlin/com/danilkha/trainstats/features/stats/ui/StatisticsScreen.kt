@@ -110,14 +110,16 @@ fun StatisticsPage(
                                 Card(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).testTag("statistics_filters"), contentPadding = PaddingValues()) {
                                     ExerciseDropdown(state, onEvent)
                                     Divider(color = Colors.outline)
+                                    VariationDropdown(state, onEvent)
                                     MetricDropdown(state.metric) { onEvent(StatisticsEvent.SelectMetric(it)) }
                                 }
                             }
                             item {
                                 when {
+                                    state.needsVariationSelection -> Text(stringResource(Res.string.choose_variation), color = Colors.text)
                                     state.points.isEmpty() -> Text(stringResource(Res.string.stats_no_history), color = Colors.text)
                                     points.isEmpty() -> Text(stringResource(Res.string.stats_no_weight), color = Colors.text)
-                                    else -> key(state.exerciseId, state.metric) {
+                                    else -> key(state.exerciseId, state.metric, state.selectedVariationIds) {
                                         StatisticsChart(
                                             points = points,
                                             metric = state.metric,
@@ -221,6 +223,7 @@ fun StatisticsPage(
                                                 strokeColor = null,
                                             ) {
                                                 Text(stringResource(Res.string.stats_all_time_record), style = ThemeTypography.body2, color = Colors.text.copy(alpha = .65f))
+                                                StatisticsVariationCaption(record, Modifier.testTag("statistics_record_variation"))
                                                 Text(
                                                     fullApproachValue(record, 28.sp),
                                                     modifier = Modifier.testTag("statistics_record_value"),
@@ -256,14 +259,17 @@ private fun PointValueHeader(point: StatisticsPoint, color: Color) {
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Box(Modifier.width(3.dp).height(28.dp).background(color, RoundedCornerShape(50)))
-        Text(
-            buildAnnotatedString {
-                withStyle(SpanStyle(color = Colors.text.copy(alpha = .65f), fontSize = 14.sp)) { append("$label · ") }
-                append(value)
-            },
-            modifier = Modifier.testTag("statistics_selected_point"),
-            color = color, style = ThemeTypography.body2.copy(fontSize = 14.sp),
-        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = Colors.text.copy(alpha = .65f), fontSize = 14.sp)) { append("$label · ") }
+                    append(value)
+                },
+                modifier = Modifier.testTag("statistics_selected_point"),
+                color = color, style = ThemeTypography.body2.copy(fontSize = 14.sp),
+            )
+            StatisticsVariationCaption(point, Modifier.testTag("statistics_selected_variation"))
+        }
     }
 }
 
@@ -411,5 +417,61 @@ internal fun StatisticsError(onRetry: () -> Unit) {
     Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(Res.string.stats_load_failed), color = Colors.text)
         TextButton(onClick = onRetry, colors = ButtonDefaults.textButtonColors(contentColor = Colors.primary)) { Text(stringResource(Res.string.stats_retry)) }
+    }
+}
+
+@Composable
+internal fun VariationDropdown(state: StatisticsState, onEvent: (StatisticsEvent) -> Unit) {
+    if (state.exercise?.variations.isNullOrEmpty()) return
+    var expanded by remember(state.exerciseId) { mutableStateOf(false) }
+    var widthPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+    val ids = state.activeVariationIds
+    val all = ids.containsAll(state.variationIds)
+    val ordinary = stringResource(Res.string.ordinary_variation)
+    val label = if (all) stringResource(Res.string.all_variations) else
+        (if (null in ids) listOf(ordinary) else emptyList()).plus(state.exercise?.variations.orEmpty().filter { it.id in ids }.map { it.name }).joinToString(", ")
+    Divider(color = Colors.outline)
+    Box(Modifier.fillMaxWidth().onSizeChanged { widthPx = it.width }) {
+        SelectionDropdownField(
+            title = stringResource(Res.string.stats_variation),
+            value = label.ifEmpty { stringResource(Res.string.choose_variation) },
+            expanded = expanded,
+            modifier = Modifier.testTag("statistics_variation_dropdown"),
+            onClick = { expanded = true },
+        )
+        DropdownMenu(
+            expanded = expanded, onDismissRequest = { expanded = false },
+            modifier = Modifier.heightIn(max = 380.dp).width(with(density) { widthPx.toDp() })
+                .background(Colors.surface).testTag("statistics_variation_menu"),
+        ) {
+            DropdownMenuItem(onClick = { onEvent(StatisticsEvent.SelectAllVariations(!all)) }, modifier = Modifier.testTag("statistics_variation_all")) {
+                Checkbox(all, onCheckedChange = null)
+                Text(stringResource(Res.string.all_variations), color = Colors.text)
+            }
+            DropdownMenuItem(onClick = { onEvent(StatisticsEvent.ToggleVariation(null)) }) {
+                Checkbox(null in ids, onCheckedChange = null)
+                Text(ordinary, color = Colors.text)
+            }
+            state.exercise?.variations.orEmpty().forEach { variation ->
+                DropdownMenuItem(onClick = { onEvent(StatisticsEvent.ToggleVariation(variation.id)) }) {
+                    Checkbox(variation.id in ids, onCheckedChange = null)
+                    Text(variation.name, color = Colors.text)
+                }
+            }
+        }
+    }
+    Divider(color = Colors.outline)
+}
+
+@Composable
+private fun StatisticsVariationCaption(point: StatisticsPoint, modifier: Modifier = Modifier) {
+    if (point.variationId != null) {
+        Text(
+            stringResource(Res.string.stats_variation_value, point.variationName.orEmpty()),
+            modifier = modifier,
+            style = ThemeTypography.body2.copy(fontWeight = FontWeight.SemiBold),
+            color = Colors.text.copy(alpha = .7f),
+        )
     }
 }

@@ -16,6 +16,7 @@ val useCaseModule: Module = module {
     factoryOf(::ArchiveWorkoutUseCase)
     factoryOf(::GetWorkoutByIdUseCase)
     factoryOf(::DeleteWorkoutUseCase)
+    factoryOf(::CreateVariationUseCase)
     factoryOf(::GetAllExercisesUseCase)
     factoryOf(::DeleteExercisesUseCase)
     factoryOf(::CreateExercisesUseCase)

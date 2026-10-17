@@ -20,6 +20,8 @@ data class ExerciseGroup(
     val hasWeight: Boolean,
     val separated: Boolean,
     val sets: List<ExerciseSetSlot>,
+    val variationId: String? = null,
+    val variationName: String? = null,
 )
 
 sealed class ExerciseSetSlot(
@@ -59,7 +61,7 @@ inline fun Workout.toModel(
     val lastGroupSets = mutableListOf<ExerciseSetSlot>()
     var lastGroup: ExerciseGroup? = null
     steps.forEach { step ->
-        if (step.exerciseData.id != lastExerciseId) {
+        if (step.exerciseData.id != lastExerciseId || step.variationId != lastGroup?.variationId) {
             lastGroup?.let { group ->
                 lastGroupSets.add(ExerciseSetSlot.Stub(idProvider()))
                 groups.add(
@@ -75,7 +77,9 @@ inline fun Workout.toModel(
                 imageUrl = step.exerciseData.imageUrl,
                 hasWeight = step.exerciseData.hasWeight,
                 separated = step.exerciseData.separated,
-                sets = emptyList()
+                sets = emptyList(),
+                variationId = step.variationId,
+                variationName = step.variationName
             )
             lastGroupSets.clear()
         }

@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.features.workout.ui.editor
 
+
 import com.danilkha.commoncore.utils.toLocal
 import com.danilkha.trainstats.features.exercises.ui.ExerciseModel
 import com.danilkha.trainstats.features.workout.domain.model.SetParams
@@ -37,7 +38,9 @@ data class WorkoutState(
                 exerciseId = group.exerciseId,
                 reps = set.reps.toDomain(),
                 weight = set.weight,
-                exerciseName = group.name
+                exerciseName = group.name,
+                variationId = group.variationId,
+                variationName = group.variationName
             )
         },
         lastEdited = lastEdited
@@ -49,6 +52,8 @@ enum class WorkoutEditorInitialization { NEW, EDIT }
 sealed interface WorkoutEvent {
     data class RequestInit(val editingId: String?) : WorkoutEvent
     data class InitState(val state: WorkoutState) : WorkoutEvent
+
+    data class SelectVariation(val groupId: Long, val variationId: String?, val variationName: String?) : WorkoutEvent
 
     data class ChangeDate(val date: LocalDate) : WorkoutEvent
 

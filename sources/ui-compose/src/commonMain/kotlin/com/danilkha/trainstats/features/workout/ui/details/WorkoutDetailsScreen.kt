@@ -50,7 +50,7 @@ fun WorkoutDetailsScreen(workoutId: String, viewModel: WorkoutDetailsViewModel =
                 val groups = remember(workout) {
                     val result = mutableListOf<MutableList<ExerciseSet>>()
                     workout.steps.sortedBy { it.orderPosition }.forEach { set ->
-                        if (result.lastOrNull()?.lastOrNull()?.exerciseData?.id != set.exerciseData.id) result.add(mutableListOf())
+                        if (result.lastOrNull()?.lastOrNull()?.exerciseData?.id != set.exerciseData.id || result.lastOrNull()?.lastOrNull()?.variationId != set.variationId) result.add(mutableListOf())
                         result.last().add(set)
                     }
                     result
@@ -66,6 +66,7 @@ fun WorkoutDetailsScreen(workoutId: String, viewModel: WorkoutDetailsViewModel =
                     itemsIndexed(groups) { _, sets ->
                         Card(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text(sets.first().exerciseData.name, color = Colors.text, style = ThemeTypography.title)
+                            if (sets.first().variationId != null) Text(sets.first().variationName.orEmpty(), color = Colors.text.copy(alpha = .6f), style = ThemeTypography.body2)
                             sets.forEach { set -> ReadOnlySetRow(set) }
                         }
                     }

@@ -5,4 +5,6 @@ data class SetParams(
     val exerciseName: String,
     val reps: Repetitions,
     val weight: Kg?,
+    val variationId: String? = null,
+    val variationName: String? = null,
 )

@@ -20,10 +20,16 @@ import androidx.room.TypeConverters
             childColumns = ["exerciseId"],
             onDelete = ForeignKey.RESTRICT
         ),
+        ForeignKey(
+            entity = ExerciseVariationEntity::class,
+            parentColumns = ["id"], childColumns = ["variationId"],
+            onDelete = ForeignKey.SET_NULL,
+        ),
     ],
     indices = [
         Index("workoutId"),
         Index("exerciseId"),
+        Index("variationId"),
     ]
 )
 @TypeConverters(RepetitionsDbTypeConverter::class)
@@ -35,4 +41,5 @@ data class ExerciseSetEntity(
     val reps: RepetitionsDb,
     val weightKg: Float?,
     val orderPosition: Int,
+    val variationId: String? = null,
 )

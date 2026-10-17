@@ -8,6 +8,7 @@ class GetWorkoutByIdUseCase(
     private val workoutRepository: WorkoutRepository
 ) : UseCase<String, Workout>(){
     override suspend fun execute(params: String): Workout {
-        return workoutRepository.getWorkoutById(params)
+        val workout = workoutRepository.getWorkoutById(params)
+        return workout.copy(steps = workout.steps.sortedBy { it.orderPosition })
     }
 }

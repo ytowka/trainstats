@@ -9,6 +9,7 @@ data class ExerciseData(
     val separated: Boolean,
     val hasWeight: Boolean,
     val lastUsedDate: Instant? = null,
+    val variations: List<ExerciseVariation> = emptyList(),
 ){
 
     companion object{

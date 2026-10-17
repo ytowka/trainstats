@@ -1,5 +1,6 @@
 package com.danilkha.trainstats.db
 
+import com.danilkha.trainstats.db.entity.ExerciseVariationEntity
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -15,13 +16,14 @@ import com.danilkha.trainstats.db.entity.WorkoutEntity
     entities = [
         ExerciseEntity::class,
         WorkoutEntity::class,
-        ExerciseSetEntity::class
+        ExerciseSetEntity::class,
+        ExerciseVariationEntity::class
     ],
     views = [
         ExerciseCountView::class,
         ExerciseLastUsedView::class
             ],
-    version = 1, exportSchema = true)
+    version = 3, exportSchema = true)
 @ConstructedBy(TrainStatsDbConstructor::class)
 @TypeConverters(DateTimeConverter::class, StringListConverter::class)
 abstract class TrainStatsDb : RoomDatabase(){

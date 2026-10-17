@@ -12,5 +12,7 @@ data class ExerciseSetWithData(
         parentColumn = "exerciseId",
         entityColumn = "id"
     )
-    val exercise: ExerciseEntity
+    val exercise: ExerciseEntity,
+    @Relation(parentColumn = "variationId", entityColumn = "id")
+    val variation: ExerciseVariationEntity? = null
 )

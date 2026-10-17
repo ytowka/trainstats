@@ -37,6 +37,8 @@ import com.danilkha.commoncore.viewmodel.LaunchCollectEffects
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListEvent
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListSideEffect
 import com.danilkha.trainstats.features.exercises.ui.ExerciseListViewModel
+import com.danilkha.trainstats.features.workout.ui.ExerciseGroup
+import com.danilkha.trainstats.features.exercises.ui.selector.VariationSelectorBottomSheet
 import com.danilkha.trainstats.features.exercises.ui.selector.ExerciseSelectorBottomSheet
 import com.danilkha.trainstats.features.workout.ui.components.ExerciseGroupCard
 import com.danilkha.commonds.components.DragAndDropColumn
@@ -62,7 +64,8 @@ fun WorkoutScreenRoute(
     workoutId: String? = null,
     viewModel: WorkoutViewModel = koinViewModel(),
 ) {
-    val state by viewModel.state.collectAsState(viewModel.startState)
+    val stateFlow = remember(viewModel) { viewModel.state }
+    val state by stateFlow.collectAsState()
     val navigator = LocalNavigator.current
 
     LaunchedEffect(key1 = Unit) {
@@ -98,6 +101,7 @@ fun WorkoutScreenRoute(
 
     var showDateDialog by rememberSaveable { mutableStateOf(false) }
 
+    val variationSheet = rememberBottomSheetState()
     val exerciseHistoryBottomSheet = rememberBottomSheetState()
     exerciseSelectorViewModel.LaunchCollectEffects {
         when (it) {
@@ -132,10 +136,18 @@ fun WorkoutScreenRoute(
                 exerciseSelectorBottomSheet.show()
             },
             onDelete = { },
+            onVariationClick = { group ->
+                val args = mapOf("groupId" to group.groupTempId, "exerciseId" to group.exerciseId) +
+                    group.variationId?.let { mapOf("variationId" to it) }.orEmpty()
+                variationSheet.show(args)
+            },
             onHistoryClick = {
-                exerciseHistoryBottomSheet.show(ExerciseHistoryBottomSheetArgs.buildArgs(it))
+                exerciseHistoryBottomSheet.show(ExerciseHistoryBottomSheetArgs.buildArgs(it.exerciseId, it.variationId))
             }
         )
+        VariationSelectorBottomSheet(variationSheet) { groupId, variation ->
+            viewModel.processEvent(WorkoutEvent.SelectVariation(groupId, variation?.id, variation?.name))
+        }
         ExerciseHistoryBottomSheet(exerciseHistoryBottomSheet)
         ExerciseSelectorBottomSheet(
             sheetState = exerciseSelectorBottomSheet,
@@ -153,7 +165,8 @@ fun WorkoutScreen(
     eventConsumer: (WorkoutEvent) -> Unit,
 
     onDateClicked: () -> Unit,
-    onHistoryClick: (String) -> Unit,
+    onHistoryClick: (ExerciseGroup) -> Unit,
+    onVariationClick: (ExerciseGroup) -> Unit = {},
     addExercise: () -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit
@@ -254,7 +267,9 @@ fun WorkoutScreen(
                         onDragEnd = dragDispatcher::onDragEnd,
                         onVerticalDrag = dragDispatcher::onDrag,
                         onDeleteGroup = { eventConsumer(WorkoutEvent.DeleteGroup(groupIndex)) },
-                        onHistoryClick = { onHistoryClick(item.exerciseId) }
+                        onHistoryClick = { onHistoryClick(item) },
+                        onTitleClick = { onVariationClick(item) },
+                        variationName = item.variationName.takeIf { item.variationId != null }
                     )
                 }
             }

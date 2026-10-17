@@ -45,6 +45,10 @@ class WorkoutViewModel(
     ): WorkoutState {
         val newState = when (event) {
             is WorkoutEvent.InitState -> event.state
+            is WorkoutEvent.SelectVariation -> state.copy(groups = state.groups.map { group ->
+                if (group.groupTempId == event.groupId)
+                    group.copy(variationId = event.variationId, variationName = event.variationName) else group
+            })
             is WorkoutEvent.AddExercise -> state.reduceAddExercise(event.exercise)
             is WorkoutEvent.ChangeDate -> state.copy(date = event.date)
             is WorkoutEvent.DeleteGroup -> state.copy(
@@ -324,6 +328,7 @@ class WorkoutViewModel(
 }
 
 private fun WorkoutEvent.editsWorkout(): Boolean = when (this) {
+    is WorkoutEvent.SelectVariation,
     is WorkoutEvent.CommitDeleteSet,
     is WorkoutEvent.DeleteGroup,
     is WorkoutEvent.OnSetMove,

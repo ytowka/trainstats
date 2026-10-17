@@ -16,4 +16,6 @@ data class ExerciseWorkoutRelation(
 
 
     val exerciseName: String,
+    val variationId: String? = null,
+    val variationName: String? = null,
 )

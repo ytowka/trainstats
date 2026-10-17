@@ -90,4 +90,18 @@
     <string name="stats_all_time">За всё время</string>
     <string name="stats_frequency_chart_description">Гистограмма частоты: %1$s за каждый интервал</string>
     <string name="stats_frequency_no_history">Пока нет выполненных тренировок.</string>
+    <string name="stats_variation">Вариация</string>
+    <string name="stats_variation_value">Вариация: %1$s</string>
+    <string name="variations">Вариации</string>
+    <string name="ordinary_variation">Обычный</string>
+    <string name="add_variation">+ Добавить вариацию</string>
+    <string name="variation_name">Название вариации</string>
+    <string name="create_variation">Создать</string>
+    <string name="delete_variation_title">Удалить вариацию?</string>
+    <string name="delete_variation_warning">Все подходы с этой вариацией станут обычными после сохранения упражнения.</string>
+    <string name="variation_names_invalid">Названия вариаций должны быть заполнены и не повторяться.</string>
+    <string name="variation_save_failed">Не удалось сохранить. Проверьте, что названия не повторяются.</string>
+    <string name="only_current_variation">Только текущая вариация</string>
+    <string name="all_variations">Все</string>
+    <string name="choose_variation">Выберите вариацию</string>
 </resources>
