@@ -242,7 +242,7 @@ fun ExerciseCard(
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
-        if (onVariationClick != null && exerciseModel.variations.isNotEmpty()) {
+        if (exerciseModel.variations.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("exercise_variations_${exerciseModel.id}"),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -252,14 +252,14 @@ fun ExerciseCard(
                         name = stringResource(Res.string.ordinary_variation),
                         isDefault = exerciseModel.variations.none { it.isDefault },
                         modifier = Modifier.testTag("exercise_variation_${exerciseModel.id}_ordinary"),
-                        onClick = { onVariationClick(null) },
+                        onClick = onVariationClick?.let { select -> { select(null) } },
                     )
                 }
                 items(exerciseModel.variations, key = { "variation_${it.id}" }) { variation ->
                     ExerciseVariationChip(
                         name = variation.name, isDefault = variation.isDefault,
                         modifier = Modifier.testTag("exercise_variation_${exerciseModel.id}_${variation.id}"),
-                        onClick = { onVariationClick(variation) },
+                        onClick = onVariationClick?.let { select -> { select(variation) } },
                     )
                 }
             }
@@ -273,19 +273,21 @@ private fun ExerciseVariationChip(
     name: String,
     isDefault: Boolean,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
 ) {
     Surface(
-        modifier = modifier.clickable(role = Role.Button, onClick = onClick),
+        modifier = modifier.then(
+            if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier,
+        ),
         shape = RoundedCornerShape(50),
-        color = if (isDefault) Colors.selectionBackground else Colors.background,
-        border = BorderStroke(1.dp, if (isDefault) Colors.primary else Colors.outline),
+        color = Colors.background,
+        border = BorderStroke(1.dp, Colors.outline),
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (isDefault) androidx.compose.material.Icon(Icons.Default.Star,
                 stringResource(Res.string.default_variation), tint = Colors.primary, modifier = Modifier.size(14.dp))
-            Text(name, style = MaterialTheme.typography.body2, color = if (isDefault) Colors.primary else Colors.text)
+            Text(name, style = MaterialTheme.typography.body2, color = Colors.text)
         }
     }
 }
