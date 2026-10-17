@@ -23,7 +23,7 @@ android {
         applicationId = "com.danilkha.trainstats"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
+        versionCode = 3
         versionName = libs.versions.app.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
